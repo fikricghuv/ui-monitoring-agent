@@ -1,0 +1,144 @@
+<div class="card flex" style="padding: 0; ">
+    <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="items" [home]="home" />
+</div> 
+<div class="knowledge-base-container">
+  <p-card [style]="{'border-radius': '6px'}" styleClass="p-card-shadow">
+    <!-- <ng-template pTemplate="subtitle">
+      <p class="p-mb-3">
+        Knowledge Base memungkinkan agen AI memahami dan merespons pertanyaan berdasarkan dokumen yang diunggah. Silakan unggah dokumen yang relevan.
+      </p>
+    </ng-template> -->
+
+    <p-fieldset legend="Edit Knowledge Base Configuration" [toggleable]="true" styleClass="p-mb-4">
+      <form>
+        <div class="p-fluid p-formgrid p-grid">
+          <div class="p-field p-col-12 p-md-4">
+            <label for="chunk_size">Chunk Size</label>
+            <p-inputNumber 
+              id="chunk_size" 
+              [(ngModel)]="_arrayKnowledgeBaseConfig.chunk_size" 
+              name="chunk_size" 
+              mode="decimal" 
+              [showButtons]="true" 
+              [min]="1" 
+              inputId="minmaxfraction"
+              [useGrouping]="false"
+              styleClass="p-inputtext-sm">
+            </p-inputNumber>
+          </div>
+          <div class="p-field p-col-12 p-md-4">
+            <label for="overlap">Overlap</label>
+            <p-inputNumber 
+              id="overlap" 
+              [(ngModel)]="_arrayKnowledgeBaseConfig.overlap" 
+              name="overlap" 
+              mode="decimal" 
+              [showButtons]="true" 
+              [min]="0"
+              inputId="minmaxfraction"
+              [useGrouping]="false"
+              styleClass="p-inputtext-sm">
+            </p-inputNumber>
+          </div>
+          <div class="p-field p-col-12 p-md-4">
+            <label for="num_documents">Number of Documents</label>
+            <p-inputNumber 
+              id="num_documents" 
+              [(ngModel)]="_arrayKnowledgeBaseConfig.num_documents" 
+              name="num_documents" 
+              mode="decimal" 
+              [showButtons]="true" 
+              [min]="1"
+              inputId="minmaxfraction"
+              [useGrouping]="false"
+              styleClass="p-inputtext-sm">
+            </p-inputNumber>
+          </div>
+        </div>
+        <div class="p-d-flex p-jc-end p-mt-3">
+          <p-button 
+            label="Reset Config" 
+            icon="pi pi-undo" 
+            styleClass="p-button-secondary p-button-sm p-mr-2" 
+            [style]="{'margin': '10px'}"
+            (onClick)="resetConfig()">
+          </p-button>
+          <p-button 
+            label="Save Config" 
+            icon="pi pi-save" 
+            styleClass="p-button-success p-button-sm" 
+            (onClick)="updateKnowledgeBaseConfig()" 
+            [disabled]="!isConfigChanged() || _booleanIsLoading">
+          </p-button>
+        </div>
+      </form>
+    </p-fieldset>
+
+    <p-fieldset legend="Upload Documents" [toggleable]="true" styleClass="p-mb-4">
+      <p-fileUpload 
+        name="demo[]" 
+        (onSelect)="onFileSelected($event)" 
+        (onClear)="onFileClear()"
+        [multiple]="false" 
+        accept=".pdf,.txt,.docx" 
+        [maxFileSize]="10000000" 
+        chooseLabel="Pilih File" 
+        uploadLabel="Upload" 
+        cancelLabel="Batal"
+        [showUploadButton]="false"
+        [showCancelButton]="false"
+        >
+        <ng-template pTemplate="content">
+          <div *ngIf="_fileSelectedFile" class="p-d-flex p-ai-center p-mt-2">
+            <span>File terpilih: **{{ _fileSelectedFile.name }}**</span>
+            <p-button 
+              icon="pi pi-upload" 
+              label="Unggah Sekarang" 
+              styleClass="p-button-raised p-button-sm p-ml-3" 
+              (onClick)="uploadFile()" 
+              [disabled]="!_fileSelectedFile || _booleanIsLoading">
+            </p-button>
+          </div>
+          <small class="p-text-secondary">Ukuran file maksimal 10MB (.pdf)</small>
+        </ng-template>
+      </p-fileUpload>
+    </p-fieldset>
+
+    <p-fieldset legend="📂 File yang Telah Diupload" [toggleable]="true" styleClass="p-mb-4">
+      <p-listbox 
+        [options]="_arrayUploadedFiles" 
+        optionLabel="filename" 
+        [style]="{'width':'100%', 'min-height':'150px'}" 
+        [emptyMessage]="'Tidak ada file yang diunggah.'">
+        <ng-template let-file pTemplate="item">
+          <div class="p-d-flex p-jc-between p-ai-center p-py-2">
+            <span>{{ file.filename }}</span>
+            <p-button 
+              icon="pi pi-trash" 
+              styleClass="p-button-danger p-button-rounded p-button-sm p-button-text" 
+              (onClick)="removeFile(file)" 
+              [disabled]="_booleanIsLoading"
+              pTooltip="Hapus File" 
+              tooltipPosition="right">
+            </p-button>
+          </div>
+        </ng-template>
+      </p-listbox>
+      <div class="p-d-flex p-jc-center p-mt-4">
+        <p-button 
+          label="Proses Embedding" 
+          icon="pi pi-sync" 
+          styleClass="p-button-primary p-button-lg" 
+          [style]="{'margin-top': '15px'}"
+          (onClick)="embeddingFile()" 
+          [disabled]="_booleanIsLoading">
+        </p-button>
+      </div>
+    </p-fieldset>
+  </p-card>
+
+  <div class="loading-overlay" *ngIf="_booleanIsLoading">
+    <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" animationDuration=".8s"></p-progressSpinner>
+    <p>Processing, please wait...</p>
+  </div>
+</div>

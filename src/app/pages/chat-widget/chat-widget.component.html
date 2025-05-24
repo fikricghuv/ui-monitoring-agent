@@ -1,0 +1,23 @@
+<div class="fixed floatingButton">
+    <button *ngIf="!_booleanIsOpen"
+      class="chat-button"
+      (click)="toggleChat()">
+      Chat Agent
+      <img src="/assets/images/customer-service.png" alt="Chat Icon" class="chat-icon" />
+      <div *ngIf="_booleanShowNotificationBubble" class="notification-bubble">
+        {{ _numberUnreadMessageCount }}
+      </div>
+    </button>
+</div>
+
+<div class="fixed chatModal" [ngClass]="{'chatModal--hidden': !_booleanIsOpen}">
+    <div class="chat-modal-header">
+      <img src="/assets/images/just-logo.png" alt="Logo" class="logo" />
+      <span>Agent Collabor IQ</span>
+      <button class="close-button" (click)="toggleChat()">
+        <img src="/assets/images/close-icon.png" alt="Close" class="close-icon" />
+      </button>
+    </div>
+
+    <iframe src="http://localhost:4201" width="100%" height="calc(100% - 50px)" frameborder="0" scrolling="yes"></iframe>
+    </div>

@@ -1,0 +1,214 @@
+/* Gaya untuk tombol pemicu chat (Floating Button) */
+.floatingButton {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1000; /* Pastikan di atas elemen lain */
+  cursor: pointer;
+
+  .chat-button {
+    background-color: #007bff;
+    color: white;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+    padding: 0; // Hapus padding default button
+    position: relative; // Untuk positioning badge
+    overflow: hidden; // Untuk menampung teks "Chat Agent" dengan rapi
+    text-indent: -9999px; // Sembunyikan teks "Chat Agent" dari pandangan visual
+
+    &::after { // Gunakan pseudo-element untuk ikon chat
+      content: url('/assets/chat-icon.png'); // Ganti dengan path ikon Anda
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: block; // Pastikan ikon terlihat
+      text-indent: 0; // Tampilkan ikon
+    }
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
+}
+
+/* Gaya untuk Badge Notifikasi */
+.notification-bubble {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #dc3545; /* Merah */
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: popIn 0.3s ease-out;
+  pointer-events: none; /* Agar tidak menghalangi klik pada tombol */
+  z-index: 1001; /* Pastikan di atas tombol pemicu */
+}
+
+@keyframes popIn {
+  0% { transform: scale(0); opacity: 0; }
+  80% { transform: scale(1.1); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* Gaya untuk Modal Chat (yang berisi iframe) */
+.chatModal {
+  position: fixed;
+  bottom: 90px;    /* Di atas floating button */
+  right: 20px;
+  width: 375px;    /* Ukuran iPhone SE */
+  height: 667px;   /* Ukuran iPhone SE */
+  background: #f2f2f2;
+  border-radius: 8px;
+  box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+  overflow: hidden; /* Penting untuk menahan konten iframe */
+  z-index: 999;    /* Di bawah floating button */
+
+  /* Animasi buka/tutup */
+  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  transform: translateY(0);
+  opacity: 1;
+
+  &.chatModal--hidden {
+    transform: translateY(100%) scale(0.8); /* Geser ke bawah dan perkecil */
+    opacity: 0;
+    pointer-events: none; /* Nonaktifkan interaksi saat tersembunyi */
+  }
+
+  /* Gaya untuk Header Modal Chat */
+  .chat-modal-header {
+    background: #007bff;
+    color: white;
+    padding: 10px 15px; /* Sedikit lebih kecil dari header iframe sebelumnya */
+    font-size: 18px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Untuk mendorong tombol close ke kanan */
+    flex-shrink: 0; /* Pastikan header tidak mengecil */
+    height: 50px; /* Tinggi tetap untuk header */
+
+    .logo {
+      height: 30px;
+      width: auto;
+    }
+
+    span {
+      flex-grow: 1;
+      text-align: center;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+      flex-shrink: 0;
+
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      .close-icon {
+        height: 30px;
+        width: 30px;
+      }
+    }
+  }
+
+  iframe {
+    border: none;
+    width: 100%;
+    height: calc(100% - 50px); /* Memenuhi sisa ruang setelah header */
+    display: block; /* Hilangkan spasi bawah default iframe */
+  }
+}
+
+/* --- Media Queries untuk Responsivitas Umum pada Chat Widget --- */
+
+// Untuk layar yang lebih lebar dari iPhone SE, sesuaikan ukuran modal
+@media (min-width: 376px) and (max-width: 768px) {
+  .chatModal {
+    width: 350px; // Contoh lebar untuk ponsel yang lebih besar
+    height: 70vh; // Tinggi relatif
+    bottom: 90px;
+    right: 20px;
+  }
+}
+
+// Untuk tablet
+@media (min-width: 769px) and (max-width: 1024px) {
+  .chatModal {
+    width: 450px; // Ukuran modal untuk tablet
+    height: 80vh;
+    bottom: 90px;
+    right: 20px;
+  }
+}
+
+// Untuk desktop
+@media (min-width: 1025px) {
+  .chatModal {
+    width: 400px; // Ukuran modal standar untuk desktop
+    height: 600px;
+    bottom: 90px;
+    right: 20px;
+  }
+}
+
+// Pada ukuran mobile penuh (misal browser di ponsel)
+@media (max-width: 768px) {
+  .chatModal {
+    width: 100%;
+    height: 100vh;
+    border-radius: 0;
+    box-shadow: none;
+    bottom: 0;
+    right: 0;
+  }
+
+  .floatingButton {
+    bottom: 10px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+    .chat-button {
+      width: 50px;
+      height: 50px;
+      &::after {
+        width: 25px;
+        height: 25px;
+      }
+    }
+  }
+
+  .notification-bubble {
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    top: -3px;
+    right: -3px;
+  }
+}

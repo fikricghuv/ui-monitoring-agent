@@ -1,0 +1,63 @@
+<div class="card flex" style="padding: 0; ">
+  <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="items" [home]="home" />
+</div>
+<div style="display: grid; grid-template-columns: 0.30fr 0.70fr; column-gap: 30px; height: 95%;">
+
+  <div class="chat-container-user-list-card">
+    <p-listbox [options]="_arrayRoomModel" [(ngModel)]="_modelSelectedRoom" optionLabel="id"
+      [ngStyle]="{'width': '100%'}" (onChange)="selectRoom($event.value)">
+      <ng-template let-user pTemplate="item">
+        <div class="flex justify-between items-center w-full">
+          <span>{{ user.id }}</span>
+          <small class="text-gray-500">{{ user.lastTimeMessage }}</small>
+        </div>
+      </ng-template>
+    </p-listbox>
+  </div>
+
+  <p-card [style]="{'display': 'flex', 'height' : '100vh', 'border-radius': '6px', 'max-height': '100vh'}">
+    <!-- <div class="chat-container"> -->
+      <div class="chat-area">
+        <div *ngIf="_modelSelectedRoom" #chatScroll class="chat-history">
+          <div *ngFor="let message of filteredMessages" class="message-container"
+            [class.user-message]="message.sender === 'user'"
+            [class.bot-message]="message.sender === 'chatbot' || message.sender === 'admin'">
+
+            <img *ngIf="message.sender === 'user'" src="/assets/images/user.png" alt="User Avatar"
+              class="message-avatar" />
+            <img *ngIf="message.sender === 'chatbot' || message.sender === 'admin'" src="/assets/images/agent.png"
+              alt="Agent Avatar" class="message-avatar" />
+
+            <div class="message-content-wrapper">
+              <div class="message-bubble">
+                <div class="message-text">{{ message.message }}</div>
+              </div>
+              <div class="message-date">{{ message.time }}</div>
+            </div>
+          </div>
+
+        </div>
+
+
+        <div *ngIf="!_modelSelectedRoom" class="no-selection">
+          <p>Pilih user untuk memulai chat</p>
+        </div>
+
+        <!-- <div *ngIf="_modelSelectedRoom" class="message-input">
+        <input [(ngModel)]="_stringNewMessage"
+               placeholder="Ketik pesan..."
+               (keyup.enter)="sendMessageFromAdmin()">
+        
+        <p-button (click)="sendMessageFromAdmin()" label="Kirim" />
+      </div> -->
+        <div class="message-input">
+          <input pInputText [(ngModel)]="_stringNewMessage" placeholder="Ketik pesan..."
+            (keyup.enter)="sendMessageFromAdmin()" class="w-full" />
+
+          <button pButton type="button" label="Kirim" icon="pi pi-send" (click)="sendMessageFromAdmin()"></button>
+        </div>
+
+      </div>
+    <!-- </div> -->
+  </p-card>
+</div>

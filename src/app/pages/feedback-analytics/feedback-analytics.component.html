@@ -1,0 +1,62 @@
+<div class="analytics-container"  [style]="{'border-radius': '6px'}">
+  <div class="card flex" style="padding: 0;">
+    <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="items" [home]="home" />
+  </div>  
+
+  <p-table
+    [value]="_arrayFeedbackModel"
+    stripedRows
+    [paginator]="true"
+    [rows]="_numberRows"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[5, 10, 20, 30]"
+    [totalRecords]="_numberTotalRecords"
+    [loading]="_booleanIsLoading"
+    (onLazyLoad)="onLazyLoad($event)" [lazy]="true" [scrollable]="true"
+    [style]="{'border-radius': '6px'}">
+    <ng-template #caption>
+      <div class="flex" style="display: flex; align-items: center; justify-content: space-between;">
+        <h4 style="margin: 0;">Data Feedback Users</h4>
+        <p-iconfield iconPosition="right">
+            <p-inputicon>
+                <i class="pi pi-search"></i>
+            </p-inputicon> 
+            <input  style="border-radius: 5px; padding: 3px;" pInputText type="text" placeholder="            Search keyword" />
+        </p-iconfield>
+      </div>
+    </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Feedback</th>
+        <th>Sentiment</th>
+        <th>Potential Actions</th>
+        <th>Keyword Issue</th>
+        <th>Category</th>
+        <th>Product Name</th>
+        <th>Created At</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-feedback>
+      <tr>
+        <td>{{ feedback.feedback_from_customer || '-' }}</td>
+        <td>{{ feedback.sentiment || '-' }}</td>
+        <td>{{ feedback.potential_actions || '-' }}</td>
+        <td>{{ feedback.keyword_issue || '-' }}</td>
+        <td>{{ feedback.category || '-' }}</td>
+        <td>{{ feedback.product_name || '-' }}</td>
+        <td>{{ feedback.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7" class="no-data">No feedback found.</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="loadingbody">
+        <tr>
+            <td colspan="7" class="loading">Loading feedback, please wait...</td>
+        </tr>
+    </ng-template>
+  </p-table>
+
+  </div>

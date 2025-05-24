@@ -1,0 +1,39 @@
+<div class="card flex" style="padding: 0; ">
+    <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="items" [home]="home" />
+</div> 
+<div class="chat-container">
+  <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
+    <div class="chat-messages" #chatScroll>
+      <div class="message" *ngFor="let message of _arrayModelFilteredMessage"
+          [ngClass]="{'user-message': message.sender === 'user', 'agent-message': message.sender === 'chatbot'}">
+        
+        <!-- 🔹 Bubble Chat -->
+        <div [ngClass]="{'message-content-user': message.sender === 'user', 'message-content-agent': message.sender === 'chatbot'}">
+          <span>{{ message.message }}</span>
+        </div>
+    
+        <!-- 🔹 Waktu -->
+        <div class="message-time">
+          <span>{{ message.time }}</span>
+        </div>
+    
+      </div>
+    
+      <!-- Loading Indicator -->
+      <div *ngIf="(chatCoreService.isLoadingSending$ | async)" class="typing-indicator">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    </div>
+    
+    
+
+    <!-- Chat Input -->
+    <div class="chat-input">
+      <input #userInput type="text" placeholder="Type your message..." (keydown.enter)="sendMessage()" />
+      <!-- <button (click)="sendMessage()">Send</button>  -->
+      <p-button [style]="{'margin-left': '6px'}" (click)="sendMessage()" label="Submit" />
+    </div>
+  </p-card>
+</div>

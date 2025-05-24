@@ -1,0 +1,60 @@
+<div class="fixed floatingButton">
+    <button *ngIf="!_booleanIsOpen" 
+      class=" chat-button"
+      (click)="toggleChat()">
+      Chat Agent
+      <div *ngIf="_booleanShowNotificationBubble" class="notification-bubble">
+        {{ _numberUnreadMessageCount }}
+      </div>
+    </button>
+</div>
+
+<div class="fixed chatModal">
+    <!-- Chat Modal -->
+    <div *ngIf="_booleanIsOpen" class="">
+
+      <div class="div-chatmessagecontainer">
+        <!-- Header -->
+        <div class="div-melisha">
+          <h2 class="mdi mdi-robot" >  Agent</h2>
+          <button class="button-close" (click)="toggleChat()">✕</button>
+        </div>
+      
+        <!-- Chat Messages -->
+        <div #chatScroll class="chat-messages">
+          <ng-container *ngFor="let message of _chatMessages">
+            <div class="message"
+              [ngClass]="{'user-message': message.sender === 'user', 'agent-message': message.sender === 'chatbot'}">
+              <span>{{ message.message }}</span>
+              <!-- <span [innerHTML]="parseMarkdown(message.content)  | async"></span> -->
+            </div>
+            <div class="message"
+              [ngClass]="{'user-date': message.sender === 'user', 'agent-date': message.sender === 'chatbot'}">
+              <span>{{ message.time }}</span>
+            </div>
+          </ng-container>
+          
+          <!-- Loading Indicator -->
+          <div *ngIf="(chatCoreService.isLoadingSending$ | async)" class="typing-indicator flex space-x-1">
+            <span class="dot bg-gray-400"></span>
+            <span class="dot bg-gray-400"></span>
+            <span class="dot bg-gray-400"></span>
+          </div>
+        </div>
+      </div>
+    
+      <!-- Chat Input -->
+      <div class="chat-input">
+        <input #userInput type="text" placeholder="Type your message..." class="flex-1 p-2 border rounded-lg"
+          (keydown.enter)="sendMessage()" />
+        <button (click)="sendMessage()">Send</button>
+        <!--  (click)="loadWidgetHistoryFromService()" -->
+      </div>
+
+      <!-- Loading Overlay -->
+      <div *ngIf="_booleanIsBlocking" class="loading-overlay">
+        <div class="spinner"></div>
+      </div>
+
+    </div>
+</div>

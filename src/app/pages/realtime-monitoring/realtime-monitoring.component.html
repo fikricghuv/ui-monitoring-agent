@@ -1,0 +1,71 @@
+<div class="monitoring-container" [style]="{'border-radius': '6px'}">
+  <div class="card flex" style="padding: 0;">
+    <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="items" [home]="home" />
+  </div>  
+
+  <p-table
+  #dt1
+    stripedRows
+    [value]="_arrayChatHistoryModel"
+    dataKey="id"
+    [paginator]="true"
+    [rows]="_numberRows" 
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[5, 10, 20]"
+    [totalRecords]="_numberTotalRecords"
+    [loading]="_booleanIsLoading"
+    [globalFilterFields]="['role']"
+    (onLazyLoad)="onLazyLoad($event)" [lazy]="true"
+    [style]="{'border-radius': '6px'}">
+  >
+    <ng-template #caption>
+          <div class="flex" style="display: flex; align-items: center; justify-content: space-between;">
+            <h4 style="margin: 0;">Data Realtime Monitoring</h4>
+            <p-iconfield iconPosition="right">
+                <p-inputicon>
+                    <i class="pi pi-search"></i>
+                </p-inputicon> 
+                <input  style="border-radius: 5px; padding: 3px;" pInputText type="text" placeholder="            Search keyword" />
+            </p-iconfield>
+          </div>
+      </ng-template>
+    <ng-template pTemplate="header">
+      <tr>
+        <th>Sender ID</th>
+        <th>Room ID</th>
+        <th>Role</th>
+        <th>Message</th>
+        <th>Timestamp</th>
+        <th>Agent Response Category</th>
+        <th>Agent Response Latency</th>
+        <th>Chat Category</th>
+        <th>Agent Total Tokens</th>
+        <th>Agent Used Tools</th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-chat>
+      <tr>
+        <td>{{ chat.sender_id || '-' }}</td>
+        <td>{{ chat.room_conversation_id || '-' }}</td>
+        <td>{{ chat.role || '-' }}</td>
+        <td>{{ chat.message || '-' }}</td>
+        <td>{{ chat.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
+        <td>{{ chat.agent_response_category || '-' }}</td>
+        <td>{{ formatLatency(chat.agent_response_latency) || '-' }}</td>
+        <td>{{ chat.chat_category || '-' }}</td>
+        <td>{{ chat.agent_total_tokens || '-' }}</td>
+        <td>{{ chat.agent_tools_call?.join(', ') || '-' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="10" class="no-data">No chat history found.</td>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="loadingbody">
+        <tr>
+            <td colspan="10" class="loading">Loading chat history, please wait...</td>
+        </tr>
+    </ng-template>
+  </p-table>
+</div>
