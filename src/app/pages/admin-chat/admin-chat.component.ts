@@ -1,329 +1,335 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, Component, ViewEncapsulation } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, AfterViewInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
-import { MenuItem } from 'primeng/api';
-import { BadgeModule } from 'primeng/badge';
-import { ChartModule } from 'primeng/chart';
-import { SelectButton } from 'primeng/selectbutton';
-import { AvatarModule } from 'primeng/avatar';
-import { IconField } from 'primeng/iconfield';
-import { InputIcon } from 'primeng/inputicon';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { MenuModule } from 'primeng/menu';
-import { Textarea } from 'primeng/textarea';
-import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { HttpClientModule } from '@angular/common/http';
+import { WebSocketService } from '../services/admin-websocket.service';
+import { SessionService } from '../services/session.service';
+import { ENUM_SENDER } from '../constants/enum.constant';
+import { MessageModel } from '../models/message.model';
+import { RoomConversationModel } from '../models/room.model';
+import { ChatHistoryService } from '../services/chat-history.service';
+import { RoomService } from '../services/room.service';
+import { Subscription } from 'rxjs';
+import { map, tap } from 'rxjs/operators';
+// Import modul PrimeNG yang diperlukan
+import { CardModule } from 'primeng/card'; // Sudah ada
+import { ButtonModule } from 'primeng/button'; // Sudah ada
+import { ListboxModule } from 'primeng/listbox'; // Sudah ada
+import { BreadcrumbModule } from 'primeng/breadcrumb'; // Sudah ada
+import { MenuItem } from 'primeng/api'; // Sudah ada
+import { AvatarModule } from 'primeng/avatar'; // Baru ditambahkan
+import { InputTextModule } from 'primeng/inputtext'; // Sudah ada (tapi perlu InputText untuk input text)
+import { IconFieldModule } from 'primeng/iconfield'; // Baru ditambahkan
+import { InputIconModule } from 'primeng/inputicon'; // Baru ditambahkan
+import { TextareaModule } from 'primeng/textarea'; // Baru ditambahkan (untuk textarea)
+
 
 @Component({
   selector: 'app-admin-chat',
+  imports: [
+    CommonModule,
+    FormsModule,
+    BreadcrumbModule,
+    HttpClientModule,
+    CardModule,
+    ButtonModule,
+    ListboxModule,
+    AvatarModule, // Tambahkan
+    InputTextModule, // Pastikan ada, walaupun di template pakai pInputText
+    IconFieldModule, // Tambahkan
+    InputIconModule, // Tambahkan
+    TextareaModule // Tambahkan
+  ],
   standalone: true,
-  imports: [CommonModule, RouterModule, ChartModule, ToggleSwitchModule, SelectButton, BadgeModule, FormsModule, AvatarModule, IconField, InputIcon, ButtonModule, InputTextModule, MenuModule, Textarea],
   templateUrl: './admin-chat.component.html',
-  styleUrl: './admin-chat.component.scss',
-  host: {
-    class: 'flex-1 h-full overflow-y-auto overflow-x-clip overflow-hidden flex border border-surface rounded-2xl'
-  },
-  changeDetection: ChangeDetectionStrategy.OnPush
+  styleUrls: ['./admin-chat.component.scss'],
 })
-export class AdminChatComponent {
-  search: string = '';
+export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('chatScroll') chatScroll!: ElementRef;
 
-  download: boolean = false;
+  public _arrayRoomModel: Array<RoomConversationModel>;
+  public _modelSelectedRoom: RoomConversationModel | null;
+  public _modelChatMessages: Record<string, MessageModel[]>;
+  public _stringNewMessage: string;
+  public _modelChatMessagesFlat: MessageModel[] = []; // Tidak digunakan langsung di template yang baru
+  public _enumSender = ENUM_SENDER;
+  public items: MenuItem[] | undefined;
+  public home: MenuItem | undefined;
 
-  notification: boolean = true;
+  get filteredMessages() {
+    return this._modelSelectedRoom?.id
+      ? (this._modelChatMessages[this._modelSelectedRoom.id] || [])
+      : [];
+  }
 
-  sound: boolean = false;
+  private newMessageSubscription?: Subscription;
 
-  value: string = 'Chat';
+  constructor(
+    private webSocketService: WebSocketService,
+    private sessionService: SessionService,
+    private cdr: ChangeDetectorRef,
+    private chatHistoryService: ChatHistoryService,
+    private roomService: RoomService
+  ) {
+    this._arrayRoomModel = [];
+    this._modelSelectedRoom = null;
+    this._modelChatMessages = {};
+    this._stringNewMessage = '';
+  }
 
-  options: string[] = ['Chat', 'Call'];
+  async ngOnInit() {
+    this.loadRooms();
 
-  media: string = 'Media';
-
-  mediaOptions: string[] = ['Media', 'Link', 'Docs'];
-
-  activeChat: string = 'PrimeTek Team';
-
-  menuItems: MenuItem[] | undefined;
-
-  chats: any;
-
-  chatMessages: any;
-
-  chatMedia: string[] = [];
-
-  members: any;
-
-  ngOnInit() {
-    this.menuItems = [
-      {
-        label: 'Group Info',
-        icon: 'pi pi-info-circle'
-      },
-      {
-        label: 'Leave group',
-        icon: 'pi pi-sign-out'
+    const adminId = this.sessionService.getAdminId();
+    if (adminId) {
+      try {
+        await this.webSocketService.connect(adminId, 'admin');
+        console.log("✅ WebSocket admin terhubung.");
+      } catch (error) {
+        console.error("❌ Gagal menghubungkan WebSocket admin:", error);
       }
-    ];
-    this.chats = [
-      {
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
-        name: 'Cody Fisher',
-        capName: 'CF',
-        active: true,
-        unreadMessageCount: 8,
-        time: '12.30',
-        lastMessage: "Hey there! I've heard about PrimeVue. Any cool tips for getting started?"
-      },
-      {
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar-primetek.png',
-        name: 'PrimeTek Team',
-        capName: 'PT',
-        active: undefined,
-        unreadMessageCount: 0,
-        time: '11.15',
-        lastMessage: "Let's implement PrimeNG. Elevating our UI game! 🚀"
-      },
-      {
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
-        name: 'Jerome Bell',
-        capName: 'JB',
-        active: true,
-        unreadMessageCount: 4,
-        time: '11.15',
-        lastMessage: "Absolutely! PrimeNG's documentation is gold—simplifies our UI work."
-      },
-      {
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
-        name: 'Robert Fox',
-        capName: 'RF',
-        active: false,
-        unreadMessageCount: 0,
-        time: '11.15',
-        lastMessage: "Interesting! PrimeNG sounds amazing. What's your favorite feature?"
-      },
-      {
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
-        name: 'Esther Howard',
-        capName: 'EH',
-        active: true,
-        unreadMessageCount: 9,
-        time: '11.15',
-        lastMessage: 'Quick one, team! Anyone using PrimeNG for mobile app development?'
-      },
-      {
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar9.jpg',
-        name: 'Darlene Robertson',
-        capName: 'DR',
-        active: false,
-        unreadMessageCount: 0,
-        time: '11.15',
-        lastMessage: "Just explored PrimeNG's themes. Can we talk about those stunning designs? 😍"
-      },
-      {
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar6.png',
-        name: 'Ralph Edwards',
-        capName: 'RE',
-        active: false,
-        unreadMessageCount: 0,
-        time: '11.15',
-        lastMessage: 'PrimeNG is a game-changer, right? What are your thoughts, folks?'
-      },
-      {
-        image: '',
-        name: 'Ronald Richards',
-        capName: 'RR',
-        active: false,
-        unreadMessageCount: 0,
-        time: '11.15',
-        lastMessage: "Jumping in! PrimeNG's community forum is buzzing. Any engaging discussions?"
-      },
-      {
-        image: '',
-        name: 'Kristin Watson',
-        capName: 'KW',
-        active: false,
-        unreadMessageCount: 0,
-        time: '11.15',
-        lastMessage: 'Sharing a quick win-PrimeNG tutorials are leveling up my UI skills. 👩‍💻'
-      },
-      {
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar7.png',
-        name: 'Darrell Steward',
-        capName: 'DS',
-        active: false,
-        unreadMessageCount: 0,
-        time: '11.15',
-        lastMessage: "Reflecting on PrimeNG's impact on our workflow. What's your take?"
+    } else {
+      console.warn("Admin ID tidak ditemukan.");
+    }
+
+    this.newMessageSubscription = this.webSocketService.getMessages().subscribe((message) => {
+      console.log("📨 Pesan baru dari WebSocket:", message);
+
+      if (!message || !message.user_id) return;
+
+      const roomIdentifier = message.user_id;
+
+      this._modelChatMessages[roomIdentifier] = this._modelChatMessages[roomIdentifier] || [];
+
+      const time = new Date().toISOString();
+      const formattedTime = time.slice(0, 16).replace("T", " ");
+
+      // Logika penentuan sender tetap sama
+      if (message.question) {
+        this._modelChatMessages[roomIdentifier].push({ message: message.question, time: formattedTime, sender: this._enumSender.User });
       }
-    ];
-    this.chatMessages = [
-      {
-        id: 1,
-        attachment: '',
-        name: '',
-        image: '',
-        capName: 'OS',
-        type: 'received',
-        message: "Awesome! What's the standout feature?"
-      },
-      {
-        id: 2,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
-        capName: 'A',
-        type: 'received',
-        message: 'PrimeNG rocks! Simplifies UI dev with versatile components.'
-      },
-      {
-        id: 3,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
-        capName: 'A',
-        type: 'received',
-        message: 'Intriguing! Tell us more about its impact.'
-      },
-      {
-        id: 4,
-        attachment: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/message-image.png',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png',
-        capName: 'A',
-        type: 'received',
-        message: "It's design-neutral and compatible with Tailwind. Features accessible, high-grade components!"
-      },
-      {
-        id: 5,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
-        capName: 'A',
-        type: 'sent',
-        message: 'Customizable themes, responsive design – UI excellence!'
-      },
-      {
-        id: 6,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png',
-        capName: 'A',
-        type: 'received',
-        message: 'Love it! Fast-tracking our development is key.'
-      },
-      {
-        id: 7,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar6.png',
-        capName: 'A',
-        type: 'received',
-        message: 'Documentation rocks too – smooth integration for all.'
-      },
-      {
-        id: 8,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
-        capName: 'B',
-        type: 'sent',
-        message: 'The flexibility and ease of use are truly impressive. Have you explored the new components?'
-      },
-      {
-        id: 9,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar12.jpg',
-        capName: 'C',
-        type: 'received',
-        message: 'Absolutely, the new calendar component has saved us a ton of development time!'
-      },
-      {
-        id: 10,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar13.jpg',
-        capName: 'D',
-        type: 'received',
-        message: "And the accessibility features are top-notch. It's great to see a library focusing on inclusivity."
-      },
-      {
-        id: 11,
-        attachment: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/message-image.png',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
-        capName: 'E',
-        type: 'sent',
-        message: "I couldn't agree more. Plus, the documentation is incredibly thorough, which makes onboarding new team members a breeze."
-      },
-      {
-        id: 12,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar6.png',
-        capName: 'F',
-        type: 'received',
-        message: 'Do you have any tips for optimizing performance when using multiple complex components?'
-      },
-      {
-        id: 13,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg',
-        capName: 'G',
-        type: 'received',
-        message: 'Yes! Lazy loading and code splitting can make a huge difference, especially in larger applications.'
-      },
-      {
-        id: 14,
-        attachment: '',
-        name: '',
-        image: '',
-        capName: 'HS',
-        type: 'received',
-        message: "I've also found that leveraging the component's internal state management capabilities can help streamline data flow and improve performance."
-      },
-      {
-        id: 15,
-        attachment: '',
-        name: '',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png',
-        capName: 'H',
-        type: 'sent',
-        message: "That's great advice. It's amazing how much detail and thought has gone into making PrimeNG such a powerful tool for developers."
+
+      if (message.output) {
+        this._modelChatMessages[roomIdentifier].push({ message: message.output, time: formattedTime, sender: this._enumSender.Chatbot });
       }
+
+      if (message.error) {
+        this._modelChatMessages[roomIdentifier].push({ message: `❌ Error: ${message.error}`, time: formattedTime, sender: this._enumSender.Chatbot });
+      }
+
+      const roomIndex = this._arrayRoomModel.findIndex((r) => r.id === roomIdentifier);
+      if (roomIndex !== -1) {
+        let lastMsgText = '';
+        if (message.question) lastMsgText = message.question;
+        else if (message.output) lastMsgText = message.output;
+        else if (message.error) lastMsgText = `❌ Error: ${message.error}`;
+
+        this._arrayRoomModel[roomIndex].lastMessage = lastMsgText;
+        this._arrayRoomModel[roomIndex].lastTimeMessage = formattedTime;
+        this._arrayRoomModel.sort((a, b) =>
+          new Date(b.lastTimeMessage || 0).getTime() - new Date(a.lastTimeMessage || 0).getTime()
+        );
+      }
+
+      // this.syncChatMessagesFlat(); // Tidak lagi perlu sinkronisasi ke flat array
+      this.cdr.detectChanges();
+      setTimeout(() => this.scrollToBottom(), 100);
+    });
+
+    this.items = [
+      { label: 'Admin Chat' }
     ];
-    this.chatMedia = [
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/chat-image1.png',
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/chat-image2.png',
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/chat-image3.png',
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/chat-image4.png',
-      'https://www.primefaces.org/cdn/primevue/images/landing/apps/chat-image5.png'
-    ];
-    this.members = [
-      {
-        name: 'Robin Jonas',
-        capName: 'RJ',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar2.png'
+    this.home = { icon: 'pi pi-home', routerLink: '/dashboard' };
+  }
+
+  ngAfterViewInit(): void {
+    this.scrollToBottom();
+  }
+
+  ngOnDestroy(): void {
+    this.newMessageSubscription?.unsubscribe();
+  }
+
+  // onRoomReorder tidak lagi relevan dengan p-listbox tanpa orderlist
+  // onRoomReorder(event: any) {
+  //   console.log("Room reordered:", event.value);
+  //   this._arrayRoomModel = [...event.value];
+  // }
+
+  async selectRoom(room: RoomConversationModel): Promise<void> {
+    this._modelSelectedRoom = room;
+
+    if (room.id) {
+      this.chatHistoryService.loadChatHistoryByRoomId(room.id).subscribe({
+        next: (response) => {
+          const groupedChats: MessageModel[] = [];
+          console.log("📜 Riwayat chat:", response);
+
+          if (!response.success || !response.history || response.history.length === 0) {
+            console.warn(`⚠️ Tidak ada riwayat chat untuk room ID ${room.id} atau permintaan gagal.`);
+            this._modelChatMessages[room.id!] = [];
+            // this.syncChatMessagesFlat(); // Tidak lagi perlu
+            this.cdr.detectChanges();
+            setTimeout(() => this.scrollToBottom(), 100);
+            return;
+          }
+
+          response.history.forEach((chatItem) => {
+            const formattedTime = chatItem.created_at
+              ? chatItem.created_at.slice(0, 16).replace("T", " ")
+              : new Date().toISOString().slice(0, 16).replace("T", " ");
+
+            let senderType: ENUM_SENDER;
+            switch (chatItem.role) {
+              case 'user':
+                senderType = this._enumSender.User;
+                break;
+              case 'admin':
+                senderType = this._enumSender.Chatbot;
+                break;
+              case 'chatbot':
+              default:
+                senderType = this._enumSender.Chatbot;
+                break;
+            }
+            groupedChats.push({ message: chatItem.message, time: formattedTime, sender: senderType });
+          });
+
+          groupedChats.sort((a, b) => new Date(a.time || '').getTime() - new Date(b.time || '').getTime());
+
+          this._modelChatMessages[room.id!] = groupedChats;
+          // this.syncChatMessagesFlat(); // Tidak lagi perlu
+
+          const latestMessage = groupedChats.length > 0 ? groupedChats[groupedChats.length - 1] : null;
+          const roomToUpdate = this._arrayRoomModel.find(r => r.id === room.id);
+          if (roomToUpdate && latestMessage) {
+            roomToUpdate.lastMessage = latestMessage.message;
+            roomToUpdate.lastTimeMessage = latestMessage.time;
+            this._arrayRoomModel = [...this._arrayRoomModel];
+          }
+
+          this.cdr.detectChanges();
+          setTimeout(() => this.scrollToBottom(), 100);
+        },
+        error: (err) => {
+          console.error(`❌ Gagal memuat chat history untuk room ID ${room.id}:`, err);
+          this._modelChatMessages[room.id!] = [];
+          // this.syncChatMessagesFlat(); // Tidak lagi perlu
+          this.cdr.detectChanges();
+        },
+      });
+    } else {
+      alert("⚠️ ID room tidak valid.");
+      this._modelSelectedRoom = null;
+      this._modelChatMessages[''] = [];
+      // this.syncChatMessagesFlat(); // Tidak lagi perlu
+      this.cdr.detectChanges();
+    }
+  }
+
+  public loadRooms(): void {
+    this.roomService.getActiveRooms().pipe(
+      map((rooms: RoomConversationModel[]) => rooms.map(room => ({
+        ...room,
+        lastMessage: room.lastMessage || '',
+        lastTimeMessage: room.lastTimeMessage ||
+          (room.updated_at
+            ? new Date(room.updated_at).toISOString().slice(0, 16).replace("T", " ")
+            : (room.created_at
+              ? new Date(room.created_at).toISOString().slice(0, 16).replace("T", " ")
+              : '')),
+      }))),
+      tap(rooms => rooms.sort((a, b) =>
+        new Date(b.lastTimeMessage || 0).getTime() - new Date(a.lastTimeMessage || 0).getTime()
+      ))
+    ).subscribe({
+      next: (rooms) => {
+        this._arrayRoomModel = rooms;
+        if (this._modelSelectedRoom && this._modelSelectedRoom.id) {
+          const currentSelected = rooms.find(r => r.id === this._modelSelectedRoom!.id);
+          if (currentSelected) {
+            this._modelSelectedRoom = currentSelected;
+          } else {
+            this._modelSelectedRoom = null;
+          }
+        }
+        // Tidak lagi otomatis memilih room pertama jika tidak ada yang terpilih, biarkan pesan "Pilih user" muncul
       },
-      {
-        name: 'Cameron Williamson',
-        capName: 'CW',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar11.jpg'
+      error: (err) => {
+        console.error('Gagal memuat daftar room:', err);
       },
-      {
-        name: 'Eleanor Pena',
-        capName: 'EP',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar5.png'
-      },
-      {
-        name: 'Arlene McCoy',
-        capName: 'AM',
-        image: 'https://www.primefaces.org/cdn/primevue/images/landing/apps/avatar8.png'
-      },
-      { name: 'Dianne Russell', capName: 'DR', image: '' }
-    ];
+    });
+  }
+
+  // getMessages() tidak lagi diperlukan karena langsung menggunakan filteredMessages
+  // public getMessages(): MessageModel[] {
+  //   return this._modelChatMessages[this._modelSelectedRoom?.id || ''] || [];
+  // }
+
+  // syncChatMessagesFlat() tidak lagi diperlukan
+  // public syncChatMessagesFlat(): void {
+  //   this._modelChatMessagesFlat = Object.entries(this._modelChatMessages).flatMap(([roomIdentifier, msgs]) =>
+  //     msgs.map(msg => ({ ...msg, roomIdentifier }))
+  //   );
+  // }
+
+  public scrollToBottom(): void {
+    try {
+      if (this.chatScroll && this.chatScroll.nativeElement) {
+        const el = this.chatScroll.nativeElement;
+        el.scrollTop = el.scrollHeight;
+      }
+    } catch (err) {
+      // console.error("❌ Gagal scroll:", err);
+    }
+  }
+
+  public async sendMessageFromAdmin(): Promise<void> {
+    if (!this._stringNewMessage.trim() || !this._modelSelectedRoom || !this._modelSelectedRoom.id) {
+      console.warn("Pesan kosong atau tidak ada room yang dipilih atau ID room tidak valid.");
+      return;
+    }
+
+    const formattedTime = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    const adminId = this.sessionService.getAdminId();
+
+    try {
+      const payload = {
+        type: "message",
+        user_id: adminId, // ID admin yang mengirim
+        role: 'admin',
+        room_id: this._modelSelectedRoom.id,
+        target_user_id: this._modelSelectedRoom.id, // Target user adalah ID room yang dipilih
+        message: this._stringNewMessage,
+      };
+
+      this.webSocketService.sendMessage(payload);
+
+      const roomIdentifier = this._modelSelectedRoom.id!;
+
+      this._modelChatMessages[roomIdentifier] = this._modelChatMessages[roomIdentifier] || [];
+      this._modelChatMessages[roomIdentifier].push({
+        message: this._stringNewMessage,
+        time: formattedTime,
+        sender: this._enumSender.Admin, // Admin mengirim dan tampil sebagai Admin
+      });
+
+      const roomToUpdate = this._arrayRoomModel.find(r => r.id === this._modelSelectedRoom?.id);
+      if (roomToUpdate) {
+        roomToUpdate.lastMessage = this._stringNewMessage;
+        roomToUpdate.lastTimeMessage = formattedTime;
+        this._arrayRoomModel.sort((a, b) =>
+          new Date(b.lastTimeMessage || 0).getTime() - new Date(a.lastTimeMessage || 0).getTime()
+        );
+        this._arrayRoomModel = [...this._arrayRoomModel];
+      }
+
+      // this.syncChatMessagesFlat(); // Tidak lagi perlu
+      this.cdr.detectChanges();
+      this._stringNewMessage = '';
+      setTimeout(() => this.scrollToBottom(), 100);
+    } catch (error) {
+      console.error('Gagal mengirim pesan:', error);
+    }
   }
 }

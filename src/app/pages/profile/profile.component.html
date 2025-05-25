@@ -1,0 +1,90 @@
+<div class="card p-fluid">
+    <div class="font-semibold text-2xl mb-4">Profil Saya</div>
+    <p class="text-lg mb-4">Lihat dan kelola informasi akun Anda.</p>
+
+    ---
+
+    <div class="grid">
+        <div class="col-12 lg:col-4 flex flex-column align-items-center justify-content-center p-4">
+            <p-avatar [image]="userProfile.avatarUrl" shape="circle" size="xlarge" class="mb-4"></p-avatar>
+            <h3 class="text-2xl font-bold mb-2">{{ userProfile.name }}</h3>
+            <p class="text-color-secondary mb-2">{{ userProfile.role }} <p-tag [value]="userProfile.status" [severity]="getSeverity(userProfile.status)"></p-tag></p>
+            <p class="text-muted-color text-sm mb-4">Bergabung sejak {{ userProfile.joinedDate }}</p>
+
+            <button pButton label="Edit Profil" icon="pi pi-pencil" class="p-button-outlined p-button-sm"></button>
+        </div>
+
+        <div class="col-12 lg:col-8 p-4">
+            <p-tabView>
+                <p-tabPanel header="Informasi Detail">
+                    <h4 class="font-semibold text-lg mb-3">Informasi Kontak</h4>
+                    <div class="p-grid p-dir-col md:p-dir-row">
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="font-medium text-sm text-color-secondary">Email</label>
+                            <p class="text-color mt-1">{{ userProfile.email }}</p>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="font-medium text-sm text-color-secondary">Nomor Telepon</label>
+                            <p class="text-color mt-1">{{ userProfile.phoneNumber }}</p>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="font-medium text-sm text-color-secondary">Lokasi</label>
+                            <p class="text-color mt-1">{{ userProfile.location }}</p>
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="font-medium text-sm text-color-secondary">Terakhir Login</label>
+                            <p class="text-color mt-1">{{ userProfile.lastLogin }}</p>
+                        </div>
+                    </div>
+
+                    <p-divider></p-divider>
+
+                    <h4 class="font-semibold text-lg mb-3 mt-4">Bio</h4>
+                    <p class="text-color-secondary">{{ userProfile.bio }}</p>
+
+                </p-tabPanel>
+
+                <p-tabPanel header="Aktivitas Terbaru">
+                    <h4 class="font-semibold text-lg mb-3">Log Aktivitas</h4>
+                    <div *ngIf="recentActivities.length > 0; else noActivities">
+                        <div *ngFor="let activity of recentActivities" class="flex align-items-center py-2 px-3 border-round-md hover:surface-hover transition-duration-150">
+                            <i [ngClass]="{
+                                'pi': true,
+                                'pi-comments': activity.type === 'chat',
+                                'pi-book': activity.type === 'knowledge_base',
+                                'pi-cog': activity.type === 'setting'
+                            }" class="mr-3 text-xl text-primary"></i>
+                            <div class="flex flex-column">
+                                <span class="font-medium">{{ activity.description }}</span>
+                                <span class="text-muted-color text-sm">{{ activity.time }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <ng-template #noActivities>
+                        <div class="text-center p-4 text-muted-color">Tidak ada aktivitas terbaru.</div>
+                    </ng-template>
+                </p-tabPanel>
+
+                <p-tabPanel header="Statistik">
+                    <h4 class="font-semibold text-lg mb-3">Statistik Kinerja (Contoh)</h4>
+                    <p class="text-color-secondary">Grafik atau data statistik kinerja agen akan ditampilkan di sini.</p>
+                    <ul class="list-none p-0 m-0">
+                        <li class="flex align-items-center mb-3">
+                            <i class="pi pi-check-circle text-green-500 mr-2"></i>
+                            <span>Percakapan Diselesaikan: <span class="font-bold">1250</span></span>
+                        </li>
+                        <li class="flex align-items-center mb-3">
+                            <i class="pi pi-hourglass text-blue-500 mr-2"></i>
+                            <span>Waktu Respons Rata-rata: <span class="font-bold">45 detik</span></span>
+                        </li>
+                        <li class="flex align-items-center mb-3">
+                            <i class="pi pi-star-fill text-yellow-500 mr-2"></i>
+                            <span>Rating Rata-rata: <span class="font-bold">4.8 / 5</span></span>
+                        </li>
+                    </ul>
+                </p-tabPanel>
+
+            </p-tabView>
+        </div>
+    </div>
+</div>

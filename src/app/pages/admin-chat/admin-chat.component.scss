@@ -1,0 +1,9 @@
+.chat-container-user-list-card ::ng-deep .p-listbox-list-container{
+  max-height: 100vh !important;
+}
+
+.chat-container-user-list-card {
+  display: flex;
+  height: 100vh;
+  max-height: 100vh;
+}

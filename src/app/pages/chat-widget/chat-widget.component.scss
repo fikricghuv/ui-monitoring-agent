@@ -26,7 +26,7 @@
     text-indent: -9999px; // Sembunyikan teks "Chat Agent" dari pandangan visual
 
     &::after { // Gunakan pseudo-element untuk ikon chat
-      content: url('/assets/chat-icon.png'); // Ganti dengan path ikon Anda
+      content: url('/assets/images/customer-service.png'); // Ganti dengan path ikon Anda
       position: absolute;
       width: 30px;
       height: 30px;

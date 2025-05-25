@@ -1,0 +1,87 @@
+<div class="layout-topbar">
+    <div class="layout-topbar-logo-container">
+        <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
+            <i class="pi pi-bars"></i>
+        </button>
+        <a class="layout-topbar-logo" routerLink="/">
+            <img src="/assets/images/just-logo.png" alt="Logo" height="auto" max-width="10%"/>
+            <span>COLLABOR IQ</span>
+        </a>
+    </div>
+
+    <div class="layout-topbar-actions">
+        <div class="layout-config-menu">
+            <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
+                <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+            </button>
+            <div class="relative">
+                <button
+                    class="layout-topbar-action layout-topbar-action-highlight"
+                    pStyleClass="@next"
+                    enterFromClass="hidden"
+                    enterActiveClass="animate-scalein"
+                    leaveToClass="hidden"
+                    leaveActiveClass="animate-fadeout"
+                    [hideOnOutsideClick]="true"
+                >
+                    <i class="pi pi-palette"></i>
+                </button>
+                <app-configurator />
+            </div>
+        </div>
+
+        <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
+            <i class="pi pi-ellipsis-v"></i>
+        </button>
+
+        <div class="layout-topbar-menu hidden lg:block">
+            <div class="layout-topbar-menu-content">
+                <button type="button" class="layout-topbar-action" (click)="toggleNotificationPanel($event)">
+                    <i class="pi pi-bell"></i>
+                    <span>Notifikasi</span>
+                    <span *ngIf="unreadNotificationsCount > 0"
+                          class="p-badge p-component p-badge-danger"
+                          style="position: absolute; top: 8px; right: 8px;">
+                        {{ unreadNotificationsCount }}
+                    </span>
+                </button>
+                <button type="button" class="layout-topbar-action" (click)="toggleProfileMenu($event)">
+                    <i class="pi pi-user"></i>
+                    <span>Profil</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<p-overlayPanel #notificationPanel [showCloseIcon]="true" [style]="{ width: '380px' }" [baseZIndex]="10000">
+    <ng-template pTemplate="content">
+        <h4 class="font-semibold text-lg mb-3">Notifikasi Anda</h4>
+        <div *ngIf="dummyNotifications.length > 0; else noNotifications" class="p-fluid">
+            <p-scroller [items]="dummyNotifications" [itemSize]="70" [scrollHeight]="'300px'" styleClass="w-full">
+                <ng-template pTemplate="item" let-notification>
+                    <div class="flex align-items-center p-3 border-bottom-1 surface-border hover:surface-hover transition-duration-150"
+                         [ngClass]="{'bg-blue-50 dark:bg-blue-900/20': !notification.read}">
+                        <div class="flex flex-column flex-grow-1" [ngClass]="{'font-semibold': !notification.read}">
+                            <div class="text-color text-base">{{ notification.message }}</div>
+                            <div class="text-muted-color text-sm mt-1">{{ notification.time }}</div>
+                        </div>
+                        <div class="ml-auto flex-shrink-0">
+                            <button pButton icon="pi pi-check" class="p-button-text p-button-sm p-button-rounded"
+                                    (click)="markAsRead(notification.id)" *ngIf="!notification.read"
+                                    pTooltip="Tandai sebagai sudah dibaca" tooltipPosition="left"></button>
+                        </div>
+                    </div>
+                </ng-template>
+            </p-scroller>
+            <div class="flex justify-content-center pt-3">
+                <button pButton label="Lihat Semua Notifikasi" class="p-button-text p-button-sm" (click)="viewAllNotifications()"></button>
+            </div>
+        </div>
+        <ng-template #noNotifications>
+            <div class="text-center p-4 text-muted-color">Tidak ada notifikasi baru.</div>
+        </ng-template>
+    </ng-template>
+</p-overlayPanel>
+
+<p-menu #profileMenu [model]="profileMenuItems" [popup]="true"></p-menu>

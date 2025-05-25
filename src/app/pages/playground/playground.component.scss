@@ -1,146 +1,52 @@
-.chat-container {
-    width: auto;
-    height: 95%;
-    margin: auto;
-    display: flex;
-    // background: #f2f2f2;
-    border-radius: 8px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    overflow: hidden;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+/* src/app/components/playground/playground.component.scss */
 
-    h2 {
-      text-align: center;
-      margin-bottom: 20px;
-      margin-top: 10px;
-      color: black;
-    }
-  
-    .chat-messages {
-      padding: 15px;
-      height: 100%;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-  
-    .message {
-      max-width: 70%;
-      padding: 10px;
-      border-radius: 8px;
-      font-size: 14px;
-      display: inline-block;
-    }
-  
-    .user-message {
-      align-self: flex-end;
-      text-align: left;
-    }
+// Pastikan import variabel atau mixin Tailwind jika Anda menggunakannya secara ekstensif di sini
+// @import 'tailwindcss/base';
+// @import 'tailwindcss/components';
+// @import 'tailwindcss/utilities';
 
-    .message-content-user {
-      display: flex;
-      flex-direction: column;
-      align-self: flex-end;
-      background: #007bff;
-      color: white;
-      border-top-right-radius: 5px;
-      border-bottom-left-radius: 25px;
-      border-top-left-radius: 25px;
-      border-bottom-right-radius: 25px;
-      padding: 10px;
-      text-align: right;
-      width: fit-content;
-      margin-left: auto;
-    }
-  
-    .agent-message {
-      align-self: flex-start;
-    }
 
-    .message-content-agent {
-      display: flex;
-      flex-direction: column;
-      background: rgb(97, 163, 249);
-      color: #191919;
-      border-top-right-radius: 25px;
-      border-bottom-left-radius: 25px;
-      border-bottom-right-radius: 25px;
-      border-top-left-radius: 5px;
-      padding: 10px;
-      width: fit-content;
-    }
+.whatsapp-typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 3px; // Jarak antar titik
+  padding: 5px 8px; // Padding agar titik tidak terlalu mepet tepi bubble
+  min-height: 20px; // Tinggi minimum agar titik terlihat jelas
+  color: var(--text-color-secondary); // Warna titik, sesuaikan dengan tema Anda
 
-    .message-time {
-      font-size: 10px;
-      margin-top: 4px;
-    }
-  
-    .chat-input {
-      display: flex;
-      padding: 10px;
-      // background: #f9f9f9;
-      // border-top: 1px solid #ddd;
-  
-      input {
-        flex: 1;
-        padding: 8px;
-        border: none;
-        border-radius: 5px;
-        outline: none;
-      }
-  
-      button {
-        margin-left: 10px;
-        padding: 8px 15px;
-        background: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
-        border-radius: 5px;
-        transition: 0.3s;
-  
-        &:hover {
-          background: #0056b3;
-        }
-      }
-    }
-  
-    .typing-indicator {
-      display: flex;
-      gap: 5px;
-      padding: 10px;
-      background: #ffffff;
-      width: fit-content;
-      border-radius: 10px;
-      align-self: flex-start;
-  
-      span {
-        width: 8px;
-        height: 8px;
-        background: #555;
-        border-radius: 50%;
-        animation: blink 1.5s infinite;
-      }
-  
-      span:nth-child(2) {
-        animation-delay: 0.2s;
-      }
-  
-      span:nth-child(3) {
-        animation-delay: 0.4s;
-      }
-    }
-  
-    @keyframes blink {
-      0%, 100% {
-        opacity: 0.3;
-      }
-      50% {
-        opacity: 1;
-      }
-    }
+  span {
+    display: inline-block;
+    width: 6px; // Lebar titik
+    height: 6px; // Tinggi titik
+    background-color: currentColor; // Menggunakan warna teks sebagai warna background
+    border-radius: 50%;
+    opacity: 0; // Mulai dengan titik tidak terlihat
+    animation: whatsapp-typing-dot 1.4s infinite ease-in-out both; // Animasi utama
   }
-  
+
+  span:nth-child(1) {
+    animation-delay: 0s; // Titik pertama tanpa delay
+  }
+  span:nth-child(2) {
+    animation-delay: 0.2s; // Titik kedua sedikit delay
+  }
+  span:nth-child(3) {
+    animation-delay: 0.4s; // Titik ketiga lebih banyak delay
+  }
+}
+
+@keyframes whatsapp-typing-dot {
+  0%, 80%, 100% {
+    opacity: 0;
+    transform: scale(0.8); // Sedikit menyusut saat tidak terlihat
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1); // Terlihat dan ukuran normal
+  }
+}
+
+// Sesuaikan warna teks untuk dark mode jika diperlukan
+.dark .whatsapp-typing-indicator {
+    color: var(--surface-300); // Contoh warna titik di dark mode
+}

@@ -2,25 +2,39 @@
 import { Component, ViewChild, ElementRef, OnInit, OnDestroy, ChangeDetectorRef, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http'; // Diperlukan jika layanan diimpor yang menggunakannya
-import { SessionService } from '../services/session.service'; // Perbaikan path: services
-import { Subject, Observable } from 'rxjs';
+import { HttpClientModule } from '@angular/common/http';
+import { SessionService } from '../services/session.service';
+import { Subject, Observable } from 'rxjs'; // Observable mungkin tidak perlu diimpor eksplisit jika hanya digunakan di pipe
 import { takeUntil, filter, finalize, catchError } from 'rxjs/operators';
 import { ENUM_SENDER } from '../constants/enum.constant';
-import { MessageModel } from '../models/message.model'; // Perbaikan path: models
-import { RoomConversationModel } from '../models/room.model'; // Perbaikan path: models
+import { MessageModel } from '../models/message.model';
+// import { RoomConversationModel } from '../models/room.model'; // Tidak digunakan, bisa dihapus
 
-import { ChatCoreService } from '../services/user-chat-core.service'; // Perbaikan path: services
+import { ChatCoreService } from '../services/user-chat-core.service';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
-import { CardModule } from 'primeng/card';
+// import { CardModule } from 'primeng/card'; // Tidak lagi digunakan secara langsung
 import { ButtonModule } from 'primeng/button';
+import { AvatarModule } from 'primeng/avatar'; // Tambahkan
+import { TextareaModule } from 'primeng/textarea'; // Tambahkan
+import { IconFieldModule } from 'primeng/iconfield'; // Tambahkan untuk search bar jika ditambahkan lagi
+import { InputIconModule } from 'primeng/inputicon'; // Tambahkan untuk search bar jika ditambahkan lagi
 
 @Component({
   selector: 'app-playground',
   standalone: true,
-  imports: [CommonModule, HttpClientModule, FormsModule, 
-    ButtonModule, BreadcrumbModule, CardModule],
+  imports: [
+    CommonModule,
+    HttpClientModule,
+    FormsModule,
+    ButtonModule,
+    BreadcrumbModule,
+    // CardModule, // Hapus
+    AvatarModule, // Tambahkan
+    TextareaModule, // Tambahkan
+    IconFieldModule, // Jika ingin ada search bar, tambahkan
+    InputIconModule // Jika ingin ada search bar, tambahkan
+  ],
   templateUrl: './playground.component.html',
   styleUrls: ['./playground.component.scss'],
 })
@@ -28,23 +42,24 @@ export class PlaygroundComponent implements OnInit, OnDestroy {
   @ViewChild('userInput') userInput!: ElementRef<HTMLInputElement>;
   @ViewChild('chatScroll') chatScroll!: ElementRef;
 
-  public _objChatMessages: Record<string, MessageModel[]> = {}; // Mengelola pesan untuk beberapa 'room' (jika ada)
-  public _modelSelectedRoom: RoomConversationModel | null = null; // Digunakan jika ada fitur memilih 'room'
-  public _arrayModelFilteredMessage: MessageModel[] = []; // Pesan yang ditampilkan di UI
+  // Anda bisa menyederhanakan _objChatMessages jika Anda hanya berinteraksi dengan satu 'room' (yaitu pengguna saat ini)
+  public _objChatMessages: Record<string, MessageModel[]> = {};
+  // public _modelSelectedRoom: RoomConversationModel | null = null; // Tidak digunakan, bisa dihapus
+  public _arrayModelFilteredMessage: MessageModel[] = [];
   public items: MenuItem[] | undefined;
   public home: MenuItem | undefined;
   public _enumSender = ENUM_SENDER;
   private _stringUserId: string | null = null;
 
-  public isLoadingHistory: boolean = false; // Status loading untuk riwayat chat
+  public isLoadingHistory: boolean = false;
 
-  private destroy$ = new Subject<void>(); // Untuk unsubscribe Observable saat komponen dihancurkan
+  private destroy$ = new Subject<void>();
 
   constructor(
     private sessionService: SessionService,
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
-    public chatCoreService: ChatCoreService // Dibuat 'public' agar bisa diakses langsung di template
+    public chatCoreService: ChatCoreService
   ) {
     this._objChatMessages = {};
     this._arrayModelFilteredMessage = [];
@@ -54,15 +69,14 @@ export class PlaygroundComponent implements OnInit, OnDestroy {
     console.log('PlaygroundComponent initializing...');
 
     this.items = [
-            { label: 'Prompt Editor' }
-        ];
-
-        this.home = { icon: 'pi pi-home', routerLink: '/dashboard' };
+      { label: 'Prompt Editor' }
+    ];
+    this.home = { icon: 'pi pi-home', routerLink: '/dashboard' };
 
     this.sessionService.initializationStatus$
       .pipe(
-        filter(isInitialized => isInitialized === true), // Tunggu SessionService menginisialisasi userId
-        takeUntil(this.destroy$) // Berhenti langganan saat komponen dihancurkan
+        filter(isInitialized => isInitialized === true),
+        takeUntil(this.destroy$)
       )
       .subscribe(() => {
         console.log('Playground: Session initialization complete. Getting User ID.');
@@ -70,94 +84,74 @@ export class PlaygroundComponent implements OnInit, OnDestroy {
 
         if (this._stringUserId) {
           console.log(`Playground: User ID obtained: ${this._stringUserId}. Setting up chat.`);
-
-          // ChatCoreService sudah menangani koneksi WebSocket dan subskripsi internalnya
-          // secara otomatis setelah userId tersedia.
-          this.subscribeToIncomingMessages(); // Langganan pesan yang sudah diproses dari ChatCoreService
-          this.loadInitialHistory(); // Muat riwayat chat awal
-          this.subscribeToConnectionStatus(); // Opsional: pantau status koneksi WebSocket
+          this.subscribeToIncomingMessages();
+          this.loadInitialHistory();
+          this.subscribeToConnectionStatus();
         } else {
           console.error('Playground: User ID is null after session initialization. Cannot setup playground.');
         }
       });
   }
 
-  /**
-   * Berlangganan pesan masuk yang sudah diproses dari ChatCoreService.
-   */
   private subscribeToIncomingMessages(): void {
     this.chatCoreService.incomingMessages$
       .pipe(takeUntil(this.destroy$))
       .subscribe(message => {
-        this.ngZone.run(() => { // Pastikan update UI berjalan dalam Angular zone
+        this.ngZone.run(() => {
           console.log('Playground received processed message from ChatCoreService:', message);
 
-          const messageKey = this._modelSelectedRoom?.name ?? this._stringUserId;
+          // Kunci pesan selalu berdasarkan user ID saat ini karena hanya ada satu 'conversation'
+          const messageKey = this._stringUserId;
           if (messageKey) {
             if (!this._objChatMessages[messageKey]) {
               this._objChatMessages[messageKey] = [];
             }
 
-            // Logika untuk menambahkan/memperbarui pesan.
-            // Asumsi: ChatCoreService sudah memproses pesan dari server dengan baik.
-            // Jika Anda mengimplementasikan ID unik dari server, gunakan itu untuk deduplikasi.
-            // Untuk saat ini, kita akan coba update pesan optimis (yang tidak punya ID server)
-            // ketika pesan balasan dari server datang.
-
+            // Logika untuk menambahkan/memperbarui pesan
             let messageUpdated = false;
-            // Coba update pesan user yang sifatnya 'optimis' (belum ada ID server)
-            if (message.sender === ENUM_SENDER.User /* && message.id && message.id.startsWith('server-') */) {
-                // Jika server mengirim kembali pesan user dengan ID server, cari pesan optimis yang cocok dan update
-                // Catatan: Jika pesan dari server juga tidak memiliki ID unik untuk dicocokkan,
-                // maka perlu logika pencocokan yang lebih kompleks (misal berdasarkan waktu dan konten).
-                // Untuk contoh ini, saya akan mencoba mencocokkan pesan user yang *mungkin* merupakan balasan optimis.
-                const optimisticIndex = this._objChatMessages[messageKey].findIndex(
-                    m => m.sender === ENUM_SENDER.User && !m.room_id && m.message === message.message
-                );
-                if (optimisticIndex > -1) {
-                    // Update pesan optimis dengan data server yang lebih akurat
-                    this._objChatMessages[messageKey][optimisticIndex] = { ...this._objChatMessages[messageKey][optimisticIndex], ...message };
-                    messageUpdated = true;
-                }
+            // Jika Anda memiliki ID unik dari server, gunakan itu untuk deduplikasi.
+            // Untuk playground, mungkin tidak ada kebutuhan kompleks seperti ini.
+            // Cukup tambahkan pesan baru.
+            const isDuplicate = this._objChatMessages[messageKey].some(
+                m => m.message === message.message && m.time === message.time && m.sender === message.sender
+            );
+            if (!isDuplicate) {
+                this._objChatMessages[messageKey].push(message);
             }
+            // else {
+            //     // Opsional: Jika Anda ingin mengganti pesan optimis dengan yang dari server
+            //     const optimisticIndex = this._objChatMessages[messageKey].findIndex(
+            //         m => m.message === message.message && m.sender === ENUM_SENDER.User && !m.id // Asumsi pesan optimis tidak punya ID server
+            //     );
+            //     if (optimisticIndex > -1) {
+            //         this._objChatMessages[messageKey][optimisticIndex] = message;
+            //     }
+            // }
 
-            // Jika pesan bukan update (misal: pesan bot/admin baru, atau pesan user optimis pertama kali)
-            if (!messageUpdated) {
-                // Untuk menghindari duplikasi dari pesan bot/admin yang dikirim ulang oleh server (jarang)
-                const isDuplicate = this._objChatMessages[messageKey].some(
-                    m => m.message === message.message && m.time === message.time && m.sender === message.sender
-                );
-                if (!isDuplicate) {
-                    this._objChatMessages[messageKey].push(message);
-                }
-            }
 
             this.updateFilteredMessages();
-            this.cdr.detectChanges(); // Pemicu deteksi perubahan untuk memperbarui UI
+            this.cdr.detectChanges();
             this.scrollToBottom();
           } else {
-            console.warn("Playground: User ID atau selected room null, tidak dapat menambahkan pesan masuk.");
+            console.warn("Playground: User ID null, tidak dapat menambahkan pesan masuk.");
           }
         });
       });
   }
 
-  /**
-   * Memuat riwayat chat awal untuk userId yang sedang aktif.
-   */
   private loadInitialHistory(): void {
     if (!this._stringUserId) {
       console.warn("Playground: User ID null, tidak dapat memuat riwayat.");
       return;
     }
 
-    this.isLoadingHistory = true; // Aktifkan indikator loading
-    this.cdr.detectChanges(); // Perbarui UI untuk menampilkan loader
+    this.isLoadingHistory = true;
+    this.cdr.detectChanges();
 
     this.chatCoreService.loadHistory()
       .pipe(
         takeUntil(this.destroy$),
-        finalize(() => { // Pastikan isLoadingHistory diset false baik sukses maupun error
+        finalize(() => {
           this.ngZone.run(() => {
             this.isLoadingHistory = false;
             this.cdr.detectChanges();
@@ -165,8 +159,7 @@ export class PlaygroundComponent implements OnInit, OnDestroy {
         }),
         catchError(err => {
           console.error('Playground: Error saat memuat riwayat:', err);
-          // Anda bisa menampilkan pesan error yang ramah pengguna di sini
-          return []; // Kembalikan array kosong agar stream tidak berhenti
+          return [];
         })
       )
       .subscribe({
@@ -174,7 +167,6 @@ export class PlaygroundComponent implements OnInit, OnDestroy {
           this.ngZone.run(() => {
             console.log('Playground menerima riwayat:', historyMessages);
             if (this._stringUserId) {
-              // Kunci untuk riwayat adalah user ID saat ini
               this._objChatMessages[this._stringUserId] = historyMessages;
               this.updateFilteredMessages();
               this.cdr.detectChanges();
@@ -183,15 +175,11 @@ export class PlaygroundComponent implements OnInit, OnDestroy {
           });
         },
         error: err => {
-          // Error sudah di-handle oleh catchError di pipe, di sini bisa untuk logging tambahan atau notifikasi UI
           console.error('Playground: Gagal memuat riwayat (callback error):', err.message || err);
         }
       });
   }
 
-  /**
-   * Berlangganan status koneksi WebSocket dari ChatCoreService.
-   */
   private subscribeToConnectionStatus(): void {
     if (this.chatCoreService.wsConnectionStatus$) {
       this.chatCoreService.wsConnectionStatus$
@@ -199,7 +187,6 @@ export class PlaygroundComponent implements OnInit, OnDestroy {
         .subscribe(status => {
           this.ngZone.run(() => {
             console.log('Playground: Status Koneksi WS ->', status);
-            // Anda bisa menyimpan status ini ke properti komponen jika ingin menampilkannya di template (misal: "Connecting...", "Connected", "Disconnected")
             this.cdr.detectChanges();
           });
         });
@@ -208,46 +195,31 @@ export class PlaygroundComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     console.log('PlaygroundComponent is being destroyed.');
-    this.destroy$.next(); // Memicu `takeUntil` untuk menghentikan semua langganan
-    this.destroy$.complete(); // Menyelesaikan Subject
-    // ChatCoreService adalah 'providedIn: root', jadi lifecycle-nya akan diurus oleh Angular,
-    // termasuk pemutusan WebSocket saat aplikasi ditutup.
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
-  /**
-   * (Opsional) Digunakan jika ada fitur untuk memilih user/room.
-   */
-  selectUser(room: RoomConversationModel): void {
-    console.log('Playground: Memilih room/user ->', room);
-    this._modelSelectedRoom = room;
-    const key = room.name; // Asumsi room.name adalah kunci yang valid
-    if (key) {
-        if (!this._objChatMessages[key]) {
-            this._objChatMessages[key] = [];
-            // TODO: Mungkin perlu memuat riwayat spesifik untuk room/user ini jika belum ada
-            // this.loadHistoryForSelectedRoom(key);
-        }
-        this.updateFilteredMessages();
-        this.scrollToBottom();
-    }
-  }
+  // Fungsi selectUser() tidak lagi diperlukan karena tidak ada daftar user
+  // selectUser(room: RoomConversationModel): void {
+  //   console.log('Playground: Memilih room/user ->', room);
+  //   this._modelSelectedRoom = room;
+  //   const key = room.name;
+  //   if (key) {
+  //       if (!this._objChatMessages[key]) {
+  //           this._objChatMessages[key] = [];
+  //       }
+  //       this.updateFilteredMessages();
+  //       this.scrollToBottom();
+  //   }
+  // }
 
-  /**
-   * Memperbarui array pesan yang akan ditampilkan berdasarkan room yang dipilih atau userId.
-   */
   updateFilteredMessages(): void {
-    const key = this._modelSelectedRoom?.name ?? this._stringUserId ?? '';
-    // Pastikan hanya pesan dengan konten (tidak kosong) yang ditampilkan
+    // Selalu gunakan _stringUserId sebagai kunci karena ini adalah playground 1-ke-1
+    const key = this._stringUserId ?? '';
     this._arrayModelFilteredMessage = this._objChatMessages[key]?.filter(msg => msg.message) || [];
-    // console.log('Pesan filter diperbarui untuk kunci:', key, this._arrayModelFilteredMessage);
   }
 
-  /**
-   * Mengirim pesan user.
-   */
   sendMessage(): void {
-    // Ambil pesan dari input. Gunakan `currentMessageText` jika pakai [(ngModel)].
-    // Jika tidak pakai `ngModel`, gunakan `this.userInput.nativeElement.value`.
     const userMessage = this.userInput.nativeElement.value.trim();
     console.log('Playground: Mengirim pesan ->', userMessage);
     console.log('Playground: User ID ->', this._stringUserId);
@@ -258,47 +230,36 @@ export class PlaygroundComponent implements OnInit, OnDestroy {
     }
 
     // --- Optimistic UI Update ---
-    // Tambahkan pesan user ke UI secara optimis (sebelum server merespons).
     const time = new Date().toISOString();
     const optimisticMessage: MessageModel = {
-      sender: this._enumSender.User,
+      sender: this._enumSender.User, // Pengirim adalah user
       message: userMessage,
       time: time,
-      // id: `temp-${Date.now()}` // Opsional: Tambahkan ID sementara untuk pencocokan lebih baik nanti
     };
 
-    const messageKey = this._modelSelectedRoom?.name ?? this._stringUserId;
+    const messageKey = this._stringUserId; // Selalu gunakan user ID
     if (messageKey) {
       if (!this._objChatMessages[messageKey]) {
         this._objChatMessages[messageKey] = [];
       }
       this._objChatMessages[messageKey].push(optimisticMessage);
       this.updateFilteredMessages();
-      this.cdr.detectChanges(); // Perbarui tampilan
+      this.cdr.detectChanges();
       this.scrollToBottom();
     }
 
-    // Kirim pesan melalui ChatCoreService
     this.chatCoreService.sendMessage(userMessage);
-
-    // Kosongkan input setelah mengirim
     this.userInput.nativeElement.value = '';
   }
 
-  /**
-   * Menggulir tampilan chat ke bagian paling bawah.
-   */
   scrollToBottom(): void {
     if (!this.chatScroll || !this.chatScroll.nativeElement) {
-      // console.warn("⚠️ chatScroll belum tersedia saat scrollToBottom dipanggil.");
       return;
     }
-    // Menjalankan di luar Angular Zone untuk optimasi performa DOM.
     this.ngZone.runOutsideAngular(() => {
       setTimeout(() => {
         const el = this.chatScroll.nativeElement;
         el.scrollTop = el.scrollHeight;
-        // Kembali ke Angular Zone untuk memicu deteksi perubahan jika diperlukan
         this.ngZone.run(() => this.cdr.detectChanges());
       }, 0);
     });
