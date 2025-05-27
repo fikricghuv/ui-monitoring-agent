@@ -6,6 +6,7 @@ import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { LoginService } from '../services/login.service';
 
 @Component({
   selector: 'app-login',
@@ -18,25 +19,48 @@ export class LoginComponent {
   public _booleanRememberMe: boolean = false;
   public _stringUsername: string = '';
   public _stringPassword: string = '';
+  public _stringErrorMessage: string = '';
+  public _booleanLoading: boolean = false;
 
-  constructor(private router: Router) {
-    // Inisialisasi jika diperlukan
-  }
+  constructor(
+    private router: Router,
+    private loginService: LoginService
+  ) {}
 
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
 
   public onLogin(): void {
-    // Logika untuk menangani login
-    console.log('Username:', this._stringUsername);
-    console.log('Password:', this._stringPassword);
-    console.log('Remember Me:', this._booleanRememberMe);
+    this._stringErrorMessage = '';
+    this._booleanLoading = true;
 
-    if (this._stringUsername === 'user' && this._stringPassword === 'password') {
-      alert('Login Berhasil!');
-      this.router.navigate(['/dashboard']); // Ganti dengan path dashboard Anda
-    } else {
-      alert('Username atau password salah!');
-    }
+    this.loginService.login(this._stringUsername, this._stringPassword).subscribe({
+      next: (token) => {
+        console.log('Token:', token);
+
+        // Simpan token, bisa ke localStorage atau service state
+        if (this._booleanRememberMe) {
+          localStorage.setItem('access_token', token);
+        } else {
+          sessionStorage.setItem('access_token', token);
+        }
+
+        this._booleanLoading = false;
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err: Error) => {
+        this._booleanLoading = false;
+        this._stringErrorMessage = err.message;
+        alert('Login gagal: ' + err.message);
+      }
+    });
   }
+
+  public onLogout(): void {
+    sessionStorage.removeItem('access_token');
+    localStorage.removeItem('access_token');
+    this._stringUsername = '';
+    this._stringPassword = '';
+    alert('You have been logged out.');
+  }
+
 }

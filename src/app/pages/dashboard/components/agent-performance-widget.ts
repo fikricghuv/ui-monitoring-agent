@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ChartModule } from 'primeng/chart';
-import { debounceTime, Subject, takeUntil } from 'rxjs';
+import { debounceTime, Subject, takeUntil, forkJoin } from 'rxjs'; // Pastikan forkJoin diimpor
 import { LayoutService } from '../../../layout/service/layout.service';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
@@ -10,7 +10,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 
-import { DashboardService } from '../../services/dashboard.service';
+import { DashboardService } from '../../services/dashboard.service'; // Pastikan path ini benar
 
 @Component({
     standalone: true,
@@ -46,7 +46,7 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
 
     constructor(
         public layoutService: LayoutService,
-        private conversationStatsService: DashboardService
+        private dashboardService: DashboardService
     ) {}
 
     ngOnInit() {
@@ -81,17 +81,21 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
         this.errorMessage = null;
         this.chartData = null;
 
-        let dataObservable;
+        let totalConversationsObservable;
+        let totalEscalationsObservable;
 
         switch (this.selectedTime) {
             case 'Weekly':
-                dataObservable = this.conversationStatsService.getWeeklyTotalConversations();
+                totalConversationsObservable = this.dashboardService.getWeeklyTotalConversations();
+                totalEscalationsObservable = this.dashboardService.getWeeklyTotalEscalations();
                 break;
             case 'Monthly':
-                dataObservable = this.conversationStatsService.getMonthlyTotalConversations();
+                totalConversationsObservable = this.dashboardService.getMonthlyTotalConversations();
+                totalEscalationsObservable = this.dashboardService.getMonthlyTotalEscalations();
                 break;
             case 'Yearly':
-                dataObservable = this.conversationStatsService.getYearlyTotalConversations();
+                totalConversationsObservable = this.dashboardService.getYearlyTotalConversations();
+                totalEscalationsObservable = this.dashboardService.getYearlyTotalEscalations();
                 break;
             default:
                 this.errorMessage = "Invalid time selection.";
@@ -99,18 +103,47 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
                 return;
         }
 
-        dataObservable.pipe(takeUntil(this.destroy$)).subscribe({
-            next: (conversationData: { [key: string]: number }) => {
-                const labels = Object.keys(conversationData).sort();
-                const totalInteractionsData = labels.map(key => conversationData[key]);
+        // forkJoin hanya perlu memanggil dua service yang ada
+        forkJoin([
+            totalConversationsObservable,
+            totalEscalationsObservable,
+        ]).pipe(takeUntil(this.destroy$)).subscribe({
+            next: ([conversationData, escalationData]) => {
+                // Gabungkan semua key dari kedua dataset untuk mendapatkan labels yang lengkap
+                const allKeys = new Set<string>();
+                Object.keys(conversationData).forEach(key => allKeys.add(key));
+                Object.keys(escalationData).forEach(key => allKeys.add(key));
 
-                const successfulResolutionsData = labels.map(() => 0); // Semua 0
-                const escalationsData = labels.map(() => 0); // Semua 0
+                const labels = Array.from(allKeys).sort((a, b) => {
+                    // Logika pengurutan khusus untuk bulan/minggu
+                    const monthOrder = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                    if (this.selectedTime === 'Monthly') {
+                        return monthOrder.indexOf(a) - monthOrder.indexOf(b);
+                    } else if (this.selectedTime === 'Weekly') {
+                        const weekNumA = parseInt(a.replace('Week ', ''));
+                        const weekNumB = parseInt(b.replace('Week ', ''));
+                        return weekNumA - weekNumB;
+                    } else {
+                        return a.localeCompare(b);
+                    }
+                });
+
+                // Dapatkan data Total Interactions dan Escalations dari API
+                const totalInteractionsData = labels.map(key => conversationData[key] || 0);
+                const escalationsChartData = labels.map(key => escalationData[key] || 0);
+
+                // HITUNG Successful Resolutions: Total Interactions - Escalations
+                const successfulResolutionsData = labels.map((_, index) => {
+                    const interactions = totalInteractionsData[index];
+                    const escalations = escalationsChartData[index];
+                    // Pastikan hasil tidak negatif
+                    return Math.max(0, interactions - escalations);
+                });
 
                 const documentStyle = getComputedStyles(document.documentElement);
-                const primary200 = documentStyle.getPropertyValue('--p-primary-200');
-                const primary300 = documentStyle.getPropertyValue('--p-primary-300');
-                const primary400 = documentStyle.getPropertyValue('--p-primary-400');
+                const primary200 = documentStyle.getPropertyValue('--p-primary-200'); // Escalations
+                const primary300 = documentStyle.getPropertyValue('--p-primary-300'); // Successful Resolutions
+                const primary400 = documentStyle.getPropertyValue('--p-primary-400'); // Total Interactions
 
                 this.chartData = {
                     labels,
@@ -126,14 +159,14 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
                             type: 'bar',
                             label: 'Successful Resolutions',
                             backgroundColor: primary300,
-                            data: successfulResolutionsData,
+                            data: successfulResolutionsData, // Data yang sudah dihitung
                             barThickness: 32
                         },
                         {
                             type: 'bar',
                             label: 'Escalations',
                             backgroundColor: primary200,
-                            data: escalationsData,
+                            data: escalationsChartData,
                             borderRadius: {
                                 topLeft: 8,
                                 topRight: 8,

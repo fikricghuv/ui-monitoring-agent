@@ -41,6 +41,8 @@ export class AppTopbar {
     @ViewChild('profileMenu') profileMenu: any;
 
     unreadNotificationsCount: number = 5;
+    public _stringUsername: string = '';
+    public _stringPassword: string = '';
 
     dummyNotifications = [
         { id: 1, message: 'Pesan baru dari John Doe.', time: '2 menit yang lalu', read: false },
@@ -71,7 +73,8 @@ export class AppTopbar {
             label: 'Logout',
             icon: 'pi pi-sign-out',
             command: () => {
-                console.log('Melakukan Logout');
+                this.onLogout();
+                // console.log('Melakukan Logout');
             },
             routerLink: '/login'
         }
@@ -101,5 +104,13 @@ export class AppTopbar {
     viewAllNotifications() {
         console.log('Navigasi ke halaman semua notifikasi.');
         this.notificationPanel.hide();
+    }
+
+    public onLogout(): void {
+        sessionStorage.removeItem('access_token');
+        localStorage.removeItem('access_token');
+        this._stringUsername = '';
+        this._stringPassword = '';
+        alert('You have been logged out.');
     }
 }

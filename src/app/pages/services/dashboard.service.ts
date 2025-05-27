@@ -215,6 +215,36 @@ export class DashboardService
       );
   }
 
+  public getWeeklyTotalEscalations(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/escalations/weekly`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  public getMonthlyTotalEscalations(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/escalations/monthly`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  public getYearlyTotalEscalations(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/escalations/yearly`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
   /**
    * Metode penanganan error untuk permintaan HTTP.
    * @param error Objek HttpErrorResponse.
