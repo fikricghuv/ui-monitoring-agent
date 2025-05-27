@@ -38,7 +38,7 @@
         <th>Timestamp</th>
         <th>Agent Response Category</th>
         <th>Agent Response Latency</th>
-        <th>Chat Category</th>
+        <!-- <th>Chat Category</th> -->
         <th>Agent Total Tokens</th>
         <th>Agent Used Tools</th>
       </tr>
@@ -52,7 +52,7 @@
         <td>{{ chat.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
         <td>{{ chat.agent_response_category || '-' }}</td>
         <td>{{ formatLatency(chat.agent_response_latency) || '-' }}</td>
-        <td>{{ chat.chat_category || '-' }}</td>
+        <!-- <td>{{ chat.chat_category || '-' }}</td> -->
         <td>{{ chat.agent_total_tokens || '-' }}</td>
         <td>{{ chat.agent_tools_call?.join(', ') || '-' }}</td>
       </tr>

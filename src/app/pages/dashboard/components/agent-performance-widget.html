@@ -1,0 +1,59 @@
+<!-- <div class="card !mb-8">
+    <div class="flex items-center mb-4">
+        <div class="flex-1 text-color font-semibold leading-6 text-xl">Performance Agent</div>
+        <p-button type="button" icon="pi pi-ellipsis-h" severity="secondary" text (click)="menu.toggle($event)" aria-haspopup="true" aria-controls="overlay_menu" />
+        <p-menu #menu id="overlay_menu" [model]="menuItems" [popup]="true" styleClass="ml-6" />
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-6 items-center justify-between p-1">
+        <p-selectbutton [(ngModel)]="selectedTime" [options]="timeOptions" aria-labelledby="basic" [allowEmpty]="false" (onChange)="changeSelect()" />
+        <div class="flex items-center gap-2">
+            <p-button label="Download" icon="pi pi-download" iconPos="right" />
+            <p-datepicker [(ngModel)]="dates" appendTo="body" dateFormat="dd.mm.yy" selectionMode="range" showIcon iconDisplay="input" placeholder="06/11/2024 - 06/22/2024" />
+        </div>
+    </div>
+    
+    <p-chart type="bar" [data]="chartData" [options]="chartOptions" class="h-80" />
+</div> -->
+
+<div class="card !mb-8">
+    <div class="flex items-center mb-4">
+        <div class="flex-1 text-color font-semibold leading-6 text-xl">Performance Agent</div>
+        <p-button type="button" icon="pi pi-ellipsis-h" severity="secondary" text (click)="menu.toggle($event)" aria-haspopup="true" aria-controls="overlay_menu" />
+        <p-menu #menu id="overlay_menu" [model]="menuItems" [popup]="true" styleClass="ml-6" />
+    </div>
+
+    <div class="mt-4 flex flex-wrap gap-6 items-center justify-between p-1">
+        <!-- <p-selectButton [(ngModel)]="selectedTime" [options]="timeOptions" optionLabel="label" aria-labelledby="basic" [allowEmpty]="false" (onChange)="onTimeChange()" /> -->
+        <p-selectButton 
+        [options]="timeOptions" 
+        [(ngModel)]="selectedTime" 
+        (onChange)="onTimeChange()">
+        </p-selectButton>
+
+        <div class="flex items-center gap-2">
+            <p-button label="Download" icon="pi pi-download" iconPos="right" />
+            <p-datepicker [(ngModel)]="dates" appendTo="body" dateFormat="dd.mm.yy" selectionMode="range" showIcon iconDisplay="input" placeholder="06/11/2024 - 06/22/2024" />
+        </div>
+    </div>
+    
+    <div *ngIf="isLoading" class="text-center text-muted-color py-8">
+        <i class="pi pi-spin pi-spinner text-4xl mb-2"></i>
+        <p>Loading performance data...</p>
+    </div>
+
+    <div *ngIf="errorMessage" class="text-center text-red-500 py-8">
+        <i class="pi pi-exclamation-triangle text-4xl mb-2"></i>
+        <p>{{ errorMessage }}</p>
+        <p-button label="Retry" icon="pi pi-refresh" (click)="loadChartData()" class="mt-4"></p-button>
+    </div>
+
+    <div *ngIf="!isLoading && !errorMessage">
+        <div *ngIf="chartData && chartData.labels && chartData.labels.length > 0">
+            <p-chart type="bar" [data]="chartData" [options]="chartOptions" class="h-80" />
+        </div>
+        <div *ngIf="!chartData || (chartData.labels && chartData.labels.length === 0)" class="text-center text-muted-color py-8">
+            No performance data available for the selected period.
+        </div>
+    </div>
+</div>

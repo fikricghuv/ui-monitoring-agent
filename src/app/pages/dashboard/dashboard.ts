@@ -1,29 +1,35 @@
 import { Component, OnInit } from '@angular/core';
-// import { NotificationsWidget } from './components/notificationswidget';
-import { StatsWidget } from './components/statswidget';
-// import { RecentSalesWidget } from './components/recentsaleswidget';
-import { MostQuestionsWidget } from './components/mostquestionwidget';
-import { AgentPerformanceWidget } from './components/agentperformancewidget';
+import { LatencyAgentWidget } from './components/latency-agent-widget';
+import { StatsWidget } from './components/stats-widget';
+import { MostQuestionsWidget } from './components/most-question-widget';
+import { AgentPerformanceWidget } from './components/agent-performance-widget';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
 
 @Component({
     selector: 'app-dashboard',
-    imports: [StatsWidget, MostQuestionsWidget, AgentPerformanceWidget, BreadcrumbModule],
+    imports: [StatsWidget, MostQuestionsWidget, AgentPerformanceWidget, BreadcrumbModule, LatencyAgentWidget],
     template: `
         <div class="card flex" style="padding: 0; ">
             <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="items" [home]="home" />
         </div>  
+
         <div class="grid grid-cols-12 gap-8">
-            <app-stats-widget class="contents" />
-            <div class="col-span-12 xl:col-span-6">
-                 <app-agent-performance-widget />
-                <!-- <app-recent-sales-widget /> -->
-                
+            <div class="col-span-12">
+                <app-agent-performance-widget />
             </div>
+        </div>
+
+        <div class="grid grid-cols-12 gap-8 mt-6" style="margin-top: 0px;">
+            <app-stats-widget class="contents" />
+            
             <div class="col-span-12 xl:col-span-6">
-               <app-most-question-widget />
-                <!-- <app-notifications-widget /> -->
+                <app-latency-agent-widget />
+            </div>
+
+            <div class="col-span-12 xl:col-span-6">
+                <app-most-question-widget />
+                
             </div>
         </div>
     `

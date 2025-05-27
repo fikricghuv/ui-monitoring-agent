@@ -75,6 +75,145 @@ export class DashboardService
       );
   }
 
+  /**
+   * Mengambil total penambahan user baru setiap bulan (untuk dashboard).
+   * Membutuhkan API Key yang valid di header 'X-API-Key'.
+   * @returns Observable dari object (bulan ke jumlah user baru).
+   */
+  public getMonthlyNewUsers(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/monthly-new-users`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Mengambil total percakapan bulanan (untuk dashboard).
+   * Percakapan dihitung berdasarkan room_conversation_id unik.
+   * Membutuhkan API Key yang valid di header 'X-API-Key'.
+   * @returns Observable dari object (bulan ke jumlah percakapan).
+   */
+  public getMonthlyConversations(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/monthly-conversations`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Mengambil latensi rata-rata harian dalam milidetik.
+   * Membutuhkan API Key yang valid.
+   * @returns Observable dari object (tanggal ke rata-rata latensi).
+   */
+  public getDailyAverageLatency(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/daily-avg-latency`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Mengambil latensi rata-rata bulanan dalam milidetik.
+   * Membutuhkan API Key yang valid.
+   * @returns Observable dari object (bulan ke rata-rata latensi).
+   */
+  public getMonthlyAverageLatency(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/monthly-avg-latency`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Mengambil total eskalasi bulanan.
+   * Eskalasi diidentifikasi jika agent memanggil tool untuk menyimpan data feedback pelanggan.
+   * Mengembalikan data untuk setiap bulan dari Januari hingga bulan saat ini, dengan 0 jika tidak ada data.
+   * Membutuhkan API Key yang valid di header 'X-API-Key'.
+   * @returns Observable dari object (bulan ke jumlah eskalasi).
+   */
+  public getMonthlyEscalations(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/monthly-escalations`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  public getMonthlyTokensUsage(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/monthly-tokens-usage`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Mengambil total percakapan mingguan untuk 12 minggu terakhir.
+   * Jika tidak ada data untuk minggu tertentu, akan mengisi dengan 0.
+   * @returns Observable dari objek { [minggu (YYYY-WW)]: total_percakapan }.
+   */
+  public getWeeklyTotalConversations(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/conversations/weekly`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Mengambil total percakapan bulanan untuk 12 bulan terakhir.
+   * Jika tidak ada data untuk bulan tertentu, akan mengisi dengan 0.
+   * @returns Observable dari objek { [bulan (YYYY-MM)]: total_percakapan }.
+   */
+  public getMonthlyTotalConversations(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/conversations/monthly`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  /**
+   * Mengambil total percakapan tahunan untuk 6 tahun terakhir.
+   * Jika tidak ada data untuk tahun tertentu, akan mengisi dengan 0.
+   * @returns Observable dari objek { [tahun (YYYY)]: total_percakapan }.
+   */
+  public getYearlyTotalConversations(): Observable<{ [key: string]: number }> {
+    const headers = new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+    return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/conversations/yearly`, { headers: headers })
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
 
   /**
    * Metode penanganan error untuk permintaan HTTP.

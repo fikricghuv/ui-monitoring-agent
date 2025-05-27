@@ -1,0 +1,29 @@
+<div class="card">
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex-1 text-color font-semibold leading-6 text-xl">Most Question Users</div>
+        <p-button type="button" icon="pi pi-ellipsis-h" severity="secondary" text (click)="menu.toggle($event)" aria-haspopup="true" aria-controls="overlay_menu" />
+        <p-menu #menu id="overlay_menu" [model]="menuItems" [popup]="true" styleClass="ml-6" />
+    </div>
+
+    <ul class="list-none p-0 m-0" *ngIf="mostAskedCategories.length > 0">
+        <li *ngFor="let item of mostAskedCategories" class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+            <div>
+                <span class="text-surface-900 dark:text-surface-0 font-medium mr-2 mb-1 md:mb-0">
+                    {{ item.category }}
+                </span>
+            </div>
+            <div class="mt-2 md:mt-0 flex items-center">
+                <div class="bg-surface-300 dark:bg-surface-500 rounded-border overflow-hidden w-40 lg:w-24" style="height: 8px">
+                    <div [class]="getProgressBarClass(item.color)" class="h-full" [style.width]="item.percentage + '%'"></div>
+                </div>
+                <span [class]="getTextColorClass(item.color)" class="ml-4 font-medium">
+                    {{ item.percentage }}%
+                </span>
+            </div>
+        </li>
+    </ul>
+
+    <div *ngIf="mostAskedCategories.length === 0" class="text-center text-muted-color">
+        No data available.
+    </div>
+</div>
