@@ -59,14 +59,14 @@
           <p-button 
             label="Reset Config" 
             icon="pi pi-undo" 
-            styleClass="p-button-secondary p-button-sm p-mr-2" 
+            styleClass="p-button-md p-mr-2" 
             [style]="{'margin': '10px'}"
             (onClick)="resetConfig()">
           </p-button>
           <p-button 
             label="Save Config" 
             icon="pi pi-save" 
-            styleClass="p-button-success p-button-sm" 
+            styleClass="p-button-md" 
             (onClick)="updateKnowledgeBaseConfig()" 
             [disabled]="!isConfigChanged() || _booleanIsLoading">
           </p-button>
@@ -94,7 +94,7 @@
             <p-button 
               icon="pi pi-upload" 
               label="Unggah Sekarang" 
-              styleClass="p-button-raised p-button-sm p-ml-3" 
+              styleClass="p-button-raised p-button-md p-ml-3" 
               (onClick)="uploadFile()" 
               [disabled]="!_fileSelectedFile || _booleanIsLoading">
             </p-button>
@@ -128,7 +128,7 @@
         <p-button 
           label="Proses Embedding" 
           icon="pi pi-sync" 
-          styleClass="p-button-primary p-button-lg" 
+          styleClass="p-button-primary p-button-md" 
           [style]="{'margin-top': '15px'}"
           (onClick)="embeddingFile()" 
           [disabled]="_booleanIsLoading">
