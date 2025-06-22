@@ -1,12 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http'; // Import HttpHeaders, HttpErrorResponse
-import { Observable, throwError } from 'rxjs'; // Import throwError
-import { catchError } from 'rxjs/operators'; // Import catchError
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http'; 
+import { Observable, throwError } from 'rxjs'; 
+import { catchError } from 'rxjs/operators'; 
+import { Prompt } from '../models/prompt.model'; 
 
-// Import model yang sesuai dengan schema respons server (PromptResponse)
-import { Prompt } from '../models/prompt.model'; // Asumsi model Prompt sesuai dengan PromptResponse
-
-import { environment } from '../../../environments/environment'; // Menggunakan environment variables
+import { environment } from '../../../environments/environment'; 
 
 
 @Injectable({
@@ -14,8 +12,8 @@ import { environment } from '../../../environments/environment'; // Menggunakan 
 })
 export class PromptService
 {
-  private apiUrl = environment.backendApiUrl; // Mengambil API URL dari environment
-  private apiKey = environment.apiKey; // Mengambil API Key dari environment
+  private apiUrl = environment.backendApiUrl; 
+  private apiKey = environment.apiKey;
 
   constructor(private httpClient: HttpClient) {}
 
@@ -26,22 +24,21 @@ export class PromptService
    * @param content Konten prompt.
    * @returns Observable dari Prompt (prompt yang diperbarui).
    */
-  public savePrompt(promptName: string, content: string): Observable<Prompt> // Ubah tipe kembalian ke Prompt
+  public savePrompt(promptName: string, content: string): Observable<Prompt>
   {
-    // Siapkan Headers, termasuk API Key
+
     const headers = new HttpHeaders({
       'X-API-Key': this.apiKey,
-      'Content-Type': 'application/json' // Diperlukan karena mengirim body JSON
+      'Content-Type': 'application/json' 
     });
 
     const url = `${this.apiUrl}/prompts/${promptName}`;
-    // Payload sesuai dengan schema PromptUpdate server (asumsi hanya properti 'content')
-    const payload = { content: content }; // Pastikan nama properti 'content' sesuai dengan PromptUpdate schema
+    
+    const payload = { content: content }; 
 
-    // Gunakan metode PUT dengan headers
-    return this.httpClient.put<Prompt>(url, payload, { headers: headers }) // Ubah tipe kembalian
+    return this.httpClient.put<Prompt>(url, payload, { headers: headers }) 
        .pipe(
-        catchError(this.handleError) // Tambahkan penanganan error
+        catchError(this.handleError) 
       );
   }
 
@@ -50,19 +47,18 @@ export class PromptService
    * Menggunakan metode GET dan membutuhkan API Key di header 'X-API-Key'.
    * @returns Observable dari array Prompt.
    */
-  public loadPrompts(): Observable<Prompt[]> // Tipe kembalian array Prompt
+  public loadPrompts(): Observable<Prompt[]> 
   {
-    // Siapkan Headers, termasuk API Key
+
     const headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
     const url = `${this.apiUrl}/prompts`;
 
-    // Gunakan metode GET dengan headers
     return this.httpClient.get<Prompt[]>(url, { headers: headers })
        .pipe(
-        catchError(this.handleError) // Tambahkan penanganan error
+        catchError(this.handleError) 
       );
   }
 
@@ -72,21 +68,24 @@ export class PromptService
    * @returns Observable yang memancarkan error.
    */
   private handleError(error: HttpErrorResponse) {
+    
     let errorMessage = 'An unknown error occurred!';
+    
     if (error.error instanceof ErrorEvent) {
-      // Client-side errors
+     
       errorMessage = `Error: ${error.error.message}`;
     } else {
-      // Server-side errors
+     
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      
       if (error.error && typeof error.error === 'object' && error.error.detail) {
          errorMessage += `\nDetail: ${error.error.detail}`;
       } else if (error.error && typeof error.error === 'string') {
          errorMessage += `\nServer Response: ${error.error}`;
       }
     }
-    console.error(errorMessage); // Log error ke console
-    // Anda bisa menggunakan MessageService PrimeNG di sini untuk menampilkan pesan ke pengguna
-    return throwError(() => new Error(errorMessage)); // Kembalikan Observable error
+    console.error(errorMessage); 
+    
+    return throwError(() => new Error(errorMessage)); 
   }
 }

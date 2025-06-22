@@ -9,7 +9,6 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
-
 import { DashboardService } from '../../services/dashboard.service'; // Pastikan path ini benar
 
 @Component({
@@ -27,20 +26,20 @@ import { DashboardService } from '../../services/dashboard.service'; // Pastikan
     templateUrl: './agent-performance-widget.html',
 })
 export class AgentPerformanceWidget implements OnInit, OnDestroy {
-    chartData: any;
-    chartOptions: any;
-    menuItems: MenuItem[] = [];
+    _anyChartData: any;
+    _anyChartOptions: any;
+    _listMenuItems: MenuItem[] = [];
 
-    dates: Date[] | undefined = [];
-    selectedTime: string = 'Weekly';
-    timeOptions = [
+    _listDates: Date[] | undefined = [];
+    _stringSelectedTime: string = 'Weekly';
+    _listTimeOptions = [
         { label: 'Weekly', value: 'Weekly' },
         { label: 'Monthly', value: 'Monthly' },
         { label: 'Yearly', value: 'Yearly' }
     ];
 
-    isLoading = true;
-    errorMessage: string | null = null;
+    _boolIsLoading = true;
+    _stringErrorMessage: string | null = null;
 
     private destroy$ = new Subject<void>();
 
@@ -50,7 +49,7 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
     ) {}
 
     ngOnInit() {
-        this.menuItems = [
+        this._listMenuItems = [
             {
                 label: 'Refresh',
                 icon: 'pi pi-refresh',
@@ -77,14 +76,14 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
     }
 
     loadChartData() {
-        this.isLoading = true;
-        this.errorMessage = null;
-        this.chartData = null;
+        this._boolIsLoading = true;
+        this._stringErrorMessage = null;
+        this._anyChartData = null;
 
         let totalConversationsObservable;
         let totalEscalationsObservable;
 
-        switch (this.selectedTime) {
+        switch (this._stringSelectedTime) {
             case 'Weekly':
                 totalConversationsObservable = this.dashboardService.getWeeklyTotalConversations();
                 totalEscalationsObservable = this.dashboardService.getWeeklyTotalEscalations();
@@ -98,8 +97,8 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
                 totalEscalationsObservable = this.dashboardService.getYearlyTotalEscalations();
                 break;
             default:
-                this.errorMessage = "Invalid time selection.";
-                this.isLoading = false;
+                this._stringErrorMessage = "Invalid time selection.";
+                this._boolIsLoading = false;
                 return;
         }
 
@@ -117,9 +116,9 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
                 const labels = Array.from(allKeys).sort((a, b) => {
                     // Logika pengurutan khusus untuk bulan/minggu
                     const monthOrder = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-                    if (this.selectedTime === 'Monthly') {
+                    if (this._stringSelectedTime === 'Monthly') {
                         return monthOrder.indexOf(a) - monthOrder.indexOf(b);
-                    } else if (this.selectedTime === 'Weekly') {
+                    } else if (this._stringSelectedTime === 'Weekly') {
                         const weekNumA = parseInt(a.replace('Week ', ''));
                         const weekNumB = parseInt(b.replace('Week ', ''));
                         return weekNumA - weekNumB;
@@ -145,7 +144,7 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
                 const primary300 = documentStyle.getPropertyValue('--p-primary-300'); // Successful Resolutions
                 const primary400 = documentStyle.getPropertyValue('--p-primary-400'); // Total Interactions
 
-                this.chartData = {
+                this._anyChartData = {
                     labels,
                     datasets: [
                         {
@@ -179,13 +178,13 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
                     ]
                 };
 
-                this.isLoading = false;
+                this._boolIsLoading = false;
             },
             error: (err) => {
                 console.error("Error fetching agent performance data:", err);
-                this.errorMessage = "Failed to load performance data. " + (err.message || "Please try again later.");
-                this.isLoading = false;
-                this.chartData = { labels: [], datasets: [] };
+                this._stringErrorMessage = "Failed to load performance data. " + (err.message || "Please try again later.");
+                this._boolIsLoading = false;
+                this._anyChartData = { labels: [], datasets: [] };
             }
         });
     }
@@ -196,7 +195,7 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
         const borderColor = documentStyle.getPropertyValue('--surface-border');
         const textMutedColor = documentStyle.getPropertyValue('--text-color-secondary');
 
-        this.chartOptions = {
+        this._anyChartOptions = {
             maintainAspectRatio: false,
             aspectRatio: 0.8,
             plugins: {

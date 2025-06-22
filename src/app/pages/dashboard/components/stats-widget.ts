@@ -11,16 +11,16 @@ import { DashboardService } from '../../services/dashboard.service'; // Import D
     templateUrl: './stats-widget.html',
 })
 export class StatsWidget implements OnInit {
-    totalFeedbacks: number = 0;
-    totalTokens: number = 0;
-    totalUsers: number = 0;
-    totalChats: number = 0;
+    _numberTotalFeedbacks: number = 0;
+    _numberTotalTokens: number = 0;
+    _numberTotalUsers: number = 0;
+    _numberTotalChats: number = 0;
 
     // Properti baru untuk menyimpan data bulanan
-    monthlyNewUsers: number = 0;
-    monthlyConversations: number = 0;
-    monthlyEscalations: number = 0;
-    monthlyTokensUsage: number = 0; 
+    _numberMonthlyNewUsers: number = 0;
+    _numberMonthlyConversations: number = 0;
+    _numberMonthlyEscalations: number = 0;
+    _numberMonthlyTokensUsage: number = 0; 
 
     constructor(
         private analyticsService: AnalyticsService,
@@ -45,7 +45,7 @@ export class StatsWidget implements OnInit {
     private getTotalFeedbackCount(): void {
         this.analyticsService.getTotalFeedbacks().subscribe({
             next: (count: number) => {
-                this.totalFeedbacks = count;
+                this._numberTotalFeedbacks = count;
             },
             error: (err) => {
                 console.error('Error fetching total feedbacks:', err);
@@ -56,7 +56,7 @@ export class StatsWidget implements OnInit {
     private getTotalTokens(): void {
         this.chatHistoryService.getTotalTokens().subscribe({
             next: (count: number) => {
-                this.totalTokens = count;
+                this._numberTotalTokens = count;
             },
             error: (err) => {
                 console.error('Error fetching total tokens:', err);
@@ -67,7 +67,7 @@ export class StatsWidget implements OnInit {
     public getTotalUsers(): void {
         this.chatHistoryService.getTotalUsers().subscribe({
             next: (count: number) => {
-                this.totalUsers = count;
+                this._numberTotalUsers = count;
             },
             error: (err) => {
                 console.error('Error fetching total users:', err);
@@ -78,7 +78,7 @@ export class StatsWidget implements OnInit {
     public getTotalChats(): void {
         this.chatHistoryService.getTotalChats().subscribe({
             next: (count: number) => {
-                this.totalChats = count;
+                this._numberTotalChats = count;
             },
             error: (err) => {
                 console.error('Error fetching total chats:', err);
@@ -92,7 +92,7 @@ export class StatsWidget implements OnInit {
     private getMonthlyNewUsers(): void {
         this.dashboardService.getMonthlyNewUsers().subscribe({
             next: (data: { [key: string]: number }) => {
-                this.monthlyNewUsers = this.getLatestMonthValue(data);
+                this._numberMonthlyNewUsers = this.getLatestMonthValue(data);
             },
             error: (err) => {
                 console.error('Error fetching monthly new users:', err);
@@ -106,7 +106,7 @@ export class StatsWidget implements OnInit {
     private getMonthlyConversations(): void {
         this.dashboardService.getMonthlyConversations().subscribe({
             next: (data: { [key: string]: number }) => {
-                this.monthlyConversations = this.getLatestMonthValue(data);
+                this._numberMonthlyConversations = this.getLatestMonthValue(data);
             },
             error: (err) => {
                 console.error('Error fetching monthly conversations:', err);
@@ -120,7 +120,7 @@ export class StatsWidget implements OnInit {
     private getMonthlyEscalations(): void {
         this.dashboardService.getMonthlyEscalations().subscribe({
             next: (data: { [key: string]: number }) => {
-                this.monthlyEscalations = this.getLatestMonthValue(data);
+                this._numberMonthlyEscalations = this.getLatestMonthValue(data);
             },
             error: (err) => {
                 console.error('Error fetching monthly escalations:', err);
@@ -131,7 +131,7 @@ export class StatsWidget implements OnInit {
     private getMonthlyTokensUsage(): void {
         this.dashboardService.getMonthlyTokensUsage().subscribe({
             next: (data: { [key: string]: number }) => {
-                this.monthlyTokensUsage = this.getLatestMonthValue(data);
+                this._numberMonthlyTokensUsage = this.getLatestMonthValue(data);
             },
             error: (err) => {
                 console.error('Error fetching monthly tokens usage:', err);

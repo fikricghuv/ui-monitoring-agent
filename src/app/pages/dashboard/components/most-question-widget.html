@@ -2,11 +2,11 @@
     <div class="flex justify-between items-center mb-6">
         <div class="flex-1 text-color font-semibold leading-6 text-xl">Most Question Users</div>
         <p-button type="button" icon="pi pi-ellipsis-h" severity="secondary" text (click)="menu.toggle($event)" aria-haspopup="true" aria-controls="overlay_menu" />
-        <p-menu #menu id="overlay_menu" [model]="menuItems" [popup]="true" styleClass="ml-6" />
+        <p-menu #menu id="overlay_menu" [model]="_listMenuItems" [popup]="true" styleClass="ml-6" />
     </div>
 
-    <ul class="list-none p-0 m-0" *ngIf="mostAskedCategories.length > 0">
-        <li *ngFor="let item of mostAskedCategories" class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+    <ul class="list-none p-0 m-0" *ngIf="_listMostAskedCategories.length > 0">
+        <li *ngFor="let item of _listMostAskedCategories" class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
             <div>
                 <span class="text-surface-900 dark:text-surface-0 font-medium mr-2 mb-1 md:mb-0">
                     {{ item.category }}
@@ -23,7 +23,7 @@
         </li>
     </ul>
 
-    <div *ngIf="mostAskedCategories.length === 0" class="text-center text-muted-color">
+    <div *ngIf="_listMostAskedCategories.length === 0" class="text-center text-muted-color">
         No data available.
     </div>
 </div>

@@ -55,12 +55,4 @@ export class LoginComponent {
     });
   }
 
-  public onLogout(): void {
-    sessionStorage.removeItem('access_token');
-    localStorage.removeItem('access_token');
-    this._stringUsername = '';
-    this._stringPassword = '';
-    alert('You have been logged out.');
-  }
-
 }

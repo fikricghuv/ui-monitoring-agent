@@ -4,54 +4,52 @@ import { FormsModule } from '@angular/forms';
 import { KnowledgeBaseService } from '../services/knowledge-base.service';
 import { FileInfoModel } from '../models/file_info.model';
 import { KnowledgeBaseConfigModel } from '../models/knowledge_base_config.model';
-
-// Impor modul PrimeNG yang akan digunakan
 import { CardModule } from 'primeng/card';
 import { FieldsetModule } from 'primeng/fieldset';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { ButtonModule } from 'primeng/button';
-import { FileUploadModule, FileUploadEvent } from 'primeng/fileupload'; // Impor FileUploadSelectEvent
+import { FileUploadModule, FileUploadEvent } from 'primeng/fileupload'; 
 import { ListboxModule } from 'primeng/listbox';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { MessageService } from 'primeng/api'; // Untuk Toast atau pesan lainnya
-import { ToastModule } from 'primeng/toast'; // Untuk menampilkan notifikasi
-import { TooltipModule } from 'primeng/tooltip'; // Untuk tooltip pada tombol hapus
+import { MessageService } from 'primeng/api'; 
+import { ToastModule } from 'primeng/toast'; 
+import { TooltipModule } from 'primeng/tooltip'; 
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
 
 @Component({
   selector: 'app-base-knowledge',
-  standalone: true, // Pastikan ini true
+  standalone: true, 
   imports: [
     CommonModule,
     FormsModule,
-    CardModule,          // <--- Tambahkan CardModule
-    FieldsetModule,      // <--- Tambahkan FieldsetModule
-    InputNumberModule,   // <--- Tambahkan InputNumberModule
-    ButtonModule,        // <--- Tambahkan ButtonModule
-    FileUploadModule,    // <--- Tambahkan FileUploadModule
-    ListboxModule,       // <--- Tambahkan ListboxModule
-    ProgressSpinnerModule, // <--- Tambahkan ProgressSpinnerModule
-    ToastModule,         // <--- Tambahkan ToastModule
+    CardModule,          
+    FieldsetModule,      
+    InputNumberModule,   
+    ButtonModule,        
+    FileUploadModule,    
+    ListboxModule,       
+    ProgressSpinnerModule, 
+    ToastModule,         
     TooltipModule,     
     BreadcrumbModule
   ],
   templateUrl: './base-knowledge.component.html',
   styleUrl: './base-knowledge.component.scss',
-  providers: [MessageService] // <--- Tambahkan MessageService ke providers
+  providers: [MessageService] 
 })
 export class BaseKnowledgeComponent implements OnInit {
   public _fileSelectedFile: File | null;
   public _arrayUploadedFiles: Array<FileInfoModel>;
   public _booleanIsLoading: boolean;
   public _arrayKnowledgeBaseConfig: KnowledgeBaseConfigModel;
-  public _arrayOriginalConfig: KnowledgeBaseConfigModel; // Menggunakan nama yang lebih jelas
-  public items: MenuItem[] | undefined;
-  public home: MenuItem | undefined;
+  public _arrayOriginalConfig: KnowledgeBaseConfigModel; 
+  public _listMenuItems: MenuItem[] | undefined;
+  public _defaultHomeMenu: MenuItem | undefined;
 
   constructor(
     private knowledgeBaseService: KnowledgeBaseService,
-    private messageService: MessageService // <--- Injeksi MessageService
+    private messageService: MessageService 
   ) {
     this._fileSelectedFile = null;
     this._arrayUploadedFiles = [];
@@ -63,17 +61,17 @@ export class BaseKnowledgeComponent implements OnInit {
   ngOnInit() {
     this.fetchUploadedFiles();
     this.loadKnowledgeBaseConfig();
-    this.items = [
-            { label: 'Knowledge Base' }
+    this._listMenuItems = [
+            { label: 'Base Knowledge' }
         ];
 
-        this.home = { icon: 'pi pi-home', routerLink: '/dashboard' };
+        this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
   }
 
   public loadKnowledgeBaseConfig() {
     this.knowledgeBaseService.getKnowledgeBaseConfig().subscribe({
       next: (data) => {
-        if (!data) { // Cek apakah data kosong atau null
+        if (!data) { 
           console.error('Invalid response format: data is null or undefined');
           this.messageService.add({severity:'error', summary:'Error', detail:'Failed to load knowledge base config: Invalid data received.'});
           return;
@@ -93,39 +91,37 @@ export class BaseKnowledgeComponent implements OnInit {
   }
 
   public updateKnowledgeBaseConfig() {
-    this._booleanIsLoading = true; // Set loading saat mulai update
+    this._booleanIsLoading = true; 
     this.knowledgeBaseService.updateKnowledgeBaseConfig(this._arrayKnowledgeBaseConfig).subscribe({
       next: () => {
         this.messageService.add({severity:'success', summary:'Success', detail:'Knowledge Base Config updated successfully!'});
-        this.loadKnowledgeBaseConfig(); // Muat ulang untuk memastikan konsistensi
-        this._booleanIsLoading = false; // Nonaktifkan loading setelah berhasil
+        this.loadKnowledgeBaseConfig(); 
+        this._booleanIsLoading = false; 
       },
       error: (error) => {
         console.error('Failed to update knowledge base config:', error);
         this.messageService.add({severity:'error', summary:'Error', detail:'Failed to update Knowledge Base Config!'});
-        this._booleanIsLoading = false; // Nonaktifkan loading jika ada error
+        this._booleanIsLoading = false; 
       }
     });
   }
 
   public resetConfig() {
-    this._arrayKnowledgeBaseConfig = { ...this._arrayOriginalConfig }; // Salin objek untuk reset
+    this._arrayKnowledgeBaseConfig = { ...this._arrayOriginalConfig }; 
     this.messageService.add({severity:'info', summary:'Info', detail:'Knowledge Base config reset.'});
   }
 
   public isConfigChanged(): boolean {
-    // Membandingkan objek berdasarkan stringified JSON
+    
     return JSON.stringify(this._arrayKnowledgeBaseConfig) !== JSON.stringify(this._arrayOriginalConfig);
   }
 
-  // Mengubah tipe event menjadi FileUploadSelectEvent dari PrimeNG
   public onFileSelected(event: any) {
     if (event.files && event.files.length > 0) {
       this._fileSelectedFile = event.files[0];
     }
   }
 
-  // Metode untuk membersihkan file yang dipilih (dipanggil oleh onClear p-fileupload)
   public onFileClear() {
     this._fileSelectedFile = null;
   }
@@ -136,18 +132,18 @@ export class BaseKnowledgeComponent implements OnInit {
       return;
     }
 
-    this._booleanIsLoading = true; // Set loading saat mulai upload
+    this._booleanIsLoading = true; 
     this.knowledgeBaseService.uploadFile(this._fileSelectedFile).subscribe({
       next: (response) => {
-        this.fetchUploadedFiles(); // Muat ulang daftar file setelah upload
-        this._fileSelectedFile = null; // Reset file yang dipilih
+        this.fetchUploadedFiles(); 
+        this._fileSelectedFile = null; 
         this.messageService.add({severity:'success', summary:'Success', detail:'File berhasil diunggah.'});
-        this._booleanIsLoading = false; // Nonaktifkan loading
+        this._booleanIsLoading = false; 
       },
       error: (error) => {
         console.error('Error uploading file:', error);
         this.messageService.add({severity:'error', summary:'Error', detail:'Gagal mengunggah file. Silakan coba lagi nanti.'});
-        this._booleanIsLoading = false; // Nonaktifkan loading jika ada error
+        this._booleanIsLoading = false; 
       }
     });
   }
@@ -160,11 +156,11 @@ export class BaseKnowledgeComponent implements OnInit {
           this.messageService.add({severity:'error', summary:'Error', detail:'Failed to load files: Invalid data received.'});
           return;
         }
-        // Pastikan properti `filename` ada dan tidak null/undefined
+        
         this._arrayUploadedFiles = response.map((file: any) => ({
           uuid_file: file.uuid_file,
           filename: file.filename,
-          // Tambahkan properti lain jika diperlukan oleh FileInfoModel
+          
         }));
       },
       error: (error) => {
@@ -194,19 +190,19 @@ export class BaseKnowledgeComponent implements OnInit {
     }
   }
 
-  public removeFile(file: FileInfoModel) { // Menggunakan FileInfoModel sebagai tipe parameter
+  public removeFile(file: FileInfoModel) { 
     if (confirm(`Apakah Anda yakin ingin menghapus file "${file.filename}"?`)) {
-      this._booleanIsLoading = true; // Set loading saat mulai menghapus
+      this._booleanIsLoading = true;
       this.knowledgeBaseService.removeFile(file.uuid_file!).subscribe({
         next: (response) => {
-          this.fetchUploadedFiles(); // Muat ulang daftar file
+          this.fetchUploadedFiles(); 
           this.messageService.add({severity:'success', summary:'Success', detail:`File "${file.filename}" berhasil dihapus.`});
-          this._booleanIsLoading = false; // Nonaktifkan loading
+          this._booleanIsLoading = false;
         },
         error: (error) => {
           console.error('Error deleting file:', error);
           this.messageService.add({severity:'error', summary:'Error', detail:'Gagal menghapus file. Silakan coba lagi nanti.'});
-          this._booleanIsLoading = false; // Nonaktifkan loading jika ada error
+          this._booleanIsLoading = false; 
         }
       });
     }

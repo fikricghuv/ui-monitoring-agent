@@ -8,13 +8,13 @@ import { SettingsComponent } from './app/pages/settings/settings.component';
 import { ProfileComponent } from './app/pages/profile/profile.component';
 
 export const appRoutes: Routes = [
-    { path: 'login', component: LoginComponent }, // Login kini rute independen
+    { path: 'login', component: LoginComponent }, 
 
     {
         path: '',
         component: AppLayout,
         children: [
-            { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, // Setelah login, redirect ke dashboard
+            { path: '', redirectTo: 'dashboard', pathMatch: 'full' }, 
             { path: 'dashboard', component: Dashboard },
             { path: 'documentation', component: DocumentationComponent },
             { path: 'settings', component: SettingsComponent },

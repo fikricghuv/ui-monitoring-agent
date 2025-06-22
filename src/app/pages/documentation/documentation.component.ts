@@ -6,8 +6,8 @@ import { Component } from '@angular/core';
     selector: 'app-documentation',
     standalone: true,
     imports: [CommonModule],
-    templateUrl: './documentation.component.html', // Mengarahkan ke file HTML terpisah
-    styleUrls: ['./documentation.component.scss']  // Mengarahkan ke file SCSS terpisah
+    templateUrl: './documentation.component.html', 
+    styleUrls: ['./documentation.component.scss']  
 })
 export class DocumentationComponent {
   

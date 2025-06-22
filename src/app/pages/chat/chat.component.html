@@ -1,5 +1,5 @@
 <div class="card flex" style="padding: 0; ">
-  <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="items" [home]="home" />
+  <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems" [home]="_defaultHomeMenu" />
 </div>
 <div style="display: grid; grid-template-columns: 0.30fr 0.70fr; column-gap: 30px; height: 95%;">
 
@@ -16,7 +16,6 @@
   </div>
 
   <p-card [style]="{'display': 'flex', 'height' : '100vh', 'border-radius': '6px', 'max-height': '100vh'}">
-    <!-- <div class="chat-container"> -->
       <div class="chat-area">
         <div *ngIf="_modelSelectedRoom" #chatScroll class="chat-history">
           <div *ngFor="let message of filteredMessages" class="message-container"
@@ -42,14 +41,6 @@
         <div *ngIf="!_modelSelectedRoom" class="no-selection">
           <p>Pilih user untuk memulai chat</p>
         </div>
-
-        <!-- <div *ngIf="_modelSelectedRoom" class="message-input">
-        <input [(ngModel)]="_stringNewMessage"
-               placeholder="Ketik pesan..."
-               (keyup.enter)="sendMessageFromAdmin()">
-        
-        <p-button (click)="sendMessageFromAdmin()" label="Kirim" />
-      </div> -->
         <div class="message-input">
           <input pInputText [(ngModel)]="_stringNewMessage" placeholder="Ketik pesan..."
             (keyup.enter)="sendMessageFromAdmin()" class="w-full" />
@@ -58,6 +49,5 @@
         </div>
 
       </div>
-    <!-- </div> -->
   </p-card>
 </div>

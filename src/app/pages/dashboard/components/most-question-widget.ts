@@ -18,20 +18,20 @@ export interface ProcessedCategoryFrequency {
     templateUrl: './most-question-widget.html',
 })
 export class MostQuestionsWidget implements OnInit {
-    menu = null;
-    items = [
+    _defaultMenu = null;
+    _listItems = [
         { label: 'Add New', icon: 'pi pi-fw pi-plus' },
         { label: 'Remove', icon: 'pi pi-fw pi-trash' }
     ];
 
-    mostAskedCategories: ProcessedCategoryFrequency[] = [];
-    isLoading: boolean = true;
-    errorMessage: string | null = null;
-    menuItems: any[] = [];
+    _listMostAskedCategories: ProcessedCategoryFrequency[] = [];
+    _boolIsLoading: boolean = true;
+    _stringErrorMessage: string | null = null;
+    _listMenuItems: any[] = [];
 
     private availableColors = ['orange', 'cyan', 'pink', 'green', 'purple', 'teal', 'indigo', 'red', 'yellow', 'blue'];
 
-    colorClassMap: { [key: string]: string } = {
+    _objectColorClassMap: { [key: string]: string } = {
         orange: 'bg-orange-500',
         cyan: 'bg-cyan-500',
         pink: 'bg-pink-500',
@@ -44,7 +44,7 @@ export class MostQuestionsWidget implements OnInit {
         blue: 'bg-blue-500'
     };
 
-    textColorClassMap: { [key: string]: string } = {
+    _objectTextColorClassMap: { [key: string]: string } = {
         orange: 'text-orange-500',
         cyan: 'text-cyan-500',
         pink: 'text-pink-500',
@@ -61,7 +61,7 @@ export class MostQuestionsWidget implements OnInit {
 
     ngOnInit(): void {
         this.loadCategoryFrequencies();
-        this.menuItems = [
+        this._listMenuItems = [
             { label: 'Refresh', icon: 'pi pi-refresh' },
             { label: 'Export', icon: 'pi pi-upload' }
         ];
@@ -72,20 +72,20 @@ export class MostQuestionsWidget implements OnInit {
     }
 
     loadCategoryFrequencies(): void {
-        this.isLoading = true;
-        this.errorMessage = null;
+        this._boolIsLoading = true;
+        this._stringErrorMessage = null;
         this.dashboardService.getCategoriesFrequency().subscribe({
             next: (dataFromService: any[]) => {
                 if (!dataFromService || dataFromService.length === 0) {
-                    this.mostAskedCategories = [];
-                    this.isLoading = false;
+                    this._listMostAskedCategories = [];
+                    this._boolIsLoading = false;
                     return;
                 }
 
                 const rawData = dataFromService as Array<{ category: string; count: number }>;
                 const totalCount = rawData.reduce((sum, item) => sum + item.count, 0);
 
-                this.mostAskedCategories = rawData
+                this._listMostAskedCategories = rawData
                     .sort((a, b) => b.count - a.count)
                     .map((item, index) => {
                         const percentage = totalCount > 0 ? Math.round((item.count / totalCount) * 100) : 0;
@@ -97,22 +97,22 @@ export class MostQuestionsWidget implements OnInit {
                         };
                     });
 
-                this.isLoading = false;
+                this._boolIsLoading = false;
             },
             error: (err) => {
                 console.error("Error fetching category frequencies:", err);
-                this.errorMessage = "Failed to load data. " + (err.message || "Please try again later.");
-                this.mostAskedCategories = [];
-                this.isLoading = false;
+                this._stringErrorMessage = "Failed to load data. " + (err.message || "Please try again later.");
+                this._listMostAskedCategories = [];
+                this._boolIsLoading = false;
             }
         });
     }
 
     getProgressBarClass(color: string): string {
-        return this.colorClassMap[color] || 'bg-orange-500';
+        return this._objectColorClassMap[color] || 'bg-orange-500';
     }
 
     getTextColorClass(color: string): string {
-        return this.textColorClassMap[color] || 'text-orange-500';
+        return this._objectTextColorClassMap[color] || 'text-orange-500';
     }
 }

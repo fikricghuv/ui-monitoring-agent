@@ -11,17 +11,16 @@ import { ChatHistoryService } from '../services/chat-history.service';
 import { RoomService } from '../services/room.service';
 import { Subscription } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
-// Import modul PrimeNG yang diperlukan
-import { CardModule } from 'primeng/card'; // Sudah ada
-import { ButtonModule } from 'primeng/button'; // Sudah ada
-import { ListboxModule } from 'primeng/listbox'; // Sudah ada
-import { BreadcrumbModule } from 'primeng/breadcrumb'; // Sudah ada
-import { MenuItem } from 'primeng/api'; // Sudah ada
-import { AvatarModule } from 'primeng/avatar'; // Baru ditambahkan
-import { InputTextModule } from 'primeng/inputtext'; // Sudah ada (tapi perlu InputText untuk input text)
-import { IconFieldModule } from 'primeng/iconfield'; // Baru ditambahkan
-import { InputIconModule } from 'primeng/inputicon'; // Baru ditambahkan
-import { TextareaModule } from 'primeng/textarea'; // Baru ditambahkan (untuk textarea)
+import { CardModule } from 'primeng/card'; 
+import { ButtonModule } from 'primeng/button'; 
+import { ListboxModule } from 'primeng/listbox'; 
+import { BreadcrumbModule } from 'primeng/breadcrumb'; 
+import { MenuItem } from 'primeng/api'; 
+import { AvatarModule } from 'primeng/avatar'; 
+import { InputTextModule } from 'primeng/inputtext'; 
+import { IconFieldModule } from 'primeng/iconfield'; 
+import { InputIconModule } from 'primeng/inputicon';
+import { TextareaModule } from 'primeng/textarea'; 
 
 
 @Component({
@@ -34,11 +33,11 @@ import { TextareaModule } from 'primeng/textarea'; // Baru ditambahkan (untuk te
     CardModule,
     ButtonModule,
     ListboxModule,
-    AvatarModule, // Tambahkan
-    InputTextModule, // Pastikan ada, walaupun di template pakai pInputText
-    IconFieldModule, // Tambahkan
-    InputIconModule, // Tambahkan
-    TextareaModule // Tambahkan
+    AvatarModule, 
+    InputTextModule, 
+    IconFieldModule, 
+    InputIconModule, 
+    TextareaModule 
   ],
   standalone: true,
   templateUrl: './admin-chat.component.html',
@@ -51,12 +50,13 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
   public _modelSelectedRoom: RoomConversationModel | null;
   public _modelChatMessages: Record<string, MessageModel[]>;
   public _stringNewMessage: string;
-  public _modelChatMessagesFlat: MessageModel[] = []; // Tidak digunakan langsung di template yang baru
+  public _modelChatMessagesFlat: MessageModel[] = []; 
   public _enumSender = ENUM_SENDER;
-  public items: MenuItem[] | undefined;
-  public home: MenuItem | undefined;
+  public _listMenuItems: MenuItem[] | undefined;
+  public _defaultHomeMenu: MenuItem | undefined;
 
-  get filteredMessages() {
+  get filteredMessages() 
+  {
     return this._modelSelectedRoom?.id
       ? (this._modelChatMessages[this._modelSelectedRoom.id] || [])
       : [];
@@ -70,7 +70,8 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private chatHistoryService: ChatHistoryService,
     private roomService: RoomService
-  ) {
+  ) 
+  {
     this._arrayRoomModel = [];
     this._modelSelectedRoom = null;
     this._modelChatMessages = {};
@@ -104,7 +105,6 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       const time = new Date().toISOString();
       const formattedTime = time.slice(0, 16).replace("T", " ");
 
-      // Logika penentuan sender tetap sama
       if (message.question) {
         this._modelChatMessages[roomIdentifier].push({ message: message.question, time: formattedTime, sender: this._enumSender.User });
       }
@@ -119,27 +119,30 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
       const roomIndex = this._arrayRoomModel.findIndex((r) => r.id === roomIdentifier);
       if (roomIndex !== -1) {
+
         let lastMsgText = '';
+        
         if (message.question) lastMsgText = message.question;
         else if (message.output) lastMsgText = message.output;
         else if (message.error) lastMsgText = `❌ Error: ${message.error}`;
 
         this._arrayRoomModel[roomIndex].lastMessage = lastMsgText;
+        
         this._arrayRoomModel[roomIndex].lastTimeMessage = formattedTime;
+        
         this._arrayRoomModel.sort((a, b) =>
           new Date(b.lastTimeMessage || 0).getTime() - new Date(a.lastTimeMessage || 0).getTime()
         );
       }
 
-      // this.syncChatMessagesFlat(); // Tidak lagi perlu sinkronisasi ke flat array
       this.cdr.detectChanges();
       setTimeout(() => this.scrollToBottom(), 100);
     });
 
-    this.items = [
+    this._listMenuItems = [
       { label: 'Admin Chat' }
     ];
-    this.home = { icon: 'pi pi-home', routerLink: '/dashboard' };
+    this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
   }
 
   ngAfterViewInit(): void {
@@ -150,27 +153,26 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.newMessageSubscription?.unsubscribe();
   }
 
-  // onRoomReorder tidak lagi relevan dengan p-listbox tanpa orderlist
-  // onRoomReorder(event: any) {
-  //   console.log("Room reordered:", event.value);
-  //   this._arrayRoomModel = [...event.value];
-  // }
-
   async selectRoom(room: RoomConversationModel): Promise<void> {
+    
     this._modelSelectedRoom = room;
 
     if (room.id) {
       this.chatHistoryService.loadChatHistoryByRoomId(room.id).subscribe({
         next: (response) => {
           const groupedChats: MessageModel[] = [];
+          
           console.log("📜 Riwayat chat:", response);
 
           if (!response.success || !response.history || response.history.length === 0) {
             console.warn(`⚠️ Tidak ada riwayat chat untuk room ID ${room.id} atau permintaan gagal.`);
+            
             this._modelChatMessages[room.id!] = [];
-            // this.syncChatMessagesFlat(); // Tidak lagi perlu
+
             this.cdr.detectChanges();
+            
             setTimeout(() => this.scrollToBottom(), 100);
+
             return;
           }
 
@@ -180,6 +182,7 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
               : new Date().toISOString().slice(0, 16).replace("T", " ");
 
             let senderType: ENUM_SENDER;
+            
             switch (chatItem.role) {
               case 'user':
                 senderType = this._enumSender.User;
@@ -192,16 +195,18 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
                 senderType = this._enumSender.Chatbot;
                 break;
             }
+            
             groupedChats.push({ message: chatItem.message, time: formattedTime, sender: senderType });
           });
 
           groupedChats.sort((a, b) => new Date(a.time || '').getTime() - new Date(b.time || '').getTime());
 
           this._modelChatMessages[room.id!] = groupedChats;
-          // this.syncChatMessagesFlat(); // Tidak lagi perlu
 
           const latestMessage = groupedChats.length > 0 ? groupedChats[groupedChats.length - 1] : null;
+          
           const roomToUpdate = this._arrayRoomModel.find(r => r.id === room.id);
+          
           if (roomToUpdate && latestMessage) {
             roomToUpdate.lastMessage = latestMessage.message;
             roomToUpdate.lastTimeMessage = latestMessage.time;
@@ -209,20 +214,24 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
           }
 
           this.cdr.detectChanges();
+          
           setTimeout(() => this.scrollToBottom(), 100);
         },
         error: (err) => {
           console.error(`❌ Gagal memuat chat history untuk room ID ${room.id}:`, err);
+          
           this._modelChatMessages[room.id!] = [];
-          // this.syncChatMessagesFlat(); // Tidak lagi perlu
+          
           this.cdr.detectChanges();
         },
       });
     } else {
       alert("⚠️ ID room tidak valid.");
+      
       this._modelSelectedRoom = null;
+      
       this._modelChatMessages[''] = [];
-      // this.syncChatMessagesFlat(); // Tidak lagi perlu
+      
       this.cdr.detectChanges();
     }
   }
@@ -239,12 +248,15 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
               ? new Date(room.created_at).toISOString().slice(0, 16).replace("T", " ")
               : '')),
       }))),
+
       tap(rooms => rooms.sort((a, b) =>
         new Date(b.lastTimeMessage || 0).getTime() - new Date(a.lastTimeMessage || 0).getTime()
       ))
     ).subscribe({
       next: (rooms) => {
+        
         this._arrayRoomModel = rooms;
+        
         if (this._modelSelectedRoom && this._modelSelectedRoom.id) {
           const currentSelected = rooms.find(r => r.id === this._modelSelectedRoom!.id);
           if (currentSelected) {
@@ -253,7 +265,7 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
             this._modelSelectedRoom = null;
           }
         }
-        // Tidak lagi otomatis memilih room pertama jika tidak ada yang terpilih, biarkan pesan "Pilih user" muncul
+      
       },
       error: (err) => {
         console.error('Gagal memuat daftar room:', err);
@@ -261,26 +273,16 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  // getMessages() tidak lagi diperlukan karena langsung menggunakan filteredMessages
-  // public getMessages(): MessageModel[] {
-  //   return this._modelChatMessages[this._modelSelectedRoom?.id || ''] || [];
-  // }
-
-  // syncChatMessagesFlat() tidak lagi diperlukan
-  // public syncChatMessagesFlat(): void {
-  //   this._modelChatMessagesFlat = Object.entries(this._modelChatMessages).flatMap(([roomIdentifier, msgs]) =>
-  //     msgs.map(msg => ({ ...msg, roomIdentifier }))
-  //   );
-  // }
-
   public scrollToBottom(): void {
     try {
       if (this.chatScroll && this.chatScroll.nativeElement) {
+        
         const el = this.chatScroll.nativeElement;
+        
         el.scrollTop = el.scrollHeight;
       }
     } catch (err) {
-      // console.error("❌ Gagal scroll:", err);
+      console.error("❌ Gagal scroll:", err);
     }
   }
 
@@ -291,15 +293,16 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     const formattedTime = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    
     const adminId = this.sessionService.getAdminId();
 
     try {
       const payload = {
         type: "message",
-        user_id: adminId, // ID admin yang mengirim
+        user_id: adminId, 
         role: 'admin',
         room_id: this._modelSelectedRoom.id,
-        target_user_id: this._modelSelectedRoom.id, // Target user adalah ID room yang dipilih
+        target_user_id: this._modelSelectedRoom.id, 
         message: this._stringNewMessage,
       };
 
@@ -308,26 +311,33 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       const roomIdentifier = this._modelSelectedRoom.id!;
 
       this._modelChatMessages[roomIdentifier] = this._modelChatMessages[roomIdentifier] || [];
+      
       this._modelChatMessages[roomIdentifier].push({
         message: this._stringNewMessage,
         time: formattedTime,
-        sender: this._enumSender.Admin, // Admin mengirim dan tampil sebagai Admin
+        sender: this._enumSender.Admin, 
       });
 
       const roomToUpdate = this._arrayRoomModel.find(r => r.id === this._modelSelectedRoom?.id);
-      if (roomToUpdate) {
+      
+      if (roomToUpdate) 
+      {
         roomToUpdate.lastMessage = this._stringNewMessage;
+        
         roomToUpdate.lastTimeMessage = formattedTime;
+        
         this._arrayRoomModel.sort((a, b) =>
           new Date(b.lastTimeMessage || 0).getTime() - new Date(a.lastTimeMessage || 0).getTime()
         );
         this._arrayRoomModel = [...this._arrayRoomModel];
       }
 
-      // this.syncChatMessagesFlat(); // Tidak lagi perlu
       this.cdr.detectChanges();
+      
       this._stringNewMessage = '';
+      
       setTimeout(() => this.scrollToBottom(), 100);
+
     } catch (error) {
       console.error('Gagal mengirim pesan:', error);
     }

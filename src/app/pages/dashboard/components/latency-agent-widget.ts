@@ -23,36 +23,36 @@ import { Subject, takeUntil } from 'rxjs';
   templateUrl: './latency-agent-widget.html'
 })
 export class LatencyAgentWidget implements OnInit, OnDestroy {
-  items = [
+  _listItems = [
     { label: 'Refresh Data', icon: 'pi pi-refresh' },
     { label: 'View Details', icon: 'pi pi-chart-line' }
   ];
 
-  chartData: any;
-  chartOptions: any;
+  _anyChartData: any;
+  _anyChartOptions: any;
 
-  selectedView: string = 'Daily';
+  _stringSelectedView: string = 'Daily';
 
-  viewOptions: { label: string; value: string }[] = [
+  _listViewOptions: { label: string; value: string }[] = [
     { label: 'Daily', value: 'Daily' },
     { label: 'Monthly', value: 'Monthly' }
   ];
 
-  menuItems: MenuItem[] = [];
+  _listMenuItems: MenuItem[] = [];
 
-  isLoading: boolean = true;
-  errorMessage: string | null = null;
+  _boolIsLoading: boolean = true;
+  _stringErrorMessage: string | null = null;
 
   private destroy$ = new Subject<void>();
 
   constructor(private dashboardService: DashboardService) {}
 
   ngOnInit() {
-    this.selectedView = 'Daily'; // Pastikan default terset
+    this._stringSelectedView = 'Daily'; 
     this.loadLatencyData();
-    this.setChartOptions();
+    this.setChartOptions(); 
 
-    this.menuItems = [
+    this._listMenuItems = [
       {
         label: 'Refresh',
         icon: 'pi pi-refresh',
@@ -67,43 +67,46 @@ export class LatencyAgentWidget implements OnInit, OnDestroy {
   }
 
   onViewChange() {
-    console.log('View changed to:', this.selectedView);
+    console.log('View changed to:', this._stringSelectedView);
     this.loadLatencyData();
+    this.setChartOptions(); 
   }
 
   loadLatencyData(): void {
-    this.isLoading = true;
-    this.errorMessage = null;
-    this.chartData = null;
+    this._boolIsLoading = true;
+    this._stringErrorMessage = null;
+    this._anyChartData = null;
 
-    const dataObservable = this.selectedView === 'Daily'
+    const dataObservable = this._stringSelectedView === 'Daily'
       ? this.dashboardService.getDailyAverageLatency()
       : this.dashboardService.getMonthlyAverageLatency();
 
     dataObservable.pipe(takeUntil(this.destroy$)).subscribe({
       next: (data: { [key: string]: number }) => {
         if (!data || Object.keys(data).length === 0) {
-          this.chartData = {
+          this._anyChartData = {
             labels: [],
             datasets: []
           };
-          this.isLoading = false;
+          this._boolIsLoading = false;
           return;
         }
 
         const sortedKeys = Object.keys(data).sort();
+        
         const lastFiveKeys = sortedKeys.slice(-5);
 
         const labels = lastFiveKeys;
-        const dataValues = lastFiveKeys.map(key => data[key]);
+        
+        const dataValuesInSeconds = lastFiveKeys.map(key => data[key] / 1000);
 
-        this.chartData = {
+        this._anyChartData = {
           labels: labels,
           datasets: [
             {
-              label: 'Average Latency (ms)',
-              data: dataValues,
-              fill: false,
+              label: 'Average Latency (seconds)',
+              data: dataValuesInSeconds, 
+              fill: true,
               borderColor: getComputedStyle(document.documentElement).getPropertyValue('--p-primary-500'),
               tension: 0.4,
               pointBackgroundColor: getComputedStyle(document.documentElement).getPropertyValue('--p-primary-500'),
@@ -114,13 +117,13 @@ export class LatencyAgentWidget implements OnInit, OnDestroy {
             }
           ]
         };
-        this.isLoading = false;
+        this._boolIsLoading = false;
       },
       error: (err) => {
         console.error('Error fetching latency data:', err);
-        this.errorMessage = 'Failed to load latency data. ' + (err.message || 'Please try again later.');
-        this.isLoading = false;
-        this.chartData = null;
+        this._stringErrorMessage = 'Failed to load latency data. ' + (err.message || 'Please try again later.');
+        this._boolIsLoading = false;
+        this._anyChartData = null;
       }
     });
   }
@@ -131,7 +134,7 @@ export class LatencyAgentWidget implements OnInit, OnDestroy {
     const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
     const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
 
-    this.chartOptions = {
+    this._anyChartOptions = {
       maintainAspectRatio: false,
       aspectRatio: 0.6,
       plugins: {
@@ -154,7 +157,10 @@ export class LatencyAgentWidget implements OnInit, OnDestroy {
         y: {
           ticks: {
             color: textColorSecondary,
-            stepSize: 100
+            stepSize: 0.5, 
+            callback: function(value: any) { 
+              return value + 's';
+            }
           },
           grid: {
             color: surfaceBorder,

@@ -87,7 +87,7 @@ export class WebSocketService
         else 
         {
            console.log("✅ WebSocket ditutup dengan bersih.");
-           this._numberReconnectAttempts = 0; // Reset percobaan pada penutupan bersih
+           this._numberReconnectAttempts = 0; 
         }
       };
 
@@ -138,29 +138,27 @@ export class WebSocketService
    */
   public sendMessage(payload: any): void
   {
-    // Pastikan payload adalah objek sebelum stringify
+    
     if (typeof payload !== 'object' || payload === null) {
          console.error('❌ Payload pesan harus berupa objek:', payload);
-         // Beri feedback ke UI jika perlu
+         
          return;
     }
 
     if (this._socket?.readyState === WebSocket.OPEN)
     {
-      // console.log('📤 Mengirim pesan:', payload); // Hindari log yang terlalu banyak
       try {
           this._socket.send(JSON.stringify(payload));
       } catch (e) {
           console.error('❌ Gagal mengirim pesan (stringify error atau lainnya):', payload, e);
-          // Beri feedback ke UI jika perlu
+         
       }
     }
     else
     {
       console.error('❌ WebSocket belum terhubung! Pesan gagal dikirim:', payload);
-      // Beri feedback ke UI, misalnya dengan Service notifikasi
+      
       alert("WebSocket belum terhubung! Pesan gagal dikirim.");
-      // Pertimbangkan untuk mengantrekan pesan jika koneksi sedang connecting/reconnecting
     }
   }
 
@@ -191,11 +189,9 @@ export class WebSocketService
     if (this._socket)
     {
       console.log('⛔ Menutup WebSocket...');
-       // Kirim kode dan alasan penutupan
+      
       this._socket.close(code, reason);
-      // Referensi socket akan dihapus di onclose
-      // this._socket = undefined;
-       // Hapus timeout reconnect yang mungkin sedang berjalan
+      
        if (this._reconnectTimeout) {
            clearTimeout(this._reconnectTimeout);
            this._reconnectTimeout = null;
@@ -203,27 +199,25 @@ export class WebSocketService
     } else 
     {
        console.log('ℹ️ WebSocket tidak terhubung atau sedang mencoba.');
-       // Pastikan timeout reconnect dihapus meskipun socket belum terhubung
+       
        if (this._reconnectTimeout) 
         {
            clearTimeout(this._reconnectTimeout);
            this._reconnectTimeout = null;
         }
     }
-     this._statusSubject.next('disconnected'); // Paksa update status menjadi disconnected
-     this._numberReconnectAttempts = 0; // Reset percobaan
+     this._statusSubject.next('disconnected'); 
+     this._numberReconnectAttempts = 0; 
   }
 
-  // Implementasi OnDestroy: Pastikan disconnect dipanggil saat service dihancurkan
   ngOnDestroy(): void 
   {
     console.log('WebSocketService is being destroyed. Disconnecting WebSocket.');
     this.disconnect();
-    this._messageSubject.complete(); // Selesaikan Subjects
+    this._messageSubject.complete();
     this._statusSubject.complete();
 }
 
-  // Helper untuk mendapatkan status ready state WebSocket API (0-CONNECTING, 1-OPEN, 2-CLOSING, 3-CLOSED)
   public getReadyState(): number | undefined 
   {
       return this._socket?.readyState;

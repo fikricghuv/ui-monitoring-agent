@@ -26,8 +26,8 @@ export class RealtimeMonitoringComponent implements OnInit {
   public _numberRows: number = 10;
   public _numberTotalRecords: number = 0;
 
-  public items: MenuItem[] | undefined;
-  public home: MenuItem | undefined;
+  public _listMenuItems: MenuItem[] | undefined;
+  public _defaultHomeMenu: MenuItem | undefined;
 
   constructor(
     private monitoringService: MonitoringService,
@@ -40,25 +40,31 @@ export class RealtimeMonitoringComponent implements OnInit {
   }
 
   ngOnInit() {
-    // Panggil total record saat inisialisasi
+    
     this.getTotalRecords();
-    this.items = [
+
+    this._listMenuItems = [
             { label: 'Realtime Monitoring' }
         ];
 
-        this.home = { icon: 'pi pi-home', routerLink: '/dashboard' };
+        this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
   }
 
   // Metode baru untuk mendapatkan total record
   private getTotalRecords(): void {
+
     this.dashboardService.getTotalConversations().subscribe({
       next: (total) => {
+
         this._numberTotalRecords = total;
+
         console.log('Total Conversations:', this._numberTotalRecords);
       },
       error: (error) => {
+
         console.error('Error fetching total conversations:', error);
-        this._numberTotalRecords = 0; // Setel ke 0 jika ada error
+        
+        this._numberTotalRecords = 0; 
       },
     });
   }
@@ -72,25 +78,32 @@ export class RealtimeMonitoringComponent implements OnInit {
   }
 
   public onLazyLoad(event: any) {
+
     this._booleanIsLoading = true;
+
     const first = event.first ?? 0;
+
     const rows = event.rows ?? this._numberRows;
 
     const offset = first;
+
     const limit = rows;
 
     this.monitoringService.getChatHistory(offset, limit).subscribe({
       next: (data) => {
-        this._arrayChatHistoryModel = data; // Data untuk halaman saat ini
-        // _numberTotalRecords sudah diatur oleh getTotalRecords(), jadi tidak perlu di sini
+        this._arrayChatHistoryModel = data; 
+        
         this._booleanIsLoading = false;
+
         console.log('Displayed Data:', this._arrayChatHistoryModel);
       },
       error: (error) => {
+
         console.error('Error fetching chat history:', error);
+
         this._booleanIsLoading = false;
+
         this._arrayChatHistoryModel = [];
-        // _numberTotalRecords tetap seperti yang didapat dari getTotalRecords()
       },
     });
   }
@@ -101,6 +114,7 @@ export class RealtimeMonitoringComponent implements OnInit {
     }
 
     const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?/;
+    
     const matches = durationString.match(regex);
 
     if (!matches) {
@@ -109,13 +123,17 @@ export class RealtimeMonitoringComponent implements OnInit {
     }
 
     const hours = parseInt(matches[1] || '0', 10);
+
     const minutes = parseInt(matches[2] || '0', 10);
+
     const seconds = parseFloat(matches[3] || '0');
 
     const totalSeconds = hours * 3600 + minutes * 60 + seconds;
 
     if (isNaN(totalSeconds)) {
+
       console.error('Calculated total seconds is NaN for duration:', durationString);
+      
       return '-';
     }
 

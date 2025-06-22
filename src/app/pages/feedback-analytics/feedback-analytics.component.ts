@@ -4,7 +4,6 @@ import { AnalyticsService } from '../services/analytics.service';
 import { FeedbackModel } from '../models/feedback.model';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { TableModule } from 'primeng/table';
-import { LazyLoadEvent } from 'primeng/api'; // Pastikan ini diimpor
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -19,16 +18,15 @@ import { InputIconModule } from 'primeng/inputicon';
   styleUrl: './feedback-analytics.component.scss'
 })
 export class AnalyticsComponent implements OnInit {
-  public _arrayFeedbackModel: Array<FeedbackModel>; // Ini akan menyimpan data yang ditampilkan di tabel
+  public _arrayFeedbackModel: Array<FeedbackModel>; 
   public _booleanIsLoading: boolean;
   public _stringErrorText: string;
 
-  // Properti PrimeNG Table
-  public _numberFirst: number = 0; // Posisi record pertama di tabel
-  public _numberRows: number = 10; // Jumlah baris per halaman
-  public _numberTotalRecords: number = 0; // Total record dari backend
-  public items: MenuItem[] | undefined;
-  public home: MenuItem | undefined;
+  public _numberFirst: number = 0; 
+  public _numberRows: number = 10; 
+  public _numberTotalRecords: number = 0; 
+  public _listMenuItems: MenuItem[] | undefined;
+  public _defaultHomeMenu: MenuItem | undefined;
 
   constructor(
     private analyticsService: AnalyticsService
@@ -40,11 +38,12 @@ export class AnalyticsComponent implements OnInit {
 
   ngOnInit(): void {
     this.getTotalRecords();
-    this.items = [
+
+    this._listMenuItems = [
             { label: 'Feedback Analytics' }
         ];
 
-        this.home = { icon: 'pi pi-home', routerLink: '/dashboard' };
+        this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
   }
 
   /**
@@ -58,7 +57,8 @@ export class AnalyticsComponent implements OnInit {
       },
       error: (error) => {
         console.error('Error fetching total feedbacks:', error);
-        this._numberTotalRecords = 0; // Setel ke 0 jika ada error
+        
+        this._numberTotalRecords = 0; 
       },
     });
   }
@@ -70,21 +70,26 @@ export class AnalyticsComponent implements OnInit {
    */
   public onLazyLoad(event: any): void {
     this._booleanIsLoading = true;
-    // Dapatkan offset dan limit dari event
+
     const offset = event.first ?? 0;
+
     const limit = event.rows ?? this._numberRows;
 
     this.analyticsService.getFeedbacks(offset, limit).subscribe({
       next: (data) => {
-        this._arrayFeedbackModel = data; // Data untuk halaman saat ini
+        this._arrayFeedbackModel = data; 
+
         this._booleanIsLoading = false;
+        
         console.log('Displayed Feedback Data:', this._arrayFeedbackModel);
       },
       error: (error) => {
         console.error(this._stringErrorText, error);
+        
         this._booleanIsLoading = false;
+        
         this._arrayFeedbackModel = [];
-        // Jangan reset _numberTotalRecords di sini, karena itu global
+        
       }
     });
   }

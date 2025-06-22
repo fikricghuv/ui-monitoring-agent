@@ -41,19 +41,23 @@ export class LoginService {
    */
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'An unknown error occurred!';
+    
     if (error.error instanceof ErrorEvent) {
-      // Client-side error
+     
       errorMessage = `Client Error: ${error.error.message}`;
     } else {
-      // Server-side error
+     
       errorMessage = `Server Error: ${error.status} - ${error.message}`;
+      
       if (error.error?.detail) {
         errorMessage += `\nDetail: ${error.error.detail}`;
       } else if (typeof error.error === 'string') {
         errorMessage += `\nResponse: ${error.error}`;
       }
     }
+    
     console.error('[LoginService] Error:', errorMessage);
+    
     return throwError(() => new Error(errorMessage));
   }
 }

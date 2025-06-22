@@ -2,35 +2,35 @@
   <div class="flex justify-between items-center mb-6">
     <div class="flex-1 text-color font-semibold leading-6 text-xl">Latency Agent</div>
     <p-button type="button" icon="pi pi-ellipsis-h" severity="secondary" text (click)="menu.toggle($event)" aria-haspopup="true" aria-controls="overlay_menu" />
-    <p-menu #menu id="overlay_menu" [model]="menuItems" [popup]="true" styleClass="ml-6" />
+    <p-menu #menu id="overlay_menu" [model]="_listMenuItems" [popup]="true" styleClass="ml-6" />
   </div>
 
   <div class="flex justify-center mb-4">
     <p-selectButton 
-      [options]="viewOptions"
-      [(ngModel)]="selectedView"
+      [options]="_listViewOptions"
+      [(ngModel)]="_stringSelectedView"
       (onChange)="onViewChange()"
       optionLabel="label"
       optionValue="value">
     </p-selectButton>
   </div>
 
-  <div *ngIf="isLoading" class="text-center text-muted-color py-8">
+  <div *ngIf="_boolIsLoading" class="text-center text-muted-color py-8">
     <i class="pi pi-spin pi-spinner text-4xl mb-2"></i>
     <p>Loading latency data...</p>
   </div>
 
-  <div *ngIf="errorMessage" class="text-center text-red-500 py-8">
+  <div *ngIf="_stringErrorMessage" class="text-center text-red-500 py-8">
     <i class="pi pi-exclamation-triangle text-4xl mb-2"></i>
-    <p>{{ errorMessage }}</p>
+    <p>{{ _stringErrorMessage }}</p>
     <p-button label="Retry" icon="pi pi-refresh" (click)="onViewChange()" class="mt-4"></p-button>
   </div>
 
-  <div *ngIf="!isLoading && !errorMessage">
-    <div *ngIf="chartData && chartData.labels && chartData.labels.length > 0">
-      <p-chart type="line" [data]="chartData" [options]="chartOptions"></p-chart>
+  <div *ngIf="!_boolIsLoading && !_stringErrorMessage">
+    <div *ngIf="_anyChartData && _anyChartData.labels && _anyChartData.labels.length > 0">
+      <p-chart type="line" [data]="_anyChartData" [options]="_anyChartOptions"></p-chart>
     </div>
-    <div *ngIf="!chartData || chartData.labels.length === 0" class="text-center text-muted-color py-8">
+    <div *ngIf="!_anyChartData || _anyChartData.labels.length === 0" class="text-center text-muted-color py-8">
       No latency data available for the selected period.
     </div>
   </div>
