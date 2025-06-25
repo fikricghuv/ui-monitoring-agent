@@ -11,9 +11,10 @@ import { SettingsComponent } from './settings/settings.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ReportComponent } from './report/report.component';
 import { CustomersComponent } from './customer/customer.component';
+import { NotificationComponent } from './notification/notification.component';
 
 export default [
-    { path: 'Dashboard', component: Dashboard },
+    { path: 'dashboard', component: Dashboard },
     { path: 'monitoring', component: RealtimeMonitoringComponent },
     { path: 'editor', component: PromptEditorComponent },
     { path: 'base-knowledge', component: BaseKnowledgeComponent},
@@ -24,6 +25,7 @@ export default [
     { path: 'customer', component: CustomersComponent },
     { path: 'settings', component: SettingsComponent},
     { path: 'profile', component: ProfileComponent},
+    { path: 'notification', component:NotificationComponent},
     { path: 'documentation', component: DocumentationComponent },
     { path: '**', redirectTo: '/notfound' }
 ] as Routes;

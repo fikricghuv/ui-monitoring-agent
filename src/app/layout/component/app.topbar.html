@@ -3,9 +3,9 @@
         <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
             <i class="pi pi-bars"></i>
         </button>
-        <a class="layout-topbar-logo" routerLink="/">
+        <a class="layout-topbar-logo" routerLink="/dashboard">
             <img src="/assets/images/just-logo.png" alt="Logo" height="auto" max-width="10%"/>
-            <span>COLLABOR IQ</span>
+            <span> TalkVera</span>
         </a>
     </div>
 
@@ -56,21 +56,25 @@
 
 <p-overlayPanel #notificationPanel [showCloseIcon]="true" [style]="{ width: '380px' }" [baseZIndex]="10000">
     <ng-template pTemplate="content">
-        <h4 class="font-semibold text-lg mb-3">Notifikasi Anda</h4>
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem;">
+            <h4 class="font-semibold text-lg" style="margin: 0;">Notifications</h4>
+            <button pButton class="p-button-text p-button-sm" >Mark as read</button>
+        </div>
+        
         <div *ngIf="dummyNotifications.length > 0; else noNotifications" class="p-fluid">
             <p-scroller [items]="dummyNotifications" [itemSize]="70" [scrollHeight]="'300px'" styleClass="w-full">
                 <ng-template pTemplate="item" let-notification>
                     <div class="flex align-items-center p-3 border-bottom-1 surface-border hover:surface-hover transition-duration-150"
-                         [ngClass]="{'bg-blue-50 dark:bg-blue-900/20': !notification.read}">
+                         [ngClass]="{'bg-blue-50 dark:bg-blue-900/15': !notification.read}">
                         <div class="flex flex-column flex-grow-1" [ngClass]="{'font-semibold': !notification.read}">
                             <div class="text-color text-base">{{ notification.message }}</div>
                             <div class="text-muted-color text-sm mt-1">{{ notification.time }}</div>
                         </div>
-                        <div class="ml-auto flex-shrink-0">
+                        <!-- <div class="ml-auto flex-shrink-0">
                             <button pButton icon="pi pi-check" class="p-button-text p-button-sm p-button-rounded"
                                     (click)="markAsRead(notification.id)" *ngIf="!notification.read"
                                     pTooltip="Tandai sebagai sudah dibaca" tooltipPosition="left"></button>
-                        </div>
+                        </div> -->
                     </div>
                 </ng-template>
             </p-scroller>

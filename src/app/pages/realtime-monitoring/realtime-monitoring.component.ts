@@ -7,13 +7,18 @@ import { TableModule } from 'primeng/table';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
+import { DialogModule } from 'primeng/dialog';
+import { FormsModule } from '@angular/forms';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-realtime-monitoring',
   standalone: true,
-  imports: [CommonModule, PaginatorModule, TableModule, IconFieldModule, InputIconModule, BreadcrumbModule],
+  imports: [CommonModule, CardModule, PaginatorModule, TableModule, IconFieldModule, InputIconModule, BreadcrumbModule, DialogModule, FormsModule, ButtonModule, InputTextModule],
   templateUrl: './realtime-monitoring.component.html',
   styleUrl: './realtime-monitoring.component.scss',
 })
@@ -28,6 +33,12 @@ export class RealtimeMonitoringComponent implements OnInit {
 
   public _listMenuItems: MenuItem[] | undefined;
   public _defaultHomeMenu: MenuItem | undefined;
+
+  public _selectedChat: ChatHistoryResponseModel | null = null;
+  public _booleanShowDialog: boolean = false;
+
+  public _searchQuery: string = ''; 
+
 
   constructor(
     private monitoringService: MonitoringService,
@@ -137,6 +148,14 @@ export class RealtimeMonitoringComponent implements OnInit {
       return '-';
     }
 
-    return totalSeconds.toFixed(2) + 's';
+    return totalSeconds.toFixed(2) + ' ms';
   }
+
+  public onSelectChat(event: any) {
+
+    this._selectedChat = event.data;
+
+    this._booleanShowDialog = true;
+  }
+
 }

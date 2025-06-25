@@ -5,11 +5,14 @@ import { LayoutService } from '../../../layout/service/layout.service';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { CalendarModule } from 'primeng/calendar';
-import { SelectButtonModule } from 'primeng/selectbutton';
+import { SelectButton } from 'primeng/selectbutton';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { DashboardService } from '../../services/dashboard.service'; // Pastikan path ini benar
+import { Router } from '@angular/router';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 @Component({
     standalone: true,
@@ -19,13 +22,17 @@ import { DashboardService } from '../../services/dashboard.service'; // Pastikan
         MenuModule,
         ButtonModule,
         CalendarModule,
-        SelectButtonModule,
+        SelectButton,
         CommonModule,
-        FormsModule
+        FormsModule,
+        ToggleButtonModule,
+        SelectButtonModule
     ],
     templateUrl: './agent-performance-widget.html',
+    styleUrls: ['./agent-performance-widget.scss'],
 })
 export class AgentPerformanceWidget implements OnInit, OnDestroy {
+    
     _anyChartData: any;
     _anyChartOptions: any;
     _listMenuItems: MenuItem[] = [];
@@ -45,7 +52,8 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
 
     constructor(
         public layoutService: LayoutService,
-        private dashboardService: DashboardService
+        private dashboardService: DashboardService,
+        private router: Router
     ) {}
 
     ngOnInit() {
@@ -58,7 +66,7 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
             {
                 label: 'Export',
                 icon: 'pi pi-upload',
-                command: () => console.log('Export data (implementasi di sini)')
+                routerLink: '/pages/report'
             }
         ];
 

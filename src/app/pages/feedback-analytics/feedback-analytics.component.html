@@ -1,62 +1,92 @@
-<div class="analytics-container"  [style]="{'border-radius': '6px'}">
-  <div class="card flex" style="padding: 0;">
-    <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems" [home]="_defaultHomeMenu" />
-  </div>  
+<div class="card flex" style="padding: 0;">
+  <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems"
+    [home]="_defaultHomeMenu" />
+</div>
+<div class="analytics-container">
 
-  <p-table
-    [value]="_arrayFeedbackModel"
-    stripedRows
-    [paginator]="true"
-    [rows]="_numberRows"
-    [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[5, 10, 20, 30]"
-    [totalRecords]="_numberTotalRecords"
-    [loading]="_booleanIsLoading"
-    (onLazyLoad)="onLazyLoad($event)" [lazy]="true" [scrollable]="true"
-    [style]="{'border-radius': '6px'}">
-    <ng-template #caption>
-      <div class="flex" style="display: flex; align-items: center; justify-content: space-between;">
-        <h4 style="margin: 0;">Data Feedback Users</h4>
-        <p-iconfield iconPosition="right">
-            <p-inputicon>
-                <i class="pi pi-search"></i>
-            </p-inputicon> 
-            <input  style="border-radius: 5px; padding: 3px;" pInputText type="text" placeholder="            Search keyword" />
-        </p-iconfield>
+  <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
+
+    <div class="flex items-start gap-2 justify-between">
+      <div>
+        <div class="text-2xl leading-8 text-color font-medium">Data Feedback Users</div>
       </div>
-    </ng-template>
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Feedback</th>
-        <th>Sentiment</th>
-        <th>Potential Actions</th>
-        <th>Keyword Issue</th>
-        <th>Category</th>
-        <th>Product Name</th>
-        <th>Created At</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-feedback>
-      <tr>
-        <td>{{ feedback.feedback_from_customer || '-' }}</td>
-        <td>{{ feedback.sentiment || '-' }}</td>
-        <td>{{ feedback.potential_actions || '-' }}</td>
-        <td>{{ feedback.keyword_issue || '-' }}</td>
-        <td>{{ feedback.category || '-' }}</td>
-        <td>{{ feedback.product_name || '-' }}</td>
-        <td>{{ feedback.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="7" class="no-data">No feedback found.</td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="loadingbody">
-        <tr>
-            <td colspan="7" class="loading">Loading feedback, please wait...</td>
-        </tr>
-    </ng-template>
-  </p-table>
+    </div>
 
-  </div>
+    <div class="mt-6 mb-4 flex items-center justify-between">
+      <p-iconfield iconPosition="left">
+        <p-inputicon class="pi pi-search"> </p-inputicon>
+        <input pInputText type="text" [(ngModel)]="_searchQuery" placeholder="Search" />
+      </p-iconfield>
+      <div class="flex items-center gap-3">
+        <p-button icon="pi pi-refresh" outlined severity="secondary" />
+      </div>
+    </div>
+
+
+    <div class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full overflow-auto">
+      <p-table [value]="_arrayFeedbackModel" stripedRows [paginator]="true" [rows]="_numberRows"
+        [showCurrentPageReport]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" [totalRecords]="_numberTotalRecords"
+        [loading]="_booleanIsLoading" (onLazyLoad)="onLazyLoad($event)" [lazy]="true" [scrollable]="true"
+        [style]="{'border-radius': '6px'}" selectionMode="single" [(selection)]="_selectedFeedback"
+        (onRowSelect)="onSelectFeedback($event)">
+
+        <ng-template #header>
+          <tr>
+            <th>Category</th>
+            <th>Feedback</th>
+            <th>Sentiment</th>
+            <th>Potential Actions</th>
+            <th>Keyword Issue</th>
+            <th>Product Name</th>
+            <th>Created At</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-feedback>
+          <tr [pSelectableRow]="feedback">
+            <td>{{ feedback.category || '-' }}</td>
+            <td class="leading-6 text-muted-color">{{ feedback.feedback_from_customer?.length > 30 ?
+              (feedback.feedback_from_customer | slice:0:30) + '...' : feedback.feedback_from_customer || '-' }}</td>
+            <td class="leading-6 text-muted-color">{{ feedback.sentiment || '-' }}</td>
+            <td class="leading-6 text-muted-color">{{ feedback.potential_actions?.length > 20 ?
+              (feedback.potential_actions | slice:0:30) + '...' : feedback.potential_actions || '-' }}</td>
+            <td class="leading-6 text-muted-color">{{ feedback.keyword_issue || '-' }}</td>
+            <td class="leading-6 text-muted-color">{{ feedback.product_name || '-' }}</td>
+            <td class="leading-6 text-muted-color">{{ feedback.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="7" class="no-data">No feedback found.</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="loadingbody">
+          <tr>
+            <td colspan="7" class="loading">Loading feedback, please wait...</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+    <p-dialog header="Detail Feedback" [(visible)]="_booleanShowFeedbackDialog" [modal]="true"
+      [style]="{width: '50vw'}">
+      <div *ngIf="_selectedFeedback">
+        <p><strong>Feedback:</strong></p>
+        <p style="white-space: pre-line; background: #f7f7f7; padding: 10px; border-radius: 5px;">
+          {{ _selectedFeedback.feedback_from_customer }}
+        </p>
+
+        <p><strong>Sentiment:</strong> {{ _selectedFeedback.sentiment }}</p>
+
+        <p><strong>Potential Actions:</strong></p>
+        <p style="white-space: pre-line; background: #f0f0f0; padding: 10px; border-radius: 5px;">
+          {{ _selectedFeedback.potential_actions }}
+        </p>
+
+        <p><strong>Keyword Issue:</strong> {{ _selectedFeedback.keyword_issue }}</p>
+        <p><strong>Category:</strong> {{ _selectedFeedback.category }}</p>
+        <p><strong>Product Name:</strong> {{ _selectedFeedback.product_name }}</p>
+        <p><strong>Created At:</strong> {{ _selectedFeedback.created_at | date:'yyyy-MM-dd HH:mm' }}</p>
+      </div>
+    </p-dialog>
+
+  </p-card>
+</div>

@@ -30,24 +30,17 @@ interface ReportType {
   templateUrl: './report.component.html',
   styleUrl: './report.component.scss',
   providers: [MessageService], 
-  // host: {
-  //     class: 'h-full flex-1 flex flex-col overflow-hidden border border-surface rounded-2xl p-6'
-  // }
 })
 
 export class ReportComponent implements OnInit {
     public _listMenuItems: MenuItem[] | undefined;
     public _defaultHomeMenu: MenuItem | undefined;
 
-    // Inject PLATFORM_ID untuk SSR
     private platformId = inject(PLATFORM_ID);
-    // Inject MessageService untuk notifikasi Toast
     private messageService = inject(MessageService);
 
-    // Properti untuk filter jangka waktu
     rangeDates: Date[] | undefined;
 
-    // Properti untuk dropdown jenis laporan
     reportTypes: ReportType[] = [];
     selectedReportType: ReportType | undefined;
 
@@ -64,20 +57,10 @@ export class ReportComponent implements OnInit {
             { name: 'All Data', code: 'ALL_DATA' }
         ];
 
-        // Opsional: set nilai default untuk rentang tanggal atau jenis laporan
-        // const today = new Date();
-        // const thirtyDaysAgo = new Date(today);
-        // thirtyDaysAgo.setDate(today.getDate() - 30);
-        // this.rangeDates = [thirtyDaysAgo, today];
-        // this.selectedReportType = this.reportTypes[0]; // Pilih 'Customer Profile' sebagai default
     }
 
-    /**
-     * Metode untuk menangani logika pengunduhan laporan.
-     * Di sini Anda akan mengintegrasikan logika backend untuk menghasilkan dan mengunduh file.
-     */
     downloadReport(): void {
-        // Hanya jalankan logika unduh jika di browser (penting untuk SSR)
+        
         if (!isPlatformBrowser(this.platformId)) {
             console.warn('Download functionality is only available in the browser.');
             this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Download hanya tersedia di browser.' });
@@ -94,8 +77,8 @@ export class ReportComponent implements OnInit {
             return;
         }
 
-        const startDate = this.rangeDates[0].toISOString().split('T')[0]; // Format YYYY-MM-DD
-        const endDate = this.rangeDates[1].toISOString().split('T')[0]; // Format YYYY-MM-DD
+        const startDate = this.rangeDates[0].toISOString().split('T')[0]; 
+        const endDate = this.rangeDates[1].toISOString().split('T')[0]; 
 
         this.messageService.add({
             severity: 'info',
@@ -109,29 +92,14 @@ export class ReportComponent implements OnInit {
             endDate: endDate
         });
 
-        // --- Logika Unduh Laporan Sesungguhnya ---
-        // Di sini Anda akan memanggil service Angular yang berinteraksi dengan API backend Anda.
-        // Contoh placeholder (Anda perlu menggantinya dengan logika nyata):
         setTimeout(() => {
-            // Simulasikan keberhasilan unduh
+            
             this.messageService.add({
                 severity: 'success',
                 summary: 'Success',
                 detail: `Laporan '${this.selectedReportType?.name}' berhasil diunduh!`
             });
 
-            // Contoh cara mengunduh file dummy (ganti dengan respons API Anda)
-            // const dummyData = 'Ini adalah konten laporan dummy.';
-            // const blob = new Blob([dummyData], { type: 'text/csv' });
-            // const url = window.URL.createObjectURL(blob);
-            // const a = document.createElement('a');
-            // a.href = url;
-            // a.download = `${this.selectedReportType?.code}_${startDate}_${endDate}.csv`;
-            // document.body.appendChild(a);
-            // a.click();
-            // window.URL.revokeObjectURL(url);
-            // document.body.removeChild(a);
-
-        }, 2000); // Simulasi penundaan pengunduhan
+        }, 2000); 
     }
 }

@@ -1,78 +1,78 @@
 <div class="card p-fluid">
-    <p-toast></p-toast> <div class="font-semibold text-2xl mb-4">Pengaturan Akun</div>
-    <p class="text-lg mb-4">Kelola preferensi akun Anda.</p>
+    <p-toast></p-toast>
+    <div class="font-semibold text-2xl mb-4">Account Settings</div>
 
-    ---
+    <p-fieldset legend="General Settings" [toggleable]="true" styleClass="p-mb-4">
+        <div class="mb-5">
 
-    <div class="mb-5">
-        <h3 class="font-semibold text-xl mb-3">Pengaturan Umum</h3>
-        <p class="text-color-secondary mb-4">Perbarui informasi dasar profil Anda.</p>
+            <div class="field">
+                <div class="col-12 md:col-6 mb-3">
+                    <label class="font-medium text-sm text-color-secondary mb-1 block">Name</label>
+                    <input type="text" pInputText [(ngModel)]="username" />
+                </div>
+                
+            </div>
+            <div class="col-12 md:col-6 mb-3">
+                <label for="email" class="font-medium text-sm text-color-secondary mb-1 block">Alamat Email</label>
+                <input id="email" type="email" pInputText [(ngModel)]="email" />
+            </div>
+            <div class="flex justify-content-end mt-5">
+                <p-button label="Simpan Perubahan" icon="pi pi-save" (onClick)="saveGeneralSettings()"></p-button>
+            </div>
+        </div>
+    </p-fieldset>
 
-        <div class="field">
-            <label for="username" class="font-medium mb-2">Nama Pengguna</label>
-            <input id="username" type="text" pInputText [(ngModel)]="username" />
-        </div>
-        <div class="field mt-4">
-            <label for="email" class="font-medium mb-2">Alamat Email</label>
-            <input id="email" type="email" pInputText [(ngModel)]="email" />
-        </div>
-        <div class="flex justify-content-end mt-5">
-            <p-button label="Simpan Perubahan" icon="pi pi-save" (onClick)="saveGeneralSettings()"></p-button>
-        </div>
-    </div>
+    <p-fieldset legend="Security" [toggleable]="true" styleClass="p-mb-4">
+        <div class="mt-5">
 
-    ---
+            <div class="field">
+                <label for="currentPassword" class="font-medium text-sm text-color-secondary mb-1 block">Password Saat Ini</label>
+                <p-password id="currentPassword" [(ngModel)]="currentPassword" [toggleMask]="true"
+                    [feedback]="false"></p-password>
+            </div>
+            <div class="field mt-4">
+                <label for="newPassword" class="font-medium text-sm text-color-secondary mb-1 block">Password Baru</label>
+                <p-password id="newPassword" [(ngModel)]="newPassword" [toggleMask]="true"></p-password>
+            </div>
+            <div class="field mt-4">
+                <label for="confirmNewPassword" class="font-medium text-sm text-color-secondary mb-1 block">Konfirmasi Password Baru</label>
+                <p-password id="confirmNewPassword" [(ngModel)]="confirmNewPassword" [toggleMask]="true"
+                    [feedback]="false"></p-password>
+            </div>
+            <div class="flex justify-content-end mt-5">
+                <p-button label="Ubah Password" icon="pi pi-key" (onClick)="changePassword()"></p-button>
+            </div>
+        </div>
 
-    <p-divider></p-divider>
+    </p-fieldset>
 
-    <div class="mb-5 mt-5">
-        <h3 class="font-semibold text-xl mb-3">Keamanan</h3>
-        <p class="text-color-secondary mb-4">Ubah password Anda untuk menjaga keamanan akun.</p>
+    <p-fieldset legend="Notification Settings" [toggleable]="true" styleClass="p-mb-4">
+        <div class="mb-5 mt-5">
+            <h3 class="font-semibold text-xl mb-3">Setting Notification</h3>
+            <!-- <p class="text-color-secondary mb-4">Kontrol notifikasi yang ingin Anda terima.</p> -->
 
-        <div class="field">
-            <label for="currentPassword" class="font-medium mb-2">Password Saat Ini</label>
-            <p-password id="currentPassword" [(ngModel)]="currentPassword" [toggleMask]="true" [feedback]="false"></p-password>
+            <div class="field-checkbox flex align-items-center mb-3">
+                <p-inputSwitch [(ngModel)]="enableEmailNotifications" inputId="emailNotifications"></p-inputSwitch>
+                <label for="emailNotifications" class="ml-2 font-medium">Email Notification</label>
+            </div>
+            <div class="field-checkbox flex align-items-center mb-3">
+                <p-inputSwitch [(ngModel)]="enablePushNotifications" inputId="pushNotifications"></p-inputSwitch>
+                <label for="pushNotifications" class="ml-2 font-medium">Push Notifications (in browser)</label>
+            </div>
+            <div class="field-checkbox flex align-items-center mb-3">
+                <p-inputSwitch [(ngModel)]="notifyOnNewMessage" inputId="newMessageNotification"></p-inputSwitch>
+                <label for="newMessageNotification" class="ml-2 font-medium">Notify me when there is a new message</label>
+            </div>
+            <!-- <div class="field-checkbox flex align-items-center mb-3">
+                <p-inputSwitch [(ngModel)]="notifyOnTaskAssignment"
+                    inputId="taskAssignmentNotification"></p-inputSwitch>
+                <label for="taskAssignmentNotification" class="ml-2 font-medium">Beritahu saya saat ada tugas baru
+                    ditugaskan</label>
+            </div> -->
+            <div class="flex justify-content-end mt-5">
+                <p-button label="Simpan Preferensi" icon="pi pi-bell" (onClick)="saveNotificationSettings()"></p-button>
+            </div>
         </div>
-        <div class="field mt-4">
-            <label for="newPassword" class="font-medium mb-2">Password Baru</label>
-            <p-password id="newPassword" [(ngModel)]="newPassword" [toggleMask]="true"></p-password>
-        </div>
-        <div class="field mt-4">
-            <label for="confirmNewPassword" class="font-medium mb-2">Konfirmasi Password Baru</label>
-            <p-password id="confirmNewPassword" [(ngModel)]="confirmNewPassword" [toggleMask]="true" [feedback]="false"></p-password>
-        </div>
-        <div class="flex justify-content-end mt-5">
-            <p-button label="Ubah Password" icon="pi pi-key" (onClick)="changePassword()"></p-button>
-        </div>
-    </div>
+    </p-fieldset>
 
-    ---
-
-    <p-divider></p-divider>
-
-    <div class="mb-5 mt-5">
-        <h3 class="font-semibold text-xl mb-3">Pengaturan Notifikasi</h3>
-        <p class="text-color-secondary mb-4">Kontrol notifikasi yang ingin Anda terima.</p>
-
-        <div class="field-checkbox flex align-items-center mb-3">
-            <p-inputSwitch [(ngModel)]="enableEmailNotifications" inputId="emailNotifications"></p-inputSwitch>
-            <label for="emailNotifications" class="ml-2 font-medium">Notifikasi Email</label>
-        </div>
-        <div class="field-checkbox flex align-items-center mb-3">
-            <p-inputSwitch [(ngModel)]="enablePushNotifications" inputId="pushNotifications"></p-inputSwitch>
-            <label for="pushNotifications" class="ml-2 font-medium">Notifikasi Push (di browser)</label>
-        </div>
-        <div class="field-checkbox flex align-items-center mb-3">
-            <p-inputSwitch [(ngModel)]="notifyOnNewMessage" inputId="newMessageNotification"></p-inputSwitch>
-            <label for="newMessageNotification" class="ml-2 font-medium">Beritahu saya saat ada pesan baru</label>
-        </div>
-        <div class="field-checkbox flex align-items-center mb-3">
-            <p-inputSwitch [(ngModel)]="notifyOnTaskAssignment" inputId="taskAssignmentNotification"></p-inputSwitch>
-            <label for="taskAssignmentNotification" class="ml-2 font-medium">Beritahu saya saat ada tugas baru ditugaskan</label>
-        </div>
-        <div class="flex justify-content-end mt-5">
-            <p-button label="Simpan Preferensi" icon="pi pi-bell" (onClick)="saveNotificationSettings()"></p-button>
-        </div>
-    </div>
-
-    </div>
+</div>

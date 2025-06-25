@@ -3,63 +3,50 @@
 
   <div class="font-semibold text-xl mb-4">Get Started</div>
   <p class="text-lg mb-4">
-    Collabor IQ is an advanced chat platform designed to assist customer service teams in handling user interactions more efficiently. It leverages AI agents to answer customer questions, track service performance, and support real-time interventions. Delivered via iframe, Collabor IQ integrates seamlessly with websites to provide automated, responsive, and personalized customer service experiences.
+    TalkVera is a customer service chatbot platform powered by AI agents, designed to enhance user engagement, reduce manual workload, and deliver consistent and human-like interactions. The chatbot is provided via iframe for easy integration into client websites. It also includes admin tools for monitoring, editing, and analyzing conversations in real-time.
   </p>
 
   <div class="font-semibold text-xl mb-4">Key Features</div>
   <ul class="leading-normal list-disc pl-8 text-lg mb-4">
 
-    <li><span class="text-primary font-medium">Chatbot Agent (Embed)</span>: A chatbot widget embedded on your website that interacts with visitors, answers questions, and operates 24/7.</li>
+    <li><span class="text-primary font-medium">Chatbot Embed via Iframe</span>: Easily integrate the chatbot into your website using iframe. It works 24/7 to answer user queries instantly and intelligently.</li>
     
-    <li><span class="text-primary font-medium">Main Dashboard (Overview)</span>: Displays overall performance metrics such as total users, total chats, token usage, feedback counts, latency, and top frequently asked questions.</li>
-    
-    <li><span class="text-primary font-medium">Real-Time Monitoring</span>: Provides a live stream of all conversations, showing sender, message content, and timestamps to monitor active sessions as they happen.</li>
-    
-    <li><span class="text-primary font-medium">Prompt Editor</span>: Allows customization of chatbot behavior and response tone by editing prompt settings specific to your brand or communication style.</li>
-    
-    <li><span class="text-primary font-medium">Knowledge Base Management</span>: Upload reference documents (PDFs, etc.) to teach the chatbot. The agent uses this knowledge to respond more accurately to user inquiries.</li>
-    
-    <li><span class="text-primary font-medium">Admin Chat</span>: Enables admin users to directly enter live conversations, take over when necessary, or provide manual assistance to users in real time.</li>
-    
-    <li><span class="text-primary font-medium">User Feedback & Analytics</span>: Collects feedback submitted by users and visualizes issues, complaint keywords, timestamps, and performance patterns.</li>
-    
-    <li><span class="text-primary font-medium">Users Profile</span>: Stores user-submitted identity data such as name, email, and phone number, which can be used for session tracking or follow-up actions.</li>
-    
-    <li><span class="text-primary font-medium">Report Export</span>: Export various data including chat logs, token usage, and user feedback into formats such as CSV, Excel, or PDF for reporting and analysis.</li>
-    
-    <li><span class="text-primary font-medium">Playground</span>: A testing area for internal users to experiment with multi-agent chat flows and simulate real scenarios (optional for production use).</li>
+    <li><span class="text-primary font-medium">Dashboard Analytics</span>: Provides high-level metrics such as total interactions, active users, average response time, top intents, and bot-to-human resolution rate.</li>
+
+    <li><span class="text-primary font-medium">Prompt Editor</span>: Customize the tone, language style, and behavior of the chatbot to match your company's brand voice.</li>
+
+    <li><span class="text-primary font-medium">Base-Knowledge Manager</span>: Upload and manage reference documents (PDF, DOCX, etc.) that the chatbot will use to answer questions accurately and contextually.</li>
+
+    <li><span class="text-primary font-medium">Real-Time Monitoring</span>: View ongoing conversations between users and the chatbot, complete with timestamps and sender information. Allows for direct intervention when needed.</li>
+
+    <li><span class="text-primary font-medium">Admin Chat</span>: Human agents can jump into a chat session when the AI fails to handle the request. Enables seamless transition from bot to human support.</li>
+
+    <li><span class="text-primary font-medium">Feedback Analytics</span>: Collects feedback and detects complaint signals to help you analyze user satisfaction and improve chatbot responses.</li>
+
+    <li><span class="text-primary font-medium">Customer Profile</span>: Stores essential user data such as name, session history, and interaction patterns for follow-ups and personalized service.</li>
+
+    <li><span class="text-primary font-medium">Report Export</span>: Download reports in CSV or PDF format, including conversation logs, usage metrics, and feedback summaries.</li>
+
+    <li><span class="text-primary font-medium">Playground (Internal Testing)</span>: A sandbox environment to test prompts, simulate interactions, and preview multi-agent responses before going live.</li>
   </ul>
 
   <div class="font-semibold text-xl mb-4">Technology Stack</div>
   <ul class="leading-normal list-disc pl-8 text-lg mb-4">
-    <li><span class="text-primary font-medium">Frontend:</span> Angular v19, PrimeNG v19, Tailwind CSS, custom CSS, Google Fonts (Poppins).</li>
-    <li><span class="text-primary font-medium">Backend:</span> FastAPI</li>
-    <li><span class="text-primary font-medium">Database:</span> PostgreSQL</li>
-    <li><span class="text-primary font-medium">WebSocket:</span> Real-time chat powered by WebSockets (FastAPI).</li>
+    <li><span class="text-primary font-medium">Frontend:</span> Angular v19, PrimeNG v19, Tailwind CSS, Google Fonts (Poppins).</li>
+    <li><span class="text-primary font-medium">Backend:</span> FastAPI (Python).</li>
+    <li><span class="text-primary font-medium">Database:</span> PostgreSQL (supports vector search with pgvector).</li>
+    <li><span class="text-primary font-medium">WebSocket:</span> Real-time communication powered by WebSockets via FastAPI.</li>
   </ul>
 
   <div class="font-semibold text-xl mb-4">Project Structure</div>
   <ul class="leading-normal list-disc pl-8 text-lg mb-4">
-    <li><span class="text-primary font-medium">src/app/layout</span>: Main layout files and components (sidebar, topbar, etc).</li>
-    <li><span class="text-primary font-medium">src/app/pages</span>: Pages like Dashboard, Prompt Editor, Playground, etc.</li>
-    <li><span class="text-primary font-medium">src/app/components</span>: Reusable components (Documentation, Chat, Playground).</li>
-    <li><span class="text-primary font-medium">src/app/services</span>: Services like ChatCoreService and SessionService.</li>
-    <li><span class="text-primary font-medium">src/app/models</span>: Shared data models (e.g., MessageModel).</li>
-    <li><span class="text-primary font-medium">src/assets/demo</span>: Demo-specific assets.</li>
-    <li><span class="text-primary font-medium">src/assets/layout</span>: SCSS layout and theme files.</li>
-    <li><span class="text-primary font-medium">src/assets/images</span>: Avatars and image assets.</li>
+    <li><span class="text-primary font-medium">src/app/layout</span>: Main layout components like sidebar and topbar.</li>
+    <li><span class="text-primary font-medium">src/app/pages</span>: Application pages (Dashboard, Prompt Editor, Playground, etc.).</li>
+    <li><span class="text-primary font-medium">src/app/components</span>: Shared components (Chat, Feedback, Documentation).</li>
+    <li><span class="text-primary font-medium">src/app/services</span>: Application services (ChatCoreService, SessionService, etc.).</li>
+    <li><span class="text-primary font-medium">src/app/models</span>: Shared data structures (e.g., User, MessageModel).</li>
+    <li><span class="text-primary font-medium">src/assets/demo</span>: Assets for demo and testing.</li>
+    <li><span class="text-primary font-medium">src/assets/layout</span>: SCSS themes and layout files.</li>
+    <li><span class="text-primary font-medium">src/assets/images</span>: Avatars and image assets used in the interface.</li>
   </ul>
-
-  <!-- <div class="font-semibold text-xl mb-4">Getting Started</div>
-  <p class="text-lg mb-4">To set up Collabor IQ in your local development environment:</p>
-  <pre class="app-code"><code>npm install -g &#64;angular/cli</code></pre>
-  <pre class="app-code"><code>
-git clone [Your_Git_Repository_URL]
-cd Collabor-IQ
-npm install
-ng serve
-  </code></pre>
-  <p class="text-lg mb-4">The application will be available at 
-    <i class="bg-highlight px-2 py-1 rounded-border not-italic text-base">http://localhost:4200/</i>.
-  </p>
-</div> -->
+</div>

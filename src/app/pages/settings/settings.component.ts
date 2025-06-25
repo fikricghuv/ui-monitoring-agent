@@ -9,6 +9,7 @@ import { DividerModule } from 'primeng/divider';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { ToastModule } from 'primeng/toast'; 
 import { MessageService } from 'primeng/api'; 
+import { FieldsetModule } from 'primeng/fieldset';
 
 @Component({
     selector: 'app-settings',
@@ -22,7 +23,8 @@ import { MessageService } from 'primeng/api';
         PasswordModule,
         DividerModule,
         InputSwitchModule,
-        ToastModule 
+        ToastModule,
+        FieldsetModule 
     ],
     templateUrl: './settings.component.html',
     styleUrls: ['./settings.component.scss'],

@@ -8,12 +8,17 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { DialogModule } from 'primeng/dialog';
+import { ButtonModule } from 'primeng/button';
+import { FormsModule } from '@angular/forms';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
 
 @Component({
   selector: 'app-feedback-analytics',
   standalone: true,
   imports: [CommonModule, PaginatorModule, 
-    IconFieldModule, InputIconModule, TableModule, BreadcrumbModule],
+    IconFieldModule, InputIconModule, TableModule, BreadcrumbModule, DialogModule, ButtonModule, FormsModule, CardModule, InputTextModule],
   templateUrl: './feedback-analytics.component.html',
   styleUrl: './feedback-analytics.component.scss'
 })
@@ -27,6 +32,11 @@ export class AnalyticsComponent implements OnInit {
   public _numberTotalRecords: number = 0; 
   public _listMenuItems: MenuItem[] | undefined;
   public _defaultHomeMenu: MenuItem | undefined;
+
+  public _selectedFeedback: any = null;
+  public _booleanShowFeedbackDialog: boolean = false;
+
+  public _searchQuery: string = ''; 
 
   constructor(
     private analyticsService: AnalyticsService
@@ -93,4 +103,12 @@ export class AnalyticsComponent implements OnInit {
       }
     });
   }
+
+  public onSelectFeedback(event: any) {
+
+    this._selectedFeedback = event.data;
+    
+    this._booleanShowFeedbackDialog = true;
+  }
+
 }

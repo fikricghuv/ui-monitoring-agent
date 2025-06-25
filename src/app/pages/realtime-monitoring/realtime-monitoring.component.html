@@ -1,71 +1,97 @@
-<div class="monitoring-container" [style]="{'border-radius': '6px'}">
-  <div class="card flex" style="padding: 0;">
-    <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems" [home]="_defaultHomeMenu" />
-  </div>  
+<div class="card flex" style="padding: 0; ">
+	<p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems"
+		[home]="_defaultHomeMenu" />
+</div>
+<div class="report-container">
+	<p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
 
-  <p-table
-  #dt1
-    stripedRows
-    [value]="_arrayChatHistoryModel"
-    dataKey="id"
-    [paginator]="true"
-    [rows]="_numberRows" 
-    [showCurrentPageReport]="true"
-    [rowsPerPageOptions]="[5, 10, 20]"
-    [totalRecords]="_numberTotalRecords"
-    [loading]="_booleanIsLoading"
-    [globalFilterFields]="['role']"
-    (onLazyLoad)="onLazyLoad($event)" [lazy]="true"
-    [style]="{'border-radius': '6px'}">
-  >
-    <ng-template #caption>
-          <div class="flex" style="display: flex; align-items: center; justify-content: space-between;">
-            <h4 style="margin: 0;">Data Realtime Monitoring</h4>
-            <p-iconfield iconPosition="right">
-                <p-inputicon>
-                    <i class="pi pi-search"></i>
-                </p-inputicon> 
-                <input  style="border-radius: 5px; padding: 3px;" pInputText type="text" placeholder="            Search keyword" />
-            </p-iconfield>
-          </div>
-      </ng-template>
-    <ng-template pTemplate="header">
-      <tr>
-        <th>Sender ID</th>
-        <th>Room ID</th>
-        <th>Role</th>
-        <th>Message</th>
-        <th>Timestamp</th>
-        <th>Agent Response Category</th>
-        <th>Agent Response Latency</th>
-        <!-- <th>Chat Category</th> -->
+		<div class="flex items-start gap-2 justify-between">
+			<div>
+				<div class="text-2xl leading-8 text-color font-medium">Data Realtime Monitoring</div>
+			</div>
+			<!-- <p-button icon="pi pi-circle-fill text-green-500" label="950 Active User" outlined severity="secondary" /> -->
+		</div>
+		<div class="mt-6 mb-4 flex items-center justify-between">
+			<p-iconfield iconPosition="left">
+				<p-inputicon class="pi pi-search"> </p-inputicon>
+				<input pInputText type="text" [(ngModel)]="_searchQuery" placeholder="Search" name="modelSearchQuery" />
+			</p-iconfield>
+			<div class="flex items-center gap-3">
+				<p-button icon="pi pi-refresh" outlined severity="secondary" />
+			</div>
+		</div>
+
+		<div class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full overflow-auto">
+			<p-table #dt1 stripedRows [value]="_arrayChatHistoryModel" dataKey="id" [paginator]="true"
+				[rows]="_numberRows" [showCurrentPageReport]="true" [rowsPerPageOptions]="[5, 10, 20]"
+				[totalRecords]="_numberTotalRecords" [loading]="_booleanIsLoading" [globalFilterFields]="['role']"
+				(onLazyLoad)="onLazyLoad($event)" [lazy]="true" [style]="{'border-radius': '6px'}"
+				selectionMode="single" [(selection)]="_selectedChat" (onRowSelect)="onSelectChat($event)">
+				>
+				<ng-template #header>
+					<tr>
+						<th>Role</th>
+						<th>Sender ID</th>
+						<th>Room ID</th>
+						<th>Message</th>
+						<th>Agent Response Category</th>
+						<th>Timestamp</th>
+						<!-- <th>Agent Response Latency</th>
         <th>Agent Total Tokens</th>
-        <th>Agent Used Tools</th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-chat>
-      <tr>
-        <td>{{ chat.sender_id || '-' }}</td>
-        <td>{{ chat.room_conversation_id || '-' }}</td>
-        <td>{{ chat.role || '-' }}</td>
-        <td>{{ chat.message || '-' }}</td>
-        <td>{{ chat.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
-        <td>{{ chat.agent_response_category || '-' }}</td>
-        <td>{{ formatLatency(chat.agent_response_latency) || '-' }}</td>
-        <!-- <td>{{ chat.chat_category || '-' }}</td> -->
+        <th>Agent Used Tools</th> -->
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="body" let-chat let-rowIndex="rowIndex">
+					<tr [pSelectableRow]="chat">
+						<td class="">{{ chat.role || '-' }}</td>
+						<td class="text-muted-color">{{ chat.sender_id || '-' }}</td>
+						<td class="text-muted-color">{{ chat.room_conversation_id || '-' }}</td>
+						<td class="text-muted-color">{{ chat.message?.length > 30 ? (chat.message | slice:0:30) + '...'
+							:
+							chat.message || '-' }}</td>
+						<!-- <td>{{ chat.message || '-' }}</td> -->
+						<td class="text-muted-color">{{ chat.agent_response_category || '-' }}</td>
+						<td class="text-muted-color">{{ chat.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
+						<!-- <td>{{ formatLatency(chat.agent_response_latency) || '-' }}</td>
         <td>{{ chat.agent_total_tokens || '-' }}</td>
-        <td>{{ chat.agent_tools_call?.join(', ') || '-' }}</td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="emptymessage">
-      <tr>
-        <td colspan="10" class="no-data">No chat history found.</td>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="loadingbody">
-        <tr>
-            <td colspan="10" class="loading">Loading chat history, please wait...</td>
-        </tr>
-    </ng-template>
-  </p-table>
+        <td>
+          {{
+            (chat.agent_tools_call?.join(', ')?.length > 20)
+              ? (chat.agent_tools_call?.join(', ') | slice:0:20) + '...'
+              : chat.agent_tools_call?.join(', ') || '-'
+          }}
+        </td> -->
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="emptymessage">
+					<tr>
+						<td colspan="10" class="no-data">No chat history found.</td>
+					</tr>
+				</ng-template>
+				<ng-template pTemplate="loadingbody">
+					<tr>
+						<td colspan="10" class="loading">Loading chat history, please wait...</td>
+					</tr>
+				</ng-template>
+			</p-table>
+
+			<p-dialog header="Detail Percakapan" [(visible)]="_booleanShowDialog" [modal]="true"
+				[style]="{width: '50vw'}">
+				<div *ngIf="_selectedChat">
+					<p><strong>Sender ID:</strong> {{ _selectedChat.sender_id }}</p>
+					<p><strong>Room ID:</strong> {{ _selectedChat.room_conversation_id }}</p>
+					<p><strong>Role:</strong> {{ _selectedChat.role }}</p>
+					<p><strong>Message:</strong></p>
+					<p style="white-space: pre-line; background: #f7f7f7; padding: 10px; border-radius: 5px;">{{
+						_selectedChat.message }}</p>
+					<p><strong>Timestamp:</strong> {{ _selectedChat.created_at | date:'yyyy-MM-dd HH:mm' }}</p>
+					<p><strong>Agent Response Category:</strong> {{ _selectedChat.agent_response_category }}</p>
+					<p><strong>Agent Response Latency:</strong> {{ formatLatency(_selectedChat.agent_response_latency)
+						}}</p>
+					<p><strong>Agent Total Tokens:</strong> {{ _selectedChat.agent_total_tokens }}</p>
+					<p><strong>Agent Tools Used:</strong> {{ _selectedChat.agent_tools_call?.join(', ') }}</p>
+				</div>
+			</p-dialog>
+		</div>
+	</p-card>
 </div>

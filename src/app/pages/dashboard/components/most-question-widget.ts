@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { MenuModule } from 'primeng/menu';
 import { DashboardService } from '../../services/dashboard.service';
+import { Router } from '@angular/router';
 
 export interface ProcessedCategoryFrequency {
     category: string;
@@ -18,11 +19,6 @@ export interface ProcessedCategoryFrequency {
     templateUrl: './most-question-widget.html',
 })
 export class MostQuestionsWidget implements OnInit {
-    _defaultMenu = null;
-    _listItems = [
-        { label: 'Add New', icon: 'pi pi-fw pi-plus' },
-        { label: 'Remove', icon: 'pi pi-fw pi-trash' }
-    ];
 
     _listMostAskedCategories: ProcessedCategoryFrequency[] = [];
     _boolIsLoading: boolean = true;
@@ -57,14 +53,24 @@ export class MostQuestionsWidget implements OnInit {
         blue: 'text-blue-500'
     };
 
-    constructor(private dashboardService: DashboardService) {}
+    constructor(
+        private dashboardService: DashboardService,
+        private router: Router) {}
 
     ngOnInit(): void {
         this.loadCategoryFrequencies();
         this._listMenuItems = [
-            { label: 'Refresh', icon: 'pi pi-refresh' },
-            { label: 'Export', icon: 'pi pi-upload' }
-        ];
+      {
+        label: 'Refresh',
+        icon: 'pi pi-refresh',
+        command: () => this.loadCategoryFrequencies()
+      },
+      {
+        label: 'Export',
+        icon: 'pi pi-upload',
+        routerLink: '/pages/report'
+      }
+    ];
     }
 
     capitalizeFirstLetter(str: string): string {

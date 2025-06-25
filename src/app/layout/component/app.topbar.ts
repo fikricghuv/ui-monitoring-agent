@@ -7,6 +7,7 @@ import { StyleClassModule } from 'primeng/styleclass';
 import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { Router } from '@angular/router';
 
 // --- PrimeNG Overlay & Menu Modules ---
 import { OverlayPanelModule } from 'primeng/overlaypanel';
@@ -50,7 +51,7 @@ export class AppTopbar {
         { id: 3, message: 'Update sistem berhasil diselesaikan.', time: 'Kemarin', read: true },
         { id: 4, message: 'Pengingat: Rapat tim pukul 10 pagi.', time: '2 hari yang lalu', read: false },
         { id: 5, message: 'Pembayaran untuk faktur #12345 diterima.', time: '3 hari yang lalu', read: true },
-        { id: 6, message: 'Pengguna baru mendaftar di Collabor IQ!', time: '1 minggu yang lalu', read: false },
+        { id: 6, message: 'Pengguna baru mendaftar di TalkVera!', time: '1 minggu yang lalu', read: false },
         { id: 7, message: 'Pemeliharaan server dijadwalkan Senin depan.', time: '1 minggu yang lalu', read: false }
     ];
 
@@ -80,7 +81,9 @@ export class AppTopbar {
         }
     ];
 
-    constructor(public layoutService: LayoutService) {}
+    constructor(public layoutService: LayoutService,
+        private router: Router
+    ) {}
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
@@ -104,6 +107,7 @@ export class AppTopbar {
     viewAllNotifications() {
         console.log('Navigasi ke halaman semua notifikasi.');
         this.notificationPanel.hide();
+        this.router.navigate(['/notification']);
     }
 
     public onLogout(): void {

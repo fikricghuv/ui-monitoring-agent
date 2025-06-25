@@ -6,19 +6,15 @@
     </div>
 
     <div class="mt-4 flex flex-wrap gap-6 items-center justify-between p-1">
-        <!-- <p-selectButton [(ngModel)]="selectedTime" [options]="timeOptions" optionLabel="label" aria-labelledby="basic" [allowEmpty]="false" (onChange)="onTimeChange()" /> -->
         <p-selectButton 
+        aria-labelledby="basic"
         [options]="_listTimeOptions" 
         [(ngModel)]="_stringSelectedTime" 
-        (onChange)="onTimeChange()">
+        (onChange)="onTimeChange()"
+        [allowEmpty]="false"
+        >
         </p-selectButton>
-
-        <div class="flex items-center gap-2">
-            <p-button label="Download" icon="pi pi-download" iconPos="right" />
-            <p-datepicker [(ngModel)]="_listDates" appendTo="body" dateFormat="dd.mm.yy" selectionMode="range" showIcon iconDisplay="input" placeholder="06/11/2024 - 06/22/2024" />
-        </div>
     </div>
-    
     <div *ngIf="_boolIsLoading" class="text-center text-muted-color py-8">
         <i class="pi pi-spin pi-spinner text-4xl mb-2"></i>
         <p>Loading performance data...</p>

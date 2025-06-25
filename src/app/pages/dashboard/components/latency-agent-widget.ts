@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { DashboardService } from '../../services/dashboard.service';
 import { MenuItem } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
+import { Router } from '@angular/router';
 
 @Component({
   standalone: true,
@@ -45,7 +46,9 @@ export class LatencyAgentWidget implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
-  constructor(private dashboardService: DashboardService) {}
+  constructor(
+    private dashboardService: DashboardService,
+    private router: Router) {}
 
   ngOnInit() {
     this._stringSelectedView = 'Daily'; 
@@ -61,7 +64,7 @@ export class LatencyAgentWidget implements OnInit, OnDestroy {
       {
         label: 'Export',
         icon: 'pi pi-upload',
-        command: () => console.log('Export data (implementasi di sini)')
+        routerLink: '/pages/report'
       }
     ];
   }

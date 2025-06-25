@@ -41,7 +41,7 @@ export class AppMenu {
                 label: 'Configuration',
                 items: [
                     { label: 'Prompt Editor', icon: 'pi pi-fw pi-list', routerLink: ['/pages/editor'] },
-                    { label: 'Base Knowledge', icon: 'pi pi-fw pi-book', routerLink: ['/pages/base-knowledge'] },
+                    { label: 'Base Knowledge', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pages/base-knowledge'] },
                 ]
             },
             {
@@ -52,12 +52,12 @@ export class AppMenu {
                         icon: 'pi pi-fw pi-book',
                         routerLink: ['/documentation']
                     },
-                    {
-                        label: 'View Source',
-                        icon: 'pi pi-fw pi-github',
-                        url: 'https://github.com/fikricghuv/ui-monitoring-agent',
-                        target: '_blank'
-                    }
+                    // {
+                    //     label: 'View Source',
+                    //     icon: 'pi pi-fw pi-github',
+                    //     url: 'https://github.com/fikricghuv/ui-monitoring-agent',
+                    //     target: '_blank'
+                    // }
                 ]
             }
         ];
