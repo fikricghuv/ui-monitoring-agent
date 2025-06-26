@@ -15,7 +15,11 @@ import { MenuModule } from 'primeng/menu';
 import { ButtonModule } from 'primeng/button';
 import { ScrollerModule } from 'primeng/scroller';
 import { AvatarModule } from 'primeng/avatar';
-import { TooltipModule } from 'primeng/tooltip'; // <--- INI YANG HILANG DAN PERLU DITAMBAHKAN
+import { TooltipModule } from 'primeng/tooltip'; 
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+import { MessageService } from 'primeng/api'; 
+
 
 @Component({
     selector: 'app-topbar',
@@ -31,9 +35,12 @@ import { TooltipModule } from 'primeng/tooltip'; // <--- INI YANG HILANG DAN PER
         ButtonModule,
         ScrollerModule,
         AvatarModule,
-        TooltipModule // <--- Tambahkan TooltipModule di sini
+        TooltipModule,
+        ConfirmDialogModule
+        
     ],
-    templateUrl: './app.topbar.html'
+    templateUrl: './app.topbar.html',
+    providers: [ConfirmationService, MessageService],
 })
 export class AppTopbar {
     items!: MenuItem[];
@@ -74,15 +81,17 @@ export class AppTopbar {
             label: 'Logout',
             icon: 'pi pi-sign-out',
             command: () => {
-                this.onLogout();
-                // console.log('Melakukan Logout');
+                // this.onLogout();
+                this.confirmLogout();
             },
-            routerLink: '/login'
+            // routerLink: '/login'
         }
     ];
 
     constructor(public layoutService: LayoutService,
-        private router: Router
+        private router: Router,
+        private confirmationService: ConfirmationService,
+        private messageService: MessageService
     ) {}
 
     toggleDarkMode() {
@@ -115,6 +124,46 @@ export class AppTopbar {
         localStorage.removeItem('access_token');
         this._stringUsername = '';
         this._stringPassword = '';
-        alert('You have been logged out.');
+
+        // Notifikasi (gunakan messageService saja, hindari alert browser)
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Success logout',
+            detail: 'You have successfully logged out.'
+        });
     }
+
+
+    markAllAsRead(): void {
+        this.dummyNotifications.forEach(notif => notif.read = true);
+    }
+
+    public confirmLogout() {
+        this.confirmationService.confirm({
+            message: 'Are you sure you want to logout?',
+            header: 'Confirm Logout',
+            icon: 'pi pi-question-circle',
+            acceptLabel: 'Logout',
+            rejectLabel: 'Cancel',
+            acceptButtonProps: {
+                severity: 'danger'
+            },
+            rejectButtonProps: {
+                severity: 'secondary',
+                outlined: true
+            },
+            accept: () => {
+                this.onLogout();
+                this.router.navigate(['/login']);
+            },
+            reject: () => {
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Cancelled',
+                    detail: 'Logout dibatalkan.'
+                });
+            }
+        });
+    }
+
 }

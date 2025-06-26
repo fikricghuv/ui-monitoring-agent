@@ -21,7 +21,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield'; 
 import { InputIconModule } from 'primeng/inputicon';
 import { TextareaModule } from 'primeng/textarea'; 
-
+import { MessageService } from 'primeng/api'; 
+import { ToastModule } from 'primeng/toast'; 
 
 @Component({
   selector: 'app-admin-chat',
@@ -37,11 +38,14 @@ import { TextareaModule } from 'primeng/textarea';
     InputTextModule, 
     IconFieldModule, 
     InputIconModule, 
-    TextareaModule 
+    TextareaModule ,
+    ToastModule
   ],
   standalone: true,
   templateUrl: './admin-chat.component.html',
   styleUrls: ['./admin-chat.component.scss'],
+  providers: [MessageService]
+
 })
 export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('chatScroll') chatScroll!: ElementRef;
@@ -69,7 +73,8 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     private sessionService: SessionService,
     private cdr: ChangeDetectorRef,
     private chatHistoryService: ChatHistoryService,
-    private roomService: RoomService
+    private roomService: RoomService,
+    private messageService: MessageService
   ) 
   {
     this._arrayRoomModel = [];
@@ -86,11 +91,30 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       try {
         await this.webSocketService.connect(adminId, 'admin');
         console.log("✅ WebSocket admin terhubung.");
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Berhasil',
+            detail: 'WebSocket berhasil terhubung.'
+        });
+
       } catch (error) {
         console.error("❌ Gagal menghubungkan WebSocket admin:", error);
+
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Gagal',
+            detail: 'Gagal menghubungkan WebSocket admin.'
+        });
+
       }
     } else {
       console.warn("Admin ID tidak ditemukan.");
+      this.messageService.add({
+          severity: 'warn',
+          summary: 'Peringatan',
+          detail: 'Admin ID tidak ditemukan.'
+      });
     }
 
     this.newMessageSubscription = this.webSocketService.getMessages().subscribe((message) => {
@@ -166,6 +190,12 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
           if (!response.success || !response.history || response.history.length === 0) {
             console.warn(`⚠️ Tidak ada riwayat chat untuk room ID ${room.id} atau permintaan gagal.`);
+
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Peringatan',
+                detail: 'Tidak ada riwayat chat untuk room ini.'
+            });
             
             this._modelChatMessages[room.id!] = [];
 
@@ -219,6 +249,12 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         error: (err) => {
           console.error(`❌ Gagal memuat chat history untuk room ID ${room.id}:`, err);
+
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Gagal memuat riwayat chat untuk room ini.`
+          });
           
           this._modelChatMessages[room.id!] = [];
           
@@ -227,6 +263,12 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     } else {
       alert("⚠️ ID room tidak valid.");
+
+      this.messageService.add({
+          severity: 'warn',
+          summary: 'Peringatan',
+          detail: 'Room tidak valid.'
+      });
       
       this._modelSelectedRoom = null;
       
@@ -269,6 +311,13 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       },
       error: (err) => {
         console.error('Gagal memuat daftar room:', err);
+
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Gagal memuat daftar chat. Silakan coba lagi nanti.'
+        });
+
       },
     });
   }
@@ -289,6 +338,13 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
   public async sendMessageFromAdmin(): Promise<void> {
     if (!this._stringNewMessage.trim() || !this._modelSelectedRoom || !this._modelSelectedRoom.id) {
       console.warn("Pesan kosong atau tidak ada room yang dipilih atau ID room tidak valid.");
+      
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Peringatan',
+        detail: 'Pesan tidak boleh kosong atau room tidak valid.'
+      });
+      
       return;
     }
 
@@ -340,6 +396,12 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
     } catch (error) {
       console.error('Gagal mengirim pesan:', error);
+
+      this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Gagal mengirim pesan. Silakan coba lagi nanti.'
+      });
     }
   }
 }

@@ -1,4 +1,6 @@
 <div class="card p-fluid">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
     <div class="font-semibold text-2xl mb-4">My Profile</div>
     <div class="grid">
         <div class="col-12 lg:col-4 flex flex-column align-items-center justify-content-center p-4 text-center"
@@ -50,7 +52,7 @@
                     <div class="mt-5 text-left">
                         <button pButton label="Update Profile" icon="pi pi-pencil"
                                 class="p-button-outlined p-button-sm"
-                                [disabled]="!hasProfileChanges" (click)="updateProfileInfo()" pRipple></button>
+                                [disabled]="!hasProfileChanges" (click)="confirmUpdateProfileInfo($event)" pRipple></button>
                     </div>
 
                 </p-tabPanel>

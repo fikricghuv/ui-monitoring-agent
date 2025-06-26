@@ -25,7 +25,7 @@ interface ReportType {
         ButtonModule,
         ToastModule,
         BreadcrumbModule,
-        CardModule 
+        CardModule,
     ],
   templateUrl: './report.component.html',
   styleUrl: './report.component.scss',
@@ -63,17 +63,30 @@ export class ReportComponent implements OnInit {
         
         if (!isPlatformBrowser(this.platformId)) {
             console.warn('Download functionality is only available in the browser.');
-            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Download hanya tersedia di browser.' });
+            
+            this.messageService.add({ 
+                severity: 'warn', 
+                summary: 'Warning', 
+                detail: 'Download hanya tersedia di browser.' 
+            });
             return;
         }
 
         if (!this.selectedReportType) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Silakan pilih jenis laporan.' });
+            this.messageService.add({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Silakan pilih jenis laporan.' 
+            });
             return;
         }
 
         if (!this.rangeDates || this.rangeDates.length !== 2 || !this.rangeDates[0] || !this.rangeDates[1]) {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Silakan pilih rentang tanggal yang valid.' });
+            this.messageService.add({ 
+                severity: 'error', 
+                summary: 'Error', 
+                detail: 'Silakan pilih rentang tanggal yang valid.' 
+            });
             return;
         }
 

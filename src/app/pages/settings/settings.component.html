@@ -1,8 +1,9 @@
 <div class="card p-fluid">
     <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
     <div class="font-semibold text-2xl mb-4">Account Settings</div>
 
-    <p-fieldset legend="General Settings" [toggleable]="true" styleClass="p-mb-4">
+    <p-fieldset legend="Account Settings" [toggleable]="true" styleClass="p-mb-4">
         <div class="mb-5">
 
             <div class="field">
@@ -17,7 +18,7 @@
                 <input id="email" type="email" pInputText [(ngModel)]="email" />
             </div>
             <div class="flex justify-content-end mt-5">
-                <p-button label="Simpan Perubahan" icon="pi pi-save" (onClick)="saveGeneralSettings()"></p-button>
+                <p-button label="Simpan Perubahan" icon="pi pi-save" (onClick)="confirmSaveAccountSettings($event)"></p-button>
             </div>
         </div>
     </p-fieldset>
@@ -40,7 +41,7 @@
                     [feedback]="false"></p-password>
             </div>
             <div class="flex justify-content-end mt-5">
-                <p-button label="Ubah Password" icon="pi pi-key" (onClick)="changePassword()"></p-button>
+                <p-button label="Ubah Password" icon="pi pi-key" (onClick)="confirmChangePassword($event)"></p-button>
             </div>
         </div>
 
@@ -70,7 +71,7 @@
                     ditugaskan</label>
             </div> -->
             <div class="flex justify-content-end mt-5">
-                <p-button label="Simpan Preferensi" icon="pi pi-bell" (onClick)="saveNotificationSettings()"></p-button>
+                <p-button label="Simpan Preferensi" icon="pi pi-bell" (onClick)="confirmSaveNotificationSettings($event)"></p-button>
             </div>
         </div>
     </p-fieldset>

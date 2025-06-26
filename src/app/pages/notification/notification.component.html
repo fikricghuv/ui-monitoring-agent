@@ -1,4 +1,6 @@
 <div class="card">
+    <p-toast></p-toast>
+    <p-confirmDialog></p-confirmDialog>
     <div class="flex align-items-center justify-content-between mb-4" style="justify-content: space-between;">
         <div class="flex align-items-center">
             <i class="pi pi-bell text-3xl mr-3 text-primary"></i>
@@ -11,7 +13,7 @@
             <p-button label="Mark All As Read" icon="pi pi-check-circle" styleClass="p-button-outlined p-button-sm"
                       (click)="markAllAsRead()" [disabled]="notifications.length === 0"></p-button>
             <p-button label="Clear All" icon="pi pi-trash" styleClass="p-button-danger p-button-outlined p-button-sm"
-                      (click)="clearAllNotifications()" [disabled]="notifications.length === 0"></p-button>
+                      (click)="confirmClearAllNotifications($event)" [disabled]="notifications.length === 0"></p-button>
         </div>
     </div>
 
@@ -20,11 +22,11 @@
     <div *ngIf="notifications.length > 0; else noNotifications" class="mt-4">
         <div *ngFor="let notification of notifications; trackBy: trackById"
              class="flex align-items-center p-3 mb-3 border-round transition-all transition-duration-200"
-             [ngClass]="{'surface-card shadow-1': !notification.read, 'surface-200 text-color-secondary': notification.read}"
+             [ngClass]="{'surface-card shadow-1 bg-blue-50 dark:bg-blue-900/15': !notification.read, 'surface-200 text-color-secondary': notification.read}"
              (click)="toggleReadStatus(notification)" style="cursor: pointer;">
 
             <div class="flex align-items-center justify-content-center mr-3"
-                 [ngClass]="{'text-primary': !notification.read, 'text-white': notification.read}"
+                 [ngClass]="{'text-primary': !notification.read, 'text-muted': notification.read}"
                  >
                 <i [ngClass]="getNotificationIcon(notification.type)" class="text-xl"></i>
             </div>
@@ -39,10 +41,6 @@
                 </p>
             </div>
 
-            <div class="ml-auto">
-                <p-tag [value]="notification.read ? 'Read' : 'Unread'"
-                       [severity]="notification.read ? 'info' : 'success'"></p-tag>
-            </div>
         </div>
     </div>
 

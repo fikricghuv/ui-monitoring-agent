@@ -3,27 +3,31 @@
 		[home]="_defaultHomeMenu" />
 </div>
 <div class="knowledge-base-container">
+	<p-toast></p-toast>
+	<p-confirmDialog></p-confirmDialog>
 	<p-card [style]="{'border-radius': '6px'}" styleClass="p-card-shadow">
 		<h2 class="text-2xl font-bold text-900">Base Knowledge</h2>
 
 		<p-fieldset legend="Upload Documents" [toggleable]="true" styleClass="p-mb-4">
 			<p-fileUpload name="demo[]" (onSelect)="onFileSelected($event)" (onClear)="onFileClear()" [multiple]="false"
-				accept=".pdf,.txt,.docx" [maxFileSize]="10000000" chooseLabel="Pilih File" uploadLabel="Upload"
+				accept=".pdf" [maxFileSize]="10000000" chooseLabel="Select File" uploadLabel="Upload"
 				cancelLabel="Batal" [showUploadButton]="false" [showCancelButton]="false">
 				<ng-template pTemplate="content">
-					<div *ngIf="_fileSelectedFile" class="p-d-flex p-ai-center p-mt-2">
-						<span>File terpilih: **{{ _fileSelectedFile.name }}**</span>
-						<p-button icon="pi pi-upload" label="Unggah Sekarang"
-							styleClass="p-button-raised p-button-md p-ml-3" (onClick)="uploadFile()"
-							[disabled]="!_fileSelectedFile || _booleanIsLoading">
-						</p-button>
+					<div *ngIf="_fileSelectedFile" class="p-d-flex p-ai-center p-mt-2" style="flex-direction: column;">
+						<div >
+							<p-button icon="pi pi-upload" label="Upload File"
+								styleClass="p-button-raised p-button-md p-ml-3" (onClick)="confirmUploadFile($event)"
+								[disabled]="!_fileSelectedFile || _booleanIsLoading">
+							</p-button>
+						</div>
+						
 					</div>
-					<small class="p-text-secondary">Ukuran file maksimal 10MB (.pdf)</small>
+					<small class="p-text-secondary">Max size file 10MB (.pdf)</small>
 				</ng-template>
 			</p-fileUpload>
 		</p-fieldset>
 
-		<p-fieldset legend="📂 File yang Telah Diupload" [toggleable]="true" styleClass="p-mb-4">
+		<p-fieldset legend="📂 Uploaded File" [toggleable]="true" styleClass="p-mb-4">
 			<p-listbox class="pListboxKnowledge" [options]="_arrayUploadedFiles" optionLabel="filename"
 				[style]="{'width':'100%', 'min-height':'150px'}" [emptyMessage]="'Tidak ada file yang diunggah.'">
 				<ng-template let-file pTemplate="item">
@@ -34,15 +38,15 @@
 					<div class="p-d-flex p-jc-between p-ai-center p-py-2">
 						<p-button icon="pi pi-trash"
 							styleClass="p-button-danger p-button-rounded p-button-sm p-button-text"
-							(onClick)="removeFile(file)" [disabled]="_booleanIsLoading" pTooltip="Hapus File"
+							(onClick)="confirmRemoveFile($event, file)" [disabled]="_booleanIsLoading" pTooltip="Hapus File"
 							tooltipPosition="right">
 						</p-button>
 					</div>
 				</ng-template>
 			</p-listbox>
 			<div class="p-d-flex p-jc-center p-mt-4">
-				<p-button label="Proses Embedding" icon="pi pi-sync" styleClass="p-button-primary p-button-md"
-					[style]="{'margin-top': '15px'}" (onClick)="embeddingFile()" [disabled]="_booleanIsLoading">
+				<p-button label="Process File" icon="pi pi-sync" styleClass="p-button-primary p-button-md"
+					[style]="{'margin-top': '15px'}" (onClick)="confirmEmbeddingFile($event)" [disabled]="_booleanIsLoading">
 				</p-button>
 			</div>
 		</p-fieldset>

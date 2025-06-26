@@ -10,6 +10,8 @@ import { InputSwitchModule } from 'primeng/inputswitch';
 import { ToastModule } from 'primeng/toast'; 
 import { MessageService } from 'primeng/api'; 
 import { FieldsetModule } from 'primeng/fieldset';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
     selector: 'app-settings',
@@ -24,11 +26,12 @@ import { FieldsetModule } from 'primeng/fieldset';
         DividerModule,
         InputSwitchModule,
         ToastModule,
-        FieldsetModule 
+        FieldsetModule,
+        ConfirmDialogModule 
     ],
     templateUrl: './settings.component.html',
     styleUrls: ['./settings.component.scss'],
-    providers: [MessageService] 
+    providers: [MessageService, ConfirmationService] 
 })
 export class SettingsComponent implements OnInit {
 
@@ -44,13 +47,16 @@ export class SettingsComponent implements OnInit {
     notifyOnNewMessage: boolean = true;
     notifyOnTaskAssignment: boolean = true;
 
-    constructor(private messageService: MessageService) { }
+    constructor(
+        private messageService: MessageService, 
+        private confirmationService: ConfirmationService
+    ) { }
 
     ngOnInit(): void {
         console.log('Settings component initialized.');
     }
 
-    saveGeneralSettings() {
+    saveAccountSettings() {
        
         console.log('Saving General Settings:', { username: this.username, email: this.email });
         
@@ -103,6 +109,78 @@ export class SettingsComponent implements OnInit {
             severity: 'success',
             summary: 'Berhasil',
             detail: 'Pengaturan Notifikasi berhasil disimpan.'
+        });
+    }
+
+    public confirmSaveAccountSettings(event: Event) {
+        this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Are you sure you want to save this account settings?',
+        header: 'Confirm Save',
+        icon: 'pi pi-question-circle',
+        acceptLabel: 'Save',
+        rejectLabel: 'Cancel',
+        acceptButtonProps: {
+            severity: 'success'
+        },
+        rejectButtonProps: {
+            severity: 'secondary',
+            outlined: true
+        },
+        accept: () => {
+            this.saveAccountSettings();
+        },
+        reject: () => {
+            this.messageService.add({severity:'info', summary:'Cancelled', detail:'Prompt was not saved.'});
+        }
+        });
+    }
+
+    public confirmChangePassword(event: Event) {
+        this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Are you sure you want to change password?',
+        header: 'Confirm Save',
+        icon: 'pi pi-question-circle',
+        acceptLabel: 'Save',
+        rejectLabel: 'Cancel',
+        acceptButtonProps: {
+            severity: 'success'
+        },
+        rejectButtonProps: {
+            severity: 'secondary',
+            outlined: true
+        },
+        accept: () => {
+            this.changePassword();
+        },
+        reject: () => {
+            this.messageService.add({severity:'info', summary:'Cancelled', detail:'Prompt was not saved.'});
+        }
+        });
+    }
+
+    public confirmSaveNotificationSettings(event: Event) {
+        this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Are you sure you want to save this notification settings?',
+        header: 'Confirm Save',
+        icon: 'pi pi-question-circle',
+        acceptLabel: 'Save',
+        rejectLabel: 'Cancel',
+        acceptButtonProps: {
+            severity: 'success'
+        },
+        rejectButtonProps: {
+            severity: 'secondary',
+            outlined: true
+        },
+        accept: () => {
+            this.saveNotificationSettings();
+        },
+        reject: () => {
+            this.messageService.add({severity:'info', summary:'Cancelled', detail:'Prompt was not saved.'});
+        }
         });
     }
 }

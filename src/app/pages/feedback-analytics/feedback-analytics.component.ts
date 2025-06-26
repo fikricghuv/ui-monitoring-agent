@@ -13,12 +13,14 @@ import { ButtonModule } from 'primeng/button';
 import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-feedback-analytics',
   standalone: true,
   imports: [CommonModule, PaginatorModule, 
-    IconFieldModule, InputIconModule, TableModule, BreadcrumbModule, DialogModule, ButtonModule, FormsModule, CardModule, InputTextModule],
+    IconFieldModule, InputIconModule, TableModule, BreadcrumbModule, 
+    DialogModule, ButtonModule, FormsModule, CardModule, InputTextModule, DividerModule],
   templateUrl: './feedback-analytics.component.html',
   styleUrl: './feedback-analytics.component.scss'
 })

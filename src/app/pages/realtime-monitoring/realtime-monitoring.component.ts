@@ -14,11 +14,15 @@ import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-realtime-monitoring',
   standalone: true,
-  imports: [CommonModule, CardModule, PaginatorModule, TableModule, IconFieldModule, InputIconModule, BreadcrumbModule, DialogModule, FormsModule, ButtonModule, InputTextModule],
+  imports: [CommonModule, CardModule, PaginatorModule, 
+    TableModule, IconFieldModule, InputIconModule, 
+    BreadcrumbModule, DialogModule, FormsModule, ButtonModule, 
+    InputTextModule, DividerModule],
   templateUrl: './realtime-monitoring.component.html',
   styleUrl: './realtime-monitoring.component.scss',
 })

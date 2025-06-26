@@ -66,27 +66,90 @@
         </ng-template>
       </p-table>
     </div>
-    <p-dialog header="Detail Feedback" [(visible)]="_booleanShowFeedbackDialog" [modal]="true"
-      [style]="{width: '50vw'}">
-      <div *ngIf="_selectedFeedback">
-        <p><strong>Feedback:</strong></p>
-        <p style="white-space: pre-line; background: #f7f7f7; padding: 10px; border-radius: 5px;">
-          {{ _selectedFeedback.feedback_from_customer }}
-        </p>
+    <p-dialog
+      header="📝 Detail Feedback"
+      [(visible)]="_booleanShowFeedbackDialog"
+      [modal]="true"
+      [style]="{ width: '50vw' }"
+      [closable]="true"
+      [dismissableMask]="true"
+    >
+      <ng-container *ngIf="_selectedFeedback">
+        <div class="p-fluid">
+          <!-- Feedback -->
+          <div class="field">
+            <label class="font-semibold text-color">Feedback</label>
+            <!-- <div
+              class="bg-gray-50 border border-gray-200 rounded p-3 text-sm"
+              style="white-space: pre-line;"
+            >
+              {{ _selectedFeedback.feedback_from_customer }}
+            </div> -->
+            <p>{{ _selectedFeedback.feedback_from_customer}}</p>
+            <p-divider></p-divider>
+          </div>
 
-        <p><strong>Sentiment:</strong> {{ _selectedFeedback.sentiment }}</p>
+          <!-- Sentiment -->
+          <div class="field">
+            <label class="font-semibold text-color">Sentiment</label>
+            <p>
+              <span
+                class="p-tag"
+                [ngClass]="{
+                  'p-tag-success': _selectedFeedback.sentiment === 'positive',
+                  'p-tag-warning': _selectedFeedback.sentiment === 'neutral',
+                  'p-tag-danger': _selectedFeedback.sentiment === 'negative'
+                }"
+              >
+                {{ _selectedFeedback.sentiment }}
+              </span>
+            </p>
+            <p-divider></p-divider>
+          </div>
 
-        <p><strong>Potential Actions:</strong></p>
-        <p style="white-space: pre-line; background: #f0f0f0; padding: 10px; border-radius: 5px;">
-          {{ _selectedFeedback.potential_actions }}
-        </p>
+          <!-- Potential Actions -->
+          <div class="field">
+            <label class="font-semibold text-color">Potential Actions</label>
+            <!-- <div
+              class="bg-gray-100 border border-gray-200 rounded p-3 text-sm"
+              style="white-space: pre-line;"
+            >
+              {{ _selectedFeedback.potential_actions }}
+            </div> -->
+            <p>{{ _selectedFeedback.potential_actions}}</p>
+            <p-divider></p-divider>
+          </div>
 
-        <p><strong>Keyword Issue:</strong> {{ _selectedFeedback.keyword_issue }}</p>
-        <p><strong>Category:</strong> {{ _selectedFeedback.category }}</p>
-        <p><strong>Product Name:</strong> {{ _selectedFeedback.product_name }}</p>
-        <p><strong>Created At:</strong> {{ _selectedFeedback.created_at | date:'yyyy-MM-dd HH:mm' }}</p>
-      </div>
+          <!-- Keyword Issue -->
+          <div class="field">
+            <label class="font-semibold text-color">Keyword Issue</label>
+            <p>{{ _selectedFeedback.keyword_issue || '-' }}</p>
+            <p-divider></p-divider>
+          </div>
+
+          <!-- Category -->
+          <div class="field">
+            <label class="font-semibold text-color">Category</label>
+            <p>{{ _selectedFeedback.category || '-' }}</p>
+            <p-divider></p-divider>
+          </div>
+
+          <!-- Product Name -->
+          <div class="field">
+            <label class="font-semibold text-color">Product Name</label>
+            <p>{{ _selectedFeedback.product_name || '-' }}</p>
+            <p-divider></p-divider>
+          </div>
+
+          <!-- Created At -->
+          <div class="field">
+            <label class="font-semibold text-color">Created At</label>
+            <p>{{ _selectedFeedback.created_at | date: 'yyyy-MM-dd HH:mm' }}</p>
+          </div>
+        </div>
+      </ng-container>
     </p-dialog>
+
 
   </p-card>
 </div>

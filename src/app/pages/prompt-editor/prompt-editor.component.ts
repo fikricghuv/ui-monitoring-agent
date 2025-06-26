@@ -11,6 +11,8 @@ import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast'; 
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-prompt-editor',
@@ -23,11 +25,12 @@ import { MenuItem } from 'primeng/api';
     TextareaModule, 
     ButtonModule,        
     ToastModule,          
-    BreadcrumbModule
+    BreadcrumbModule,
+    ConfirmDialogModule
   ],
   templateUrl: './prompt-editor.component.html',
   styleUrls: ['./prompt-editor.component.scss'],
-  providers: [MessageService] 
+  providers: [MessageService, ConfirmationService] 
 })
 export class PromptEditorComponent implements OnInit {
   public _arrayPrompts: Array<Prompt>;
@@ -38,7 +41,8 @@ export class PromptEditorComponent implements OnInit {
 
   constructor(
     private _servicePrompt: PromptService,
-    private messageService: MessageService 
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService 
   ) {
     this._arrayPrompts = [];
     this._objtSelectedPrompt = { name: '', content: '' };
@@ -108,11 +112,60 @@ export class PromptEditorComponent implements OnInit {
       });
   }
 
+  public confirmSavePrompt(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure you want to save this prompt?',
+      header: 'Confirm Save',
+      icon: 'pi pi-question-circle',
+      acceptLabel: 'Save',
+      rejectLabel: 'Cancel',
+      acceptButtonProps: {
+        severity: 'success'
+      },
+      rejectButtonProps: {
+        severity: 'secondary',
+        outlined: true
+      },
+      accept: () => {
+        this.savePrompt();
+      },
+      reject: () => {
+        this.messageService.add({severity:'info', summary:'Cancelled', detail:'Prompt was not saved.'});
+      }
+    });
+  }
+
+
   public resetPrompt() {
     
     this._objtSelectedPrompt.content = this._stringOriginalContent;
     
     this.messageService.add({severity:'info', summary:'Info', detail:'Prompt content reset.'});
+  }
+
+  public confirmResetPrompt(event: Event) {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Are you sure you want to reset this prompt?',
+      header: 'Confirm Reset',
+      icon: 'pi pi-question-circle',
+      acceptLabel: 'Reset',
+      rejectLabel: 'Cancel',
+      acceptButtonProps: {
+        severity: 'success'
+      },
+      rejectButtonProps: {
+        severity: 'secondary',
+        outlined: true
+      },
+      accept: () => {
+        this.resetPrompt();
+      },
+      reject: () => {
+        this.messageService.add({severity:'info', summary:'Cancelled', detail:'Prompt was not saved.'});
+      }
+    });
   }
 
   public isPromptChanged(): boolean {

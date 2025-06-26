@@ -2,27 +2,11 @@
     <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems" [home]="_defaultHomeMenu" />
 </div> 
 <div class="prompt-editor-container">
-  <!-- <p-card header="Prompt Editor" styleClass="p-card-shadow"> -->
+  <p-toast></p-toast>
   <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
+    <p-confirmDialog></p-confirmDialog>
     <h2 class="text-2xl font-bold text-900">Prompt Editor</h2>
     <div class="editor-content">
-      <!-- <div class="prompt-list">
-        <h6>Available Agents</h6>
-        <p-listbox
-          [options]="_arrayPrompts"
-          optionLabel="name"
-          [(ngModel)]="_objtSelectedPrompt"
-          (onChange)="onPromptSelect($event)"
-          [filter]="true"
-          filterPlaceholder="Search agent"
-          [style]="{'width':'100%', 'min-height':'200px'}"
-          [emptyMessage]="'No prompts available'">
-          <ng-template let-prompt pTemplate="item">
-            <span [class.selected]="prompt.name === _objtSelectedPrompt!.name"> {{ prompt.name }} </span>
-          </ng-template>
-        </p-listbox>
-      </div> -->
-
       <div class="prompt-editor" *ngIf="_objtSelectedPrompt?.name">
 
         <h6 style="padding-top: 10px;">Prompt {{ _objtSelectedPrompt!.name }} : </h6>
@@ -34,13 +18,13 @@
             icon="pi pi-refresh"
             styleClass="p-button-md"
             [style]="{'margin-right': '10px'}"
-            (onClick)="resetPrompt()">
+            (onClick)="confirmResetPrompt($event)">
           </p-button>
           <p-button
             label="Save"
             icon="pi pi-save"
             styleClass="p-button-md"
-            (onClick)="savePrompt()"
+            (onClick)="confirmSavePrompt($event)"
             [disabled]="!isPromptChanged()">
           </p-button>
         </div>

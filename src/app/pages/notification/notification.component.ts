@@ -5,6 +5,11 @@ import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { TagModule } from 'primeng/tag';
 import { RippleModule } from 'primeng/ripple'; 
+import { ToastModule } from 'primeng/toast'; 
+import { MessageService } from 'primeng/api'; 
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+
 
 interface Notification {
     id: number;
@@ -25,17 +30,22 @@ interface Notification {
         ButtonModule,
         DividerModule,
         TagModule,
-        RippleModule 
+        RippleModule,
+        ToastModule,
+        ConfirmDialogModule 
     ],
     templateUrl: './notification.component.html',
     styleUrls: ['./notification.component.scss'], 
-    providers: [DatePipe]
+    providers: [DatePipe, MessageService, ConfirmationService]
 })
 export class NotificationComponent implements OnInit {
 
     notifications: Notification[] = [];
 
-    constructor(private datePipe: DatePipe) { } 
+    constructor(private datePipe: DatePipe,
+                private messageService: MessageService,
+                private confirmationService: ConfirmationService
+    ) { } 
 
     ngOnInit(): void {
         this.loadNotifications();
@@ -103,16 +113,52 @@ export class NotificationComponent implements OnInit {
 
     toggleReadStatus(notification: Notification): void {
         notification.read = !notification.read;
+        
     }
 
     markAllAsRead(): void {
         this.notifications.forEach(notif => notif.read = true);
+        this.messageService.add({
+            severity: 'success',
+            summary: 'All Notifications Read',
+            detail: 'All notifications have been marked as read.'
+        });
     }
 
     clearAllNotifications(): void {
         if (confirm('Are you sure you want to clear all notifications? This action cannot be undone.')) {
             this.notifications = [];
+            this.messageService.add({
+                severity: 'success',
+                summary: 'Notifications Cleared',
+                detail: 'All notifications have been cleared.'
+            });
         }
+        
+    }
+
+    public confirmClearAllNotifications(event: Event) {
+        this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Are you sure you want to delete all notifications?',
+        header: 'Confirm Delete',
+        icon: 'pi pi-question-circle',
+        acceptLabel: 'Delete',
+        rejectLabel: 'Cancel',
+        acceptButtonProps: {
+            severity: 'danger'
+        },
+        rejectButtonProps: {
+            severity: 'secondary',
+            outlined: true
+        },
+        accept: () => {
+            this.clearAllNotifications();
+        },
+        reject: () => {
+            this.messageService.add({severity:'info', summary:'Cancelled', detail:'Prompt was not saved.'});
+        }
+        });
     }
 
     getNotificationIcon(type: string): string {

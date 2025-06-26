@@ -9,6 +9,11 @@ import { TabViewModule } from 'primeng/tabview';
 import { TagModule } from 'primeng/tag';
 import { InputTextModule } from 'primeng/inputtext'; // Tambahkan ini untuk pInputText
 import { RippleModule } from 'primeng/ripple'; // Untuk efek ripple pada tombol
+import { ToastModule } from 'primeng/toast'; 
+import { MessageService } from 'primeng/api'; 
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
+
 
 // --- Interfaces ---
 interface UserProfileData {
@@ -53,10 +58,13 @@ interface RecentActivity {
         TabViewModule,
         TagModule,
         InputTextModule, // Pastikan InputTextModule ada di sini
-        RippleModule // Tambahkan RippleModule untuk efek pRipple
+        RippleModule,
+        ToastModule,
+        ConfirmDialogModule
     ],
     templateUrl: './profile.component.html',
-    styleUrls: ['./profile.component.scss']
+    styleUrls: ['./profile.component.scss'],
+    providers: [MessageService, ConfirmationService] 
 })
 export class ProfileComponent implements OnInit {
 
@@ -95,7 +103,9 @@ export class ProfileComponent implements OnInit {
         { id: 4, type: 'chat', description: 'Menyelesaikan 5 percakapan', time: '2 hari yang lalu' },
     ];
 
-    constructor() { }
+    constructor(private messageService: MessageService,
+                private confirmationService: ConfirmationService
+    ) { }
 
     ngOnInit(): void {
         console.log('Profile component initialized. Loading user data...');
@@ -124,11 +134,6 @@ export class ProfileComponent implements OnInit {
     // Fungsi untuk memperbarui informasi profil
     updateProfileInfo() {
         console.log('Menyimpan perubahan profil...');
-        // Di sini Anda akan mengirim data yang diperbarui ke backend
-        // Contoh: this.profileService.updateProfile(this.editableProfile).subscribe(...);
-
-        // Setelah berhasil disimpan, perbarui originalProfile dengan data baru
-        // agar tombol kembali disabled sampai ada perubahan lagi
         this.originalProfile.name = this.editableProfile.name;
         this.originalProfile.email = this.editableProfile.email;
         this.originalProfile.phoneNumber = this.editableProfile.phoneNumber;
@@ -140,7 +145,36 @@ export class ProfileComponent implements OnInit {
 
 
         this.checkProfileChanges(); // Cek ulang status perubahan setelah update
-        // Anda mungkin ingin menampilkan notifikasi 'Berhasil disimpan' di sini
+        
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Berhasil',
+            detail: 'Profil berhasil diperbarui.'
+        });
+    }
+
+    public confirmUpdateProfileInfo(event: Event) {
+        this.confirmationService.confirm({
+        target: event.target as EventTarget,
+        message: 'Are you sure you want to save this profile?',
+        header: 'Confirm Save',
+        icon: 'pi pi-question-circle',
+        acceptLabel: 'Save',
+        rejectLabel: 'Cancel',
+        acceptButtonProps: {
+            severity: 'success'
+        },
+        rejectButtonProps: {
+            severity: 'secondary',
+            outlined: true
+        },
+        accept: () => {
+            this.updateProfileInfo();
+        },
+        reject: () => {
+            this.messageService.add({severity:'info', summary:'Cancelled', detail:'Prompt was not saved.'});
+        }
+        });
     }
 
 

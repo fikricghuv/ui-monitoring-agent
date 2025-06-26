@@ -1,4 +1,5 @@
 <div class="layout-topbar">
+    <p-confirmDialog></p-confirmDialog>
     <div class="layout-topbar-logo-container">
         <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
             <i class="pi pi-bars"></i>
@@ -58,7 +59,7 @@
     <ng-template pTemplate="content">
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem;">
             <h4 class="font-semibold text-lg" style="margin: 0;">Notifications</h4>
-            <button pButton class="p-button-text p-button-sm" >Mark as read</button>
+            <button pButton class="p-button-text p-button-sm" (click)="markAllAsRead()">Mark as read</button>
         </div>
         
         <div *ngIf="dummyNotifications.length > 0; else noNotifications" class="p-fluid">
@@ -66,15 +67,10 @@
                 <ng-template pTemplate="item" let-notification>
                     <div class="flex align-items-center p-3 border-bottom-1 surface-border hover:surface-hover transition-duration-150"
                          [ngClass]="{'bg-blue-50 dark:bg-blue-900/15': !notification.read}">
-                        <div class="flex flex-column flex-grow-1" [ngClass]="{'font-semibold': !notification.read}">
+                        <div class="flex flex-column flex-grow-1" style="flex-direction: column;" [ngClass]="{'font-semibold': !notification.read}">
                             <div class="text-color text-base">{{ notification.message }}</div>
                             <div class="text-muted-color text-sm mt-1">{{ notification.time }}</div>
                         </div>
-                        <!-- <div class="ml-auto flex-shrink-0">
-                            <button pButton icon="pi pi-check" class="p-button-text p-button-sm p-button-rounded"
-                                    (click)="markAsRead(notification.id)" *ngIf="!notification.read"
-                                    pTooltip="Tandai sebagai sudah dibaca" tooltipPosition="left"></button>
-                        </div> -->
                     </div>
                 </ng-template>
             </p-scroller>

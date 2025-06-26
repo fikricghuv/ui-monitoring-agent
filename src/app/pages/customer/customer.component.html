@@ -62,26 +62,65 @@
                 </ng-template>
 
             </p-table>
-            <p-dialog header="Detail User Profile" [(visible)]="_booleanShowDataDialog" [modal]="true"
-                [style]="{width: '50vw'}">
-                <div *ngIf="_selectedData">
-                    <p><strong>Name:</strong></p>
-                    <p>
-                        {{ _selectedData.name }}
-                    </p>
+            <p-dialog
+                header="👤 Detail User Profile"
+                [(visible)]="_booleanShowDataDialog"
+                [modal]="true"
+                [style]="{ width: '40vw' }"
+                [closable]="true"
+                [dismissableMask]="true"
+                >
+                <ng-container *ngIf="_selectedData">
+                    <div class="p-fluid">
+                    <div class="field">
+                        <label class="font-semibold text-color">Name</label>
+                        <p>{{ _selectedData.name }}</p>
+                        <p-divider></p-divider>
+                    </div>
 
-                    <p><strong>Phone Number:</strong> {{ _selectedData.phone_number }}</p>
+                    <div class="field">
+                        <label class="font-semibold text-color">Phone Number</label>
+                        <p>{{ _selectedData.phone_number }}</p>
+                        <p-divider></p-divider>
+                    </div>
 
-                    <p><strong>Email:</strong></p>
-                    <p>
-                        {{ _selectedData.email_address }}
-                    </p>
+                    <div class="field">
+                        <label class="font-semibold text-color">Email</label>
+                        <p>{{ _selectedData.email_address }}</p>
+                        <p-divider></p-divider>
+                    </div>
 
-                    <p><strong>Registration Date:</strong> {{ _selectedData.registration_date | date:'yyyy-MM-dd HH:mm' }}</p>
-                    <p><strong>Last Chat Date:</strong> {{ _selectedData.last_chat_date | date:'yyyy-MM-dd HH:mm' }}</p>
-                    <p><strong>Status:</strong> {{ _selectedData.status }}</p>
-                </div>
-            </p-dialog>
+                    <div class="field">
+                        <label class="font-semibold text-color">Registration Date</label>
+                        <p>{{ _selectedData.registration_date | date: 'yyyy-MM-dd HH:mm' }}</p>
+                        <p-divider></p-divider>
+                    </div>
+
+                    <div class="field">
+                        <label class="font-semibold text-color">Last Chat Date</label>
+                        <p>{{ _selectedData.last_chat_date | date: 'yyyy-MM-dd HH:mm' }}</p>
+                        <p-divider></p-divider>
+                    </div>
+
+                    <div class="field">
+                        <label class="font-semibold text-color">Status</label>
+                        <p>
+                        <span
+                            [ngClass]="{
+                            'p-tag': true,
+                            'p-tag-success': _selectedData.status === 'Active',
+                            'p-tag-warning': _selectedData.status === 'Pending',
+                            'p-tag-danger': _selectedData.status === 'Inactive' || _selectedData.status === 'Blocked',
+                            }"
+                        >
+                            {{ _selectedData.status }}
+                        </span>
+                        </p>
+                    </div>
+                    </div>
+                </ng-container>
+                </p-dialog>
+
             <p-popover #op>
                 <ng-template pTemplate="content">
                     <div class="flex gap-2">
