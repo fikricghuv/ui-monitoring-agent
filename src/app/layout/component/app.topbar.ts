@@ -19,7 +19,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { MessageService } from 'primeng/api'; 
-
+import { ToastModule } from 'primeng/toast'; 
 
 @Component({
     selector: 'app-topbar',
@@ -36,7 +36,8 @@ import { MessageService } from 'primeng/api';
         ScrollerModule,
         AvatarModule,
         TooltipModule,
-        ConfirmDialogModule
+        ConfirmDialogModule,
+        ToastModule
         
     ],
     templateUrl: './app.topbar.html',
@@ -81,10 +82,8 @@ export class AppTopbar {
             label: 'Logout',
             icon: 'pi pi-sign-out',
             command: () => {
-                // this.onLogout();
                 this.confirmLogout();
             },
-            // routerLink: '/login'
         }
     ];
 
@@ -110,6 +109,12 @@ export class AppTopbar {
         const notification = this.dummyNotifications.find(n => n.id === notificationId);
         if (notification) {
             notification.read = true;
+
+            this.messageService.add({
+                severity: 'info',
+                summary: 'Notifications Readed',
+                detail: `All Notifications have been marked as read.`
+            });
         }
     }
 
@@ -125,7 +130,6 @@ export class AppTopbar {
         this._stringUsername = '';
         this._stringPassword = '';
 
-        // Notifikasi (gunakan messageService saja, hindari alert browser)
         this.messageService.add({
             severity: 'info',
             summary: 'Success logout',

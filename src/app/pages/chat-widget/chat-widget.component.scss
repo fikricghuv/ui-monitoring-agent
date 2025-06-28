@@ -102,9 +102,9 @@
     font-weight: bold;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* Untuk mendorong tombol close ke kanan */
-    flex-shrink: 0; /* Pastikan header tidak mengecil */
-    height: 40px; /* Tinggi tetap untuk header */
+    justify-content: space-between; 
+    flex-shrink: 0; 
+    height: 50px; /* Tinggi tetap untuk header */
 
     .logo {
       height: 30px;
@@ -122,8 +122,8 @@
       color: white;
       font-size: 20px;
       cursor: pointer;
-      padding: 5px;
-      border-radius: 5px;
+      // padding: 5px;
+      border-radius: 50%;
       transition: background-color 0.3s ease;
       flex-shrink: 0;
 

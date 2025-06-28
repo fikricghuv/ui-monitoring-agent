@@ -9,9 +9,9 @@
 		<h2 class="text-2xl font-bold text-900">Base Knowledge</h2>
 
 		<p-fieldset legend="Upload Documents" [toggleable]="true" styleClass="p-mb-4">
-			<p-fileUpload name="demo[]" (onSelect)="onFileSelected($event)" (onClear)="onFileClear()" [multiple]="false"
+			<p-fileUpload name="uploadFile" (onSelect)="onFileSelected($event)" (onClear)="onFileClear()" [multiple]="false"
 				accept=".pdf" [maxFileSize]="10000000" chooseLabel="Select File" uploadLabel="Upload"
-				cancelLabel="Batal" [showUploadButton]="false" [showCancelButton]="false">
+				cancelLabel="Cancel" [showUploadButton]="false" [showCancelButton]="false">
 				<ng-template pTemplate="content">
 					<div *ngIf="_fileSelectedFile" class="p-d-flex p-ai-center p-mt-2" style="flex-direction: column;">
 						<div >

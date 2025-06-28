@@ -102,7 +102,7 @@ export class CustomersComponent implements OnInit {
             { label: 'Users Profile' }
         ];
 
-        this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/' };
+        this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
 
         // Inisialisasi data dummy untuk tabel
         this.tableData = [

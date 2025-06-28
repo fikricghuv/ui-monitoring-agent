@@ -21,6 +21,6 @@ export class Dashboard implements OnInit {
             { label: 'Dashboard' }
         ];
 
-        this._selectedMenuHome = { icon: 'pi pi-home', routerLink: '/' };
+        this._selectedMenuHome = { icon: 'pi pi-home', routerLink: '/dashboard' };
     }
 }

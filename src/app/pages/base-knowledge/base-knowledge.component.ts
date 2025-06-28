@@ -310,6 +310,10 @@ export class BaseKnowledgeComponent implements OnInit {
       icon: 'pi pi-upload',
       acceptLabel: 'Upload',
       rejectLabel: 'Batal',
+      rejectButtonProps: {
+                severity: 'secondary',
+                outlined: true
+            },
       accept: () => this.uploadFile(),
       reject: () => {
         this.messageService.add({
@@ -330,6 +334,10 @@ export class BaseKnowledgeComponent implements OnInit {
       acceptLabel: 'Hapus',
       rejectLabel: 'Batal',
       acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonProps: {
+                severity: 'secondary',
+                outlined: true
+            },
       accept: () => this.removeFile(file),
       reject: () => {
         this.messageService.add({
@@ -358,6 +366,10 @@ export class BaseKnowledgeComponent implements OnInit {
       icon: 'pi pi-sync',
       acceptLabel: 'Proses',
       rejectLabel: 'Batal',
+      rejectButtonProps: {
+                severity: 'secondary',
+                outlined: true
+            },
       accept: () => this.embeddingFile(),
       reject: () => {
         this.messageService.add({

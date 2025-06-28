@@ -8,7 +8,7 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
   styleUrl: './breadcrumb-widget.component.scss'
 })
 export class BreadcrumbWidgetComponent {
-  breadcrumbHome = { icon: 'pi pi-home', to: '/' };
+  breadcrumbHome = { icon: 'pi pi-home', to: '/dashboard' };
   breadcrumbItems = [{ label: 'Computer' }, { label: 'Notebook' }, { label: 'Accessories' }, { label: 'Backpacks' }, { label: 'Item' }];
 }
 

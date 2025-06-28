@@ -88,16 +88,16 @@ export class MostQuestionsWidget implements OnInit {
                     return;
                 }
 
-                const rawData = dataFromService as Array<{ category: string; count: number }>;
-                const totalCount = rawData.reduce((sum, item) => sum + item.count, 0);
+                const rawData = dataFromService as Array<{ category: string; frequency: number }>;
+                const totalfrequency = rawData.reduce((sum, item) => sum + item.frequency, 0);
 
                 this._listMostAskedCategories = rawData
-                    .sort((a, b) => b.count - a.count)
+                    .sort((a, b) => b.frequency - a.frequency)
                     .map((item, index) => {
-                        const percentage = totalCount > 0 ? Math.round((item.count / totalCount) * 100) : 0;
+                        const percentage = totalfrequency > 0 ? Math.round((item.frequency / totalfrequency) * 100) : 0;
                         return {
                             category: this.capitalizeFirstLetter(item.category),
-                            originalCount: item.count,
+                            originalCount: item.frequency,
                             percentage,
                             color: this.availableColors[index % this.availableColors.length]
                         };

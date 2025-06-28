@@ -1,0 +1,23 @@
+# Dockerfile.dev
+FROM node:20-alpine
+
+# Install bash (optional)
+RUN apk add --no-cache bash
+
+# Set working directory
+WORKDIR /app
+
+# Copy dependencies file
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy entire project
+COPY . .
+
+# Expose Angular dev server port
+EXPOSE 4200
+
+# Jalankan Angular dev server
+CMD ["npm", "run", "start"]
