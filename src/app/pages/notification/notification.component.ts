@@ -125,15 +125,13 @@ export class NotificationComponent implements OnInit {
         });
     }
 
-    clearAllNotifications(): void {
-        if (confirm('Are you sure you want to clear all notifications? This action cannot be undone.')) {
-            this.notifications = [];
-            this.messageService.add({
-                severity: 'success',
-                summary: 'Notifications Cleared',
-                detail: 'All notifications have been cleared.'
-            });
-        }
+    clearAllNotifications(): void {    
+        this.notifications = [];
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Notifications Cleared',
+            detail: 'All notifications have been cleared.'
+        });
         
     }
 

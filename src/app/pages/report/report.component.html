@@ -45,6 +45,7 @@
                     icon="pi pi-download"
                     (onClick)="downloadReport()"
                     [disabled]="!selectedReportType || !rangeDates || rangeDates.length !== 2"
+                    [raised]="true"
                 ></p-button>
             </div>
         </div>

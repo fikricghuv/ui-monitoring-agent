@@ -62,7 +62,7 @@
     <div class="p-4 border-t border-surface flex items-end justify-between gap-2">
       <div class="flex items-end gap-1 flex-1">
         <textarea name="input-message" #userInput pInputTextarea class="ml-1 flex-1 border-0 shadow-none max-h-32 min-h-9 bg-emphasis overflow-auto"
-          autoResize rows="1" placeholder="Type your message..." (keydown.enter)="sendMessage()"></textarea>
+          autoResize rows="1" placeholder="Type your message..." (keyup.enter)="sendMessage()"></textarea>
       </div>
       <p-button icon="pi pi-send" (click)="sendMessage()" />
     </div>

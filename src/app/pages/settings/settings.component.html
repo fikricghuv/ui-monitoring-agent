@@ -18,7 +18,7 @@
                 <input id="email" type="email" pInputText [(ngModel)]="email" />
             </div>
             <div class="flex justify-content-end mt-5">
-                <p-button label="Simpan Perubahan" icon="pi pi-save" (onClick)="confirmSaveAccountSettings($event)"></p-button>
+                <p-button label="Simpan Perubahan" icon="pi pi-save" (onClick)="confirmSaveAccountSettings($event)" [raised]="true"></p-button>
             </div>
         </div>
     </p-fieldset>
@@ -41,7 +41,8 @@
                     [feedback]="false"></p-password>
             </div>
             <div class="flex justify-content-end mt-5">
-                <p-button label="Ubah Password" icon="pi pi-key" (onClick)="confirmChangePassword($event)"></p-button>
+                <p-button label="Ubah Password" icon="pi pi-key" (onClick)="confirmChangePassword($event)"
+                [raised]="true"></p-button>
             </div>
         </div>
 
@@ -71,7 +72,8 @@
                     ditugaskan</label>
             </div> -->
             <div class="flex justify-content-end mt-5">
-                <p-button label="Simpan Preferensi" icon="pi pi-bell" (onClick)="confirmSaveNotificationSettings($event)"></p-button>
+                <p-button label="Simpan Preferensi" icon="pi pi-bell" (onClick)="confirmSaveNotificationSettings($event)"
+                [raised]="true"></p-button>
             </div>
         </div>
     </p-fieldset>

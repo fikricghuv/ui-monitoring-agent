@@ -16,16 +16,18 @@
           <p-button
             label="Reset"
             icon="pi pi-refresh"
-            styleClass="p-button-md"
+            styleClass="p-button-md p-button-secondary"
             [style]="{'margin-right': '10px'}"
-            (onClick)="confirmResetPrompt($event)">
+            (onClick)="confirmResetPrompt($event)"
+            [raised]="true">
           </p-button>
           <p-button
             label="Save"
             icon="pi pi-save"
             styleClass="p-button-md"
             (onClick)="confirmSavePrompt($event)"
-            [disabled]="!isPromptChanged()">
+            [disabled]="!isPromptChanged()"
+            [raised]="true">
           </p-button>
         </div>
       </div>

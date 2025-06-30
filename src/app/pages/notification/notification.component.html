@@ -10,10 +10,12 @@
             </div>
         </div>
         <div class="flex gap-2">
-            <p-button label="Mark All As Read" icon="pi pi-check-circle" styleClass="p-button-outlined p-button-sm"
-                      (click)="markAllAsRead()" [disabled]="notifications.length === 0"></p-button>
-            <p-button label="Clear All" icon="pi pi-trash" styleClass="p-button-danger p-button-outlined p-button-sm"
-                      (click)="confirmClearAllNotifications($event)" [disabled]="notifications.length === 0"></p-button>
+            <p-button label="Mark All As Read" icon="pi pi-check-circle" styleClass="p-button-sm"
+                      (click)="markAllAsRead()" [disabled]="notifications.length === 0"
+                      [raised]="true"></p-button>
+            <p-button label="Clear All" icon="pi pi-trash" styleClass="p-button-danger p-button-sm"
+                      (click)="confirmClearAllNotifications($event)" [disabled]="notifications.length === 0"
+                      [raised]="true"></p-button>
         </div>
     </div>
 

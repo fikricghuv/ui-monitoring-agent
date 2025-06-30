@@ -5,19 +5,14 @@
     <div class="grid">
         <div class="col-12 lg:col-4 flex flex-column align-items-center justify-content-center p-4 text-center"
         style="flex-direction: column; align-items: flex-start;">
-            <!-- Nama -->
             <div>
                 <h3 class="text-2xl font-bold mb-2">{{ userProfile.name }}</h3>
-                <!-- <p-tag [value]="userProfile.status" [severity]="getSeverity(userProfile.status)"></p-tag> -->
             </div>
             
-
-            <!-- Role + Status Tag -->
             <div class="flex align-items-center gap-2 mb-2">
                 <span class="text-color-secondary">{{ userProfile.role }}</span>
             </div>
 
-            <!-- Join Date -->
             <p class="text-muted-color text-sm mb-4">Joined At {{ userProfile.joinedDate | date:'longDate' }}</p>
         </div>
 
@@ -39,20 +34,17 @@
                             <label class="font-medium text-sm text-color-secondary mb-1 block">Phone Number</label>
                             <input type="text" pInputText [(ngModel)]="editableProfile.phoneNumber" (input)="onInputChange()" />
                         </div>
-                        <!-- <div class="col-12 md:col-6 mb-3">
-                            <label class="font-medium text-sm text-color-secondary mb-1 block">Location</label>
-                            <p class="text-color mt-1">{{ userProfile.location }}</p>
-                        </div>
-                        <div class="col-12 md:col-6 mb-3">
-                            <label class="font-medium text-sm text-color-secondary mb-1 block">Last Login</label>
-                            <p class="text-color mt-1">{{ userProfile.lastLogin | date:'medium' }}</p>
-                        </div> -->
                     </div>
 
                     <div class="mt-5 text-left">
-                        <button pButton label="Update Profile" icon="pi pi-pencil"
-                                class="p-button-outlined p-button-sm"
-                                [disabled]="!hasProfileChanges" (click)="confirmUpdateProfileInfo($event)" pRipple></button>
+                        <p-button
+                            label="Update Profile"
+                            icon="pi pi-pencil"
+                            styleClass="p-button-md"
+                            (onClick)="confirmUpdateProfileInfo($event)"
+                            [disabled]="!hasProfileChanges"
+                            [raised]="true">
+                        </p-button>
                     </div>
 
                 </p-tabPanel>

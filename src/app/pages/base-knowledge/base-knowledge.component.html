@@ -17,7 +17,8 @@
 						<div >
 							<p-button icon="pi pi-upload" label="Upload File"
 								styleClass="p-button-raised p-button-md p-ml-3" (onClick)="confirmUploadFile($event)"
-								[disabled]="!_fileSelectedFile || _booleanIsLoading">
+								[disabled]="!_fileSelectedFile || _booleanIsLoading"
+								[raised]="true">
 							</p-button>
 						</div>
 						
@@ -31,22 +32,27 @@
 			<p-listbox class="pListboxKnowledge" [options]="_arrayUploadedFiles" optionLabel="filename"
 				[style]="{'width':'100%', 'min-height':'150px'}" [emptyMessage]="'Tidak ada file yang diunggah.'">
 				<ng-template let-file pTemplate="item">
+
+					<div style="display: contents; justify-content: space-between; align-items: center;">
+						<div class="p-d-flex p-jc-between p-ai-center p-py-2">
+							<span>{{ file.filename }}</span>
+						</div>
+						<div class="p-d-flex p-jc-between p-ai-center p-py-2">
+							<p-button icon="pi pi-trash"
+								styleClass="p-button-danger p-button-rounded p-button-sm p-button-text ml-2"
+								(onClick)="confirmRemoveFile($event, file)" [disabled]="_booleanIsLoading" pTooltip="Hapus File"
+								tooltipPosition="right"
+								[raised]="true">
+							</p-button>
+						</div>
+					</div>
 					
-					<div class="p-d-flex p-jc-between p-ai-center p-py-2">
-						<span>{{ file.filename }}</span>
-					</div>
-					<div class="p-d-flex p-jc-between p-ai-center p-py-2">
-						<p-button icon="pi pi-trash"
-							styleClass="p-button-danger p-button-rounded p-button-sm p-button-text"
-							(onClick)="confirmRemoveFile($event, file)" [disabled]="_booleanIsLoading" pTooltip="Hapus File"
-							tooltipPosition="right">
-						</p-button>
-					</div>
 				</ng-template>
 			</p-listbox>
 			<div class="p-d-flex p-jc-center p-mt-4">
 				<p-button label="Process File" icon="pi pi-sync" styleClass="p-button-primary p-button-md"
-					[style]="{'margin-top': '15px'}" (onClick)="confirmEmbeddingFile($event)" [disabled]="_booleanIsLoading">
+					[style]="{'margin-top': '15px'}" (onClick)="confirmEmbeddingFile($event)" [disabled]="_booleanIsLoading"
+					[raised]="true">
 				</p-button>
 			</div>
 		</p-fieldset>
