@@ -22,5 +22,11 @@ export interface UserHistoryResponseModel {
   success: boolean;
   room_id: string; // Di Angular/TS, UUID biasanya direpresentasikan sebagai string
   user_id: string;
+  total: number;
   history: ChatHistoryResponseModel[]; // Array dari model chat history
+}
+
+export interface PaginatedChatHistoryResponse {
+  data: ChatHistoryResponseModel[];
+  total: number;
 }

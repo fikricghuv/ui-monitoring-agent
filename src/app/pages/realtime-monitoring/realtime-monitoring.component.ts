@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MonitoringService } from '../services/monitoring.service';
-import { DashboardService } from '../services/dashboard.service'; // <--- Impor DashboardService
-import { ChatHistoryResponseModel } from '../models/chat_history_response.model';
+import { DashboardService } from '../services/dashboard.service'; 
+import { ChatHistoryResponseModel, PaginatedChatHistoryResponse } from '../models/chat_history_response.model';
 import { TableModule } from 'primeng/table';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { IconFieldModule } from 'primeng/iconfield';
@@ -28,7 +28,7 @@ import { DividerModule } from 'primeng/divider';
 })
 export class RealtimeMonitoringComponent implements OnInit {
   public _stringActiveTab: String;
-  public _arrayChatHistoryModel: Array<ChatHistoryResponseModel>;
+  public _arrayChatHistoryModel: ChatHistoryResponseModel[] = [];
   public _booleanIsLoading: boolean;
   public _stringSelectedFilter: String;
 
@@ -46,7 +46,7 @@ export class RealtimeMonitoringComponent implements OnInit {
 
   constructor(
     private monitoringService: MonitoringService,
-    private dashboardService: DashboardService // <--- Injeksi DashboardService
+    private dashboardService: DashboardService
   ) {
     this._arrayChatHistoryModel = [];
     this._booleanIsLoading = true;
@@ -65,7 +65,6 @@ export class RealtimeMonitoringComponent implements OnInit {
         this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
   }
 
-  // Metode baru untuk mendapatkan total record
   private getTotalRecords(): void {
 
     this.dashboardService.getTotalConversations().subscribe({
@@ -96,18 +95,15 @@ export class RealtimeMonitoringComponent implements OnInit {
 
     this._booleanIsLoading = true;
 
-    const first = event.first ?? 0;
+    const offset = event.first ?? 0;
 
-    const rows = event.rows ?? this._numberRows;
-
-    const offset = first;
-
-    const limit = rows;
+    const limit = event.rows ?? this._numberRows;
 
     this.monitoringService.getChatHistory(offset, limit).subscribe({
-      next: (data) => {
-        this._arrayChatHistoryModel = data; 
-        
+      next: (response) => {
+        console.log('RESPONSE from backend:', response);
+        this._arrayChatHistoryModel = response.data;
+        this._numberTotalRecords = response.total;
         this._booleanIsLoading = false;
 
         console.log('Displayed Data:', this._arrayChatHistoryModel);

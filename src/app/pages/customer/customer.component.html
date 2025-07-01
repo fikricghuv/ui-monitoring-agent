@@ -1,16 +1,18 @@
-<div class="card flex" style="padding: 0; ">
+<div class="card flex" style="padding: 0;">
     <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems"
         [home]="_defaultHomeMenu" />
 </div>
-<div class="report-container">
+
+<div class="customer-container">
+
     <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
 
         <div class="flex items-start gap-2 justify-between">
             <div>
                 <div class="text-2xl leading-8 text-color font-medium">Users Profile</div>
             </div>
-            <!-- <p-button icon="pi pi-circle-fill text-green-500" label="950 Active User" outlined severity="secondary" /> -->
         </div>
+
         <div class="mt-6 mb-4 flex items-center justify-between">
             <p-iconfield iconPosition="left">
                 <p-inputicon class="pi pi-search"> </p-inputicon>
@@ -22,114 +24,78 @@
         </div>
 
         <div class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full overflow-auto">
-            <p-table [value]="tableData" [(selection)]="selectedRows" dataKey="id" [rows]="10" [dt]="tableTokens"
-                stripedRows selectionMode="single" [(selection)]="_selectedData"
-                (onRowSelect)="onSelectFeedback($event)" [paginator]="true" [rows]="_numberRows"
-                [showCurrentPageReport]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" [totalRecords]="_numberTotalRecords"
-                [loading]="_booleanIsLoading">
+            <p-table [value]="tableData" stripedRows [paginator]="true" [rows]="_numberRows"
+                [totalRecords]="_numberTotalRecords" [showCurrentPageReport]="true" [loading]="_booleanIsLoading"
+                [rowsPerPageOptions]="[5, 10, 20, 30]" selectionMode="single"
+                (onRowSelect)="onSelectRow($event)" dataKey="id" [scrollable]="true" [style]="{'border-radius': '6px'}"
+                [lazy]="true" (onLazyLoad)="onLazyLoad($event)">
+
                 <ng-template #header>
                     <tr>
-                        <th>Name</th>
-                        <th>Phone Number</th>
-                        <th>Email Address</th>
-                        <th>Registration Date</th>
-                        <th>Last Chat Date</th>
+                        <th>Channel</th>
+                        <th>Start Time</th>
+                        <th>End Time</th>
+                        <th>Total Messages</th>
                         <th>Status</th>
-                        
                     </tr>
                 </ng-template>
 
-                <ng-template pTemplate="body" let-customer>
-                    <tr [pSelectableRow]="customer">
-                        <td>{{ customer.name || '-' }}</td>
-                        <td class="leading-6 text-muted-color">{{ customer.phone_number || '-' }}</td>
-                        <td class="leading-6 text-muted-color">{{ customer.email_address || '-' }}</td>
-                        <td class="leading-6 text-muted-color">{{ customer.registration_date || '-' }}</td>
-                        <td class="leading-6 text-muted-color">{{ customer.last_chat_date || '-' }}</td>
-                        <td class="leading-6 text-muted-color">{{ customer.status || '-' }}</td>
-                        
+                <ng-template pTemplate="body" let-data>
+                    <tr [pSelectableRow]="data">
+                        <td> {{ data.channel || '-' }}</td>
+                        <td class="leading-6 text-muted-color">{{ data.start_time | date: 'yyyy-MM-dd HH:mm' }}</td>
+                        <td class="leading-6 text-muted-color">{{ data.end_time ? (data.end_time | date: 'yyyy-MM-dd HH:mm') : '-' }}</td>
+                        <td class="leading-6 text-muted-color">{{ data.total_messages || 0 }}</td>
+                        <td>
+                            <p-tag [value]="data.conversation_status || 'N/A'" severity="info"></p-tag>
+                        </td>
                     </tr>
                 </ng-template>
+
                 <ng-template pTemplate="emptymessage">
                     <tr>
-                        <td colspan="7" class="no-data">No data found.</td>
+                        <td colspan="5">No interaction data found.</td>
                     </tr>
                 </ng-template>
                 <ng-template pTemplate="loadingbody">
                     <tr>
-                        <td colspan="7" class="loading">Loading data, please wait...</td>
+                        <td colspan="7" class="loading">Loading feedback, please wait...</td>
                     </tr>
                 </ng-template>
-
             </p-table>
-            <p-dialog
-                header="👤 Detail User Profile"
-                [(visible)]="_booleanShowDataDialog"
-                [modal]="true"
-                [style]="{ width: '40vw' }"
-                [closable]="true"
-                [dismissableMask]="true"
-                >
-                <ng-container *ngIf="_selectedData">
-                    <div class="p-fluid">
-                    <div class="field">
-                        <label class="font-semibold text-color">Name</label>
-                        <p>{{ _selectedData.name }}</p>
-                        <p-divider></p-divider>
-                    </div>
-
-                    <div class="field">
-                        <label class="font-semibold text-color">Phone Number</label>
-                        <p>{{ _selectedData.phone_number }}</p>
-                        <p-divider></p-divider>
-                    </div>
-
-                    <div class="field">
-                        <label class="font-semibold text-color">Email</label>
-                        <p>{{ _selectedData.email_address }}</p>
-                        <p-divider></p-divider>
-                    </div>
-
-                    <div class="field">
-                        <label class="font-semibold text-color">Registration Date</label>
-                        <p>{{ _selectedData.registration_date | date: 'yyyy-MM-dd HH:mm' }}</p>
-                        <p-divider></p-divider>
-                    </div>
-
-                    <div class="field">
-                        <label class="font-semibold text-color">Last Chat Date</label>
-                        <p>{{ _selectedData.last_chat_date | date: 'yyyy-MM-dd HH:mm' }}</p>
-                        <p-divider></p-divider>
-                    </div>
-
-                    <div class="field">
-                        <label class="font-semibold text-color">Status</label>
-                        <p>
-                        <span
-                            [ngClass]="{
-                            'p-tag': true,
-                            'p-tag-success': _selectedData.status === 'Active',
-                            'p-tag-warning': _selectedData.status === 'Pending',
-                            'p-tag-danger': _selectedData.status === 'Inactive' || _selectedData.status === 'Blocked',
-                            }"
-                        >
-                            {{ _selectedData.status }}
-                        </span>
-                        </p>
-                    </div>
-                    </div>
-                </ng-container>
-                </p-dialog>
-
-            <p-popover #op>
-                <ng-template pTemplate="content">
-                    <div class="flex gap-2">
-                        <p-button label="Details" size="small" outlined (onClick)="op.hide()"></p-button>
-                        <p-button label="Delete" severity="danger" size="small" outlined
-                            (onClick)="op.hide()"></p-button>
-                    </div>
-                </ng-template>
-            </p-popover>
         </div>
     </p-card>
+
+    <p-dialog header="Interaction Detail" [(visible)]="_booleanShowDataDialog" [modal]="true"
+        [style]="{ width: '40vw' }" [closable]="true" [dismissableMask]="true">
+        <ng-container *ngIf="selectedInteraction">
+            <div class="p-fluid">
+                <div class="field">
+                    <label class="font-semibold text-color">Channel:</label>
+                    <p>{{ selectedInteraction.channel }}</p>
+                    <p-divider></p-divider>
+                </div>
+                <div class="field">
+                    <label class="font-semibold text-color">Start Time:</label>
+                    <p>{{ selectedInteraction.start_time | date: 'yyyy-MM-dd HH:mm' }}</p>
+                    <p-divider></p-divider>
+                </div>
+                <div class="field">
+                    <label class="font-semibold text-color">End Time:</label>
+                    <p>{{ selectedInteraction.end_time || '-' }}</p>
+                    <p-divider></p-divider>
+                </div>
+                <div class="field">
+                    <label class="font-semibold text-color">Total Messages:</label>
+                    <p>{{ selectedInteraction.total_messages }}</p>
+                    <p-divider></p-divider>
+                </div>
+                <div class="field">
+                    <label class="font-semibold text-color">Status:</label>
+                    <p>{{ selectedInteraction.conversation_status || '-' }}</p>
+                    <p-divider></p-divider>
+                </div>
+            </div>
+        </ng-container>
+    </p-dialog>
 </div>

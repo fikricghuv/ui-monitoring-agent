@@ -10,7 +10,7 @@ import { AdminChatComponent } from './admin-chat/admin-chat.component';
 import { SettingsComponent } from './settings/settings.component';
 import { ProfileComponent } from './profile/profile.component';
 import { ReportComponent } from './report/report.component';
-import { CustomersComponent } from './customer/customer.component';
+import { CustomerInteractionsComponent } from './customer/customer.component';
 import { NotificationComponent } from './notification/notification.component';
 
 export default [
@@ -22,7 +22,7 @@ export default [
     { path: 'admin-chat', component: AdminChatComponent},
     { path: 'feedback', component: AnalyticsComponent},
     { path: 'report', component: ReportComponent },
-    { path: 'customer', component: CustomersComponent },
+    { path: 'customer', component: CustomerInteractionsComponent },
     { path: 'settings', component: SettingsComponent},
     { path: 'profile', component: ProfileComponent},
     { path: 'notification', component:NotificationComponent},

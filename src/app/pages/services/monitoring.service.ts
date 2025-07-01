@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams, HttpErrorResponse } from '@angular/common/http'; 
 import { Observable, throwError } from 'rxjs'; 
 import { catchError } from 'rxjs/operators'; 
-import { ChatHistoryResponseModel } from '../models/chat_history_response.model';
+import { ChatHistoryResponseModel, PaginatedChatHistoryResponse } from '../models/chat_history_response.model';
 import { environment } from '../../../environments/environment'; 
 
 @Injectable({
@@ -21,23 +21,23 @@ export class MonitoringService {
    * @param limit Jumlah item per halaman (untuk pagination, maks 200 di server). Default 100.
    * @returns Observable dari array ChatHistoryResponseModel.
    */
-  public getChatHistory(offset: number, limit: number): Observable<ChatHistoryResponseModel[]> { // Tambahkan parameter pagination
-    
+  public getChatHistory(offset: number, limit: number): Observable<PaginatedChatHistoryResponse> {
+
     const headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
     const params = new HttpParams()
       .set('offset', offset.toString())
-      .set('limit', limit.toString());  
+      .set('limit', limit.toString());
 
     const url = `${this.apiUrl}/history/all`;
 
-    return this.http.get<ChatHistoryResponseModel[]>(url, { headers: headers, params: params })
-      .pipe(
-        catchError(this.handleError) 
-      );
+    return this.http.get<PaginatedChatHistoryResponse>(url, { headers, params }).pipe(
+      catchError(this.handleError)
+    );
   }
+
 
    /**
    * Metode penanganan error untuk permintaan HTTP.
