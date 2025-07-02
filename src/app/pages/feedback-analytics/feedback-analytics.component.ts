@@ -32,6 +32,8 @@ export class AnalyticsComponent implements OnInit {
   public _numberFirst: number = 0; 
   public _numberRows: number = 10; 
   public _numberTotalRecords: number = 0; 
+  public _currentPageState: PaginatorState = { first: 0, rows: 10 }; 
+
   public _listMenuItems: MenuItem[] | undefined;
   public _defaultHomeMenu: MenuItem | undefined;
 
@@ -50,6 +52,7 @@ export class AnalyticsComponent implements OnInit {
 
   ngOnInit(): void {
     this.getTotalRecords();
+    this.onLazyLoad(this._currentPageState); 
 
     this._listMenuItems = [
             { label: 'Feedback Analytics' }
@@ -81,6 +84,8 @@ export class AnalyticsComponent implements OnInit {
    * @param event LazyLoadEvent dari PrimeNG
    */
   public onLazyLoad(event: any): void {
+    this._currentPageState = event; 
+
     this._booleanIsLoading = true;
 
     const offset = event.first ?? 0;
@@ -104,6 +109,13 @@ export class AnalyticsComponent implements OnInit {
         
       }
     });
+  }
+
+  public onRefreshData(): void {
+    console.log('Refresh button clicked for Feedback Analytics!');
+    
+    this.onLazyLoad(this._currentPageState); 
+    this.getTotalRecords(); 
   }
 
   public onSelectFeedback(event: any) {

@@ -17,7 +17,7 @@
 				<input pInputText type="text" [(ngModel)]="_searchQuery" placeholder="Search" name="modelSearchQuery" />
 			</p-iconfield>
 			<div class="flex items-center gap-3">
-				<p-button icon="pi pi-refresh" outlined severity="secondary" />
+				<p-button icon="pi pi-refresh" outlined severity="secondary" (onClick)="onRefreshData()"/>
 			</div>
 		</div>
 

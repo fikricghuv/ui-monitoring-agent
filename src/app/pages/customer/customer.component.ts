@@ -17,6 +17,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
+import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 
 @Component({
   selector: 'app-customer-interactions',
@@ -28,12 +29,13 @@ import { DividerModule } from 'primeng/divider';
     BreadcrumbModule,
     DialogModule,
     TagModule,
-    ButtonModule,
+    ButtonModule, 
     IconFieldModule,
     InputIconModule,
     FormsModule,
     InputTextModule,
     DividerModule,
+    PaginatorModule
   ],
   templateUrl: './customer.component.html',
 })
@@ -43,6 +45,7 @@ export class CustomerInteractionsComponent implements OnInit {
   _booleanIsLoading: boolean = false;
   _numberRows: number = 10;
   _numberTotalRecords: number = 0;
+  public _currentPageState: PaginatorState = { first: 0, rows: 10 }; 
   _searchQuery: string = '';
 
   tableData: CustomerInteraction[] = [];
@@ -54,13 +57,16 @@ export class CustomerInteractionsComponent implements OnInit {
   ngOnInit(): void {
     this._listMenuItems = [{ label: 'Customer Interactions' }];
     this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
-    this.loadCustomerInteractions();
+    this.onLazyLoad(this._currentPageState); 
   }
 
   loadCustomerInteractions(): void {
     this._booleanIsLoading = true;
 
-    this.customerInteractionService.getAllCustomerInteractions(0, this._numberRows).subscribe({
+    const offset = this._currentPageState.first ?? 0;
+    const limit = this._currentPageState.rows ?? this._numberRows;
+
+    this.customerInteractionService.getAllCustomerInteractions(offset, limit).subscribe({
       next: (response: PaginatedCustomerInteractionResponse) => {
         this.tableData = response.data ?? [];
         this._numberTotalRecords = response.total ?? 0;
@@ -75,6 +81,7 @@ export class CustomerInteractionsComponent implements OnInit {
   }
 
   public onLazyLoad(event: any): void {
+    this._currentPageState = event; 
     this._booleanIsLoading = true;
 
     const offset = event.first ?? 0;
@@ -92,6 +99,11 @@ export class CustomerInteractionsComponent implements OnInit {
         this._booleanIsLoading = false;
       }
     });
+  }
+
+  public onRefreshData(): void {
+    console.log('Refresh button clicked for Customer Interactions!');
+    this.onLazyLoad(this._currentPageState); 
   }
 
   onSelectRow(event: any): void {

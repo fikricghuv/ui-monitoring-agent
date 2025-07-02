@@ -34,6 +34,7 @@ export class RealtimeMonitoringComponent implements OnInit {
 
   public _numberRows: number = 10;
   public _numberTotalRecords: number = 0;
+  public _currentPageState: PaginatorState = { first: 0, rows: 10 }; 
 
   public _listMenuItems: MenuItem[] | undefined;
   public _defaultHomeMenu: MenuItem | undefined;
@@ -57,6 +58,8 @@ export class RealtimeMonitoringComponent implements OnInit {
   ngOnInit() {
     
     this.getTotalRecords();
+
+    this.onLazyLoad(this._currentPageState); 
 
     this._listMenuItems = [
             { label: 'Realtime Monitoring' }
@@ -92,6 +95,8 @@ export class RealtimeMonitoringComponent implements OnInit {
   }
 
   public onLazyLoad(event: any) {
+
+    this._currentPageState = event;
 
     this._booleanIsLoading = true;
 
@@ -156,6 +161,14 @@ export class RealtimeMonitoringComponent implements OnInit {
     this._selectedChat = event.data;
 
     this._booleanShowDialog = true;
+  }
+
+  public onRefreshData(): void {
+    console.log('Refresh button clicked!');
+
+    this.onLazyLoad(this._currentPageState); 
+
+    this.getTotalRecords();
   }
 
 }
