@@ -19,20 +19,50 @@ export class LoginService {
    * @param password Password pengguna
    * @returns Observable berisi token string
    */
-  public login(email: string, password: string): Observable<string> {
+  public login(email: string, password: string): Observable<{ access_token: string, refresh_token: string }> {
     const url = `${this.apiUrl}/auth/login`;
 
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
     const body = { email, password };
 
-    return this.http.post<{ access_token: string }>(url, body, { headers }).pipe(
-      map(response => response.access_token),
+    return this.http.post<{ access_token: string, refresh_token: string }>(url, body, { headers }).pipe(
+      map(response => {
+        localStorage.setItem('access_token', response.access_token);
+        localStorage.setItem('refresh_token', response.refresh_token);
+        return response;
+      }),
+      catchError(this.handleError)
+    );
+
+  }
+
+  public refreshAccessToken(refreshToken: string): Observable<string> {
+    const url = `${this.apiUrl}/auth/refresh`;
+    return this.http.post<{ access_token: string, refresh_token?: string }>(
+      url,
+      { refresh_token: refreshToken },
+      {
+        headers: new HttpHeaders({
+          'X-API-Key': this.apiKey,
+          'Content-Type': 'application/json'
+        })
+      }
+    ).pipe(
+      map(response => {
+        // Simpan token baru
+        localStorage.setItem('access_token', response.access_token);
+        if (response.refresh_token) {
+          localStorage.setItem('refresh_token', response.refresh_token);
+        }
+        return response.access_token;
+      }),
       catchError(this.handleError)
     );
   }
+
 
   /**
    * Penanganan error untuk permintaan HTTP.

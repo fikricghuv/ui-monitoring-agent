@@ -23,7 +23,7 @@ export class DashboardService
    */
   public getTotalUsers(): Observable<number> 
   {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -40,7 +40,7 @@ export class DashboardService
    */
   public getTotalConversations(): Observable<number> 
   {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -58,7 +58,7 @@ export class DashboardService
   public getCategoriesFrequency(): Observable<any[]> 
   {
      
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -74,7 +74,7 @@ export class DashboardService
    * @returns Observable dari object (bulan ke jumlah user baru).
    */
   public getMonthlyNewUsers(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -91,7 +91,7 @@ export class DashboardService
    * @returns Observable dari object (bulan ke jumlah percakapan).
    */
   public getMonthlyConversations(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -107,7 +107,7 @@ export class DashboardService
    * @returns Observable dari object (tanggal ke rata-rata latensi).
    */
   public getDailyAverageLatency(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -123,7 +123,7 @@ export class DashboardService
    * @returns Observable dari object (bulan ke rata-rata latensi).
    */
   public getMonthlyAverageLatency(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -141,7 +141,7 @@ export class DashboardService
    * @returns Observable dari object (bulan ke jumlah eskalasi).
    */
   public getMonthlyEscalations(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -152,7 +152,7 @@ export class DashboardService
   }
 
   public getMonthlyTokensUsage(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -168,7 +168,7 @@ export class DashboardService
    * @returns Observable dari objek { [minggu (YYYY-WW)]: total_percakapan }.
    */
   public getWeeklyTotalConversations(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -184,7 +184,7 @@ export class DashboardService
    * @returns Observable dari objek { [bulan (YYYY-MM)]: total_percakapan }.
    */
   public getMonthlyTotalConversations(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
     return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/conversations/monthly`, { headers: headers })
@@ -199,7 +199,7 @@ export class DashboardService
    * @returns Observable dari objek { [tahun (YYYY)]: total_percakapan }.
    */
   public getYearlyTotalConversations(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
     return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/conversations/yearly`, { headers: headers })
@@ -209,7 +209,7 @@ export class DashboardService
   }
 
   public getWeeklyTotalEscalations(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
     return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/escalations/weekly`, { headers: headers })
@@ -219,7 +219,7 @@ export class DashboardService
   }
 
   public getMonthlyTotalEscalations(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
     return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/escalations/monthly`, { headers: headers })
@@ -229,7 +229,7 @@ export class DashboardService
   }
 
   public getYearlyTotalEscalations(): Observable<{ [key: string]: number }> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
     return this.httpClient.get<{ [key: string]: number }>(`${this.apiUrl}/stats/escalations/yearly`, { headers: headers })

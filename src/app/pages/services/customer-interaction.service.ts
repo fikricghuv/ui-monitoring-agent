@@ -16,7 +16,7 @@ export class CustomerInteractionService {
     offset: number = 0,
     limit: number = 50
   ): Observable<PaginatedCustomerInteractionResponse> {
-    const headers = new HttpHeaders({ 'X-API-Key': this.apiKey });
+    let headers = new HttpHeaders({ 'X-API-Key': this.apiKey });
     const params = new HttpParams()
       .set('offset', offset.toString())
       .set('limit', limit.toString());

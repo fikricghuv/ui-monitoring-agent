@@ -54,7 +54,7 @@ export class RoomService
    */
   public getAllRooms(offset: number = 0, limit: number = 100): Observable<RoomConversationModel[]> {
     
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -80,9 +80,9 @@ export class RoomService
    * @param limit Jumlah item per halaman (untuk pagination). Default 100.
    * @returns Observable dari array RoomConversationModel.
    */
-  public getActiveRooms(offset: number = 0, limit: number = 15): Observable<RoomConversationModel[]> {
+  public getActiveRooms(offset: number = 0, limit: number = 30): Observable<RoomConversationModel[]> {
     
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 

@@ -126,19 +126,18 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
       this._modelChatMessages[roomIdentifier] = this._modelChatMessages[roomIdentifier] || [];
 
-      const time = new Date().toISOString();
-      const formattedTime = time.slice(0, 16).replace("T", " ");
+      const currentTime = new Date().toISOString(); 
 
       if (message.question) {
-        this._modelChatMessages[roomIdentifier].push({ message: message.question, time: formattedTime, sender: this._enumSender.User });
+        this._modelChatMessages[roomIdentifier].push({ message: message.question, time: currentTime, sender: this._enumSender.User });
       }
 
       if (message.output) {
-        this._modelChatMessages[roomIdentifier].push({ message: message.output, time: formattedTime, sender: this._enumSender.Chatbot });
+        this._modelChatMessages[roomIdentifier].push({ message: message.output, time: currentTime, sender: this._enumSender.Chatbot });
       }
 
       if (message.error) {
-        this._modelChatMessages[roomIdentifier].push({ message: `❌ Error: ${message.error}`, time: formattedTime, sender: this._enumSender.Chatbot });
+        this._modelChatMessages[roomIdentifier].push({ message: `❌ Error: ${message.error}`, time: currentTime, sender: this._enumSender.Chatbot });
       }
 
       const roomIndex = this._arrayRoomModel.findIndex((r) => r.id === roomIdentifier);
@@ -146,14 +145,20 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
         let lastMsgText = '';
         
-        if (message.question) lastMsgText = message.question;
-        else if (message.output) lastMsgText = message.output;
-        else if (message.error) lastMsgText = `❌ Error: ${message.error}`;
+        if (message.output) {
+          lastMsgText = message.output;
+        } else if (message.question) { 
+          lastMsgText = message.question;
+        } else if (message.error) { 
+          lastMsgText = `❌ Error: ${message.error}`;
+        }
 
         this._arrayRoomModel[roomIndex].lastMessage = lastMsgText;
         
-        this._arrayRoomModel[roomIndex].lastTimeMessage = formattedTime;
+        this._arrayRoomModel[roomIndex].lastTimeMessage = currentTime;
         
+        this._arrayRoomModel = [...this._arrayRoomModel]; 
+
         this._arrayRoomModel.sort((a, b) =>
           new Date(b.lastTimeMessage || 0).getTime() - new Date(a.lastTimeMessage || 0).getTime()
         );
@@ -207,9 +212,10 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
           }
 
           response.history.forEach((chatItem) => {
-            const formattedTime = chatItem.created_at
-              ? chatItem.created_at.slice(0, 16).replace("T", " ")
-              : new Date().toISOString().slice(0, 16).replace("T", " ");
+            
+            const formattedTime = chatItem.created_at 
+              ? chatItem.created_at 
+              : new Date().toISOString(); 
 
             let senderType: ENUM_SENDER;
             
@@ -218,7 +224,7 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
                 senderType = this._enumSender.User;
                 break;
               case 'admin':
-                senderType = this._enumSender.Chatbot;
+                senderType = this._enumSender.Admin; 
                 break;
               case 'chatbot':
               default:
@@ -239,8 +245,9 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
           
           if (roomToUpdate && latestMessage) {
             roomToUpdate.lastMessage = latestMessage.message;
-            roomToUpdate.lastTimeMessage = latestMessage.time;
-            this._arrayRoomModel = [...this._arrayRoomModel];
+            
+            roomToUpdate.lastTimeMessage = latestMessage.time; 
+            this._arrayRoomModel = [...this._arrayRoomModel]; 
           }
 
           this.cdr.detectChanges();
@@ -280,23 +287,45 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public loadRooms(): void {
     this.roomService.getActiveRooms().pipe(
-      map((rooms: RoomConversationModel[]) => rooms.map(room => ({
-        ...room,
-        lastMessage: room.lastMessage || '',
-        lastTimeMessage: room.lastTimeMessage ||
-          (room.updated_at
-            ? new Date(room.updated_at).toISOString().slice(0, 16).replace("T", " ")
-            : (room.created_at
-              ? new Date(room.created_at).toISOString().slice(0, 16).replace("T", " ")
-              : '')),
-      }))),
+      map((rooms: RoomConversationModel[]) => rooms.map(room => {
+        
+        const serverLastMessage = room.lastMessage || '';
+        const serverLastTimeMessage = room.lastTimeMessage; 
 
-      tap(rooms => rooms.sort((a, b) =>
-        new Date(b.lastTimeMessage || 0).getTime() - new Date(a.lastTimeMessage || 0).getTime()
-      ))
+        let finalLastMessage = serverLastMessage;
+        let finalLastTimeMessage: string;
+
+        if (serverLastTimeMessage) {
+          finalLastTimeMessage = serverLastTimeMessage;
+
+        } else if (room.updated_at) {
+          finalLastTimeMessage = new Date(room.updated_at).toISOString();
+
+        } else if (room.created_at) {
+          finalLastTimeMessage = new Date(room.created_at).toISOString();
+
+        } else {
+          finalLastTimeMessage = new Date().toISOString();
+        }
+
+        if (!finalLastMessage && finalLastTimeMessage) {
+            finalLastMessage = ''; 
+        }
+
+        return {
+          ...room,
+          lastMessage: finalLastMessage,
+          lastTimeMessage: finalLastTimeMessage,
+        };
+      })),
+      tap(rooms => {
+        
+        rooms.sort((a, b) =>
+          new Date(b.lastTimeMessage || '').getTime() - new Date(a.lastTimeMessage || '').getTime()
+        );
+      })
     ).subscribe({
       next: (rooms) => {
-        
         this._arrayRoomModel = rooms;
         
         if (this._modelSelectedRoom && this._modelSelectedRoom.id) {
@@ -307,7 +336,8 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
             this._modelSelectedRoom = null;
           }
         }
-      
+
+        this.cdr.detectChanges(); 
       },
       error: (err) => {
         console.error('Gagal memuat daftar room:', err);
@@ -348,7 +378,7 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       return;
     }
 
-    const formattedTime = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    const currentTime = new Date().toISOString(); 
     
     const adminId = this.sessionService.getAdminId();
 
@@ -370,7 +400,7 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       
       this._modelChatMessages[roomIdentifier].push({
         message: this._stringNewMessage,
-        time: formattedTime,
+        time: currentTime, 
         sender: this._enumSender.Admin, 
       });
 
@@ -380,12 +410,12 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       {
         roomToUpdate.lastMessage = this._stringNewMessage;
         
-        roomToUpdate.lastTimeMessage = formattedTime;
+        roomToUpdate.lastTimeMessage = currentTime;
         
-        this._arrayRoomModel.sort((a, b) =>
-          new Date(b.lastTimeMessage || 0).getTime() - new Date(a.lastTimeMessage || 0).getTime()
-        );
         this._arrayRoomModel = [...this._arrayRoomModel];
+        this._arrayRoomModel.sort((a, b) =>
+          new Date(b.lastTimeMessage || '').getTime() - new Date(a.lastTimeMessage || '').getTime()
+        );
       }
 
       this.cdr.detectChanges();

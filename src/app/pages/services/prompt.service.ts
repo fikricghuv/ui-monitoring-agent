@@ -27,7 +27,7 @@ export class PromptService
   public savePrompt(promptName: string, content: string): Observable<Prompt>
   {
 
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey,
       'Content-Type': 'application/json' 
     });
@@ -50,7 +50,7 @@ export class PromptService
   public loadPrompts(): Observable<Prompt[]> 
   {
 
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 

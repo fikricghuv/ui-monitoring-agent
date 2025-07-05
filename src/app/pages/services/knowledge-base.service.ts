@@ -27,7 +27,7 @@ export class KnowledgeBaseService
   public getKnowledgeBaseConfig(): Observable<KnowledgeBaseConfigGetResponseModel> // Asumsi ConfigResponsemodel sesuai dengan KnowledgeBaseConfig
   {
     
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -47,7 +47,7 @@ export class KnowledgeBaseService
   public updateKnowledgeBaseConfig(config: KnowledgeBaseConfigModel): Observable<KnowledgeBaseConfigModel> // Ubah tipe kembalian, gunakan PUT
   {
     
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey,
       'Content-Type': 'application/json' 
     });
@@ -68,7 +68,7 @@ export class KnowledgeBaseService
   public uploadFile(file: File): Observable<UploadResponseModel> 
   {
     
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -90,7 +90,7 @@ export class KnowledgeBaseService
   public getUploadedFiles(): Observable<FileInfoModel[]> 
   {
 
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -109,7 +109,7 @@ export class KnowledgeBaseService
   public embeddingFile(): Observable<EmbedResponseModel> 
   {
     
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
@@ -129,7 +129,7 @@ export class KnowledgeBaseService
   public removeFile(uuidFile: string): Observable<DeleteResponseModel> // Asumsi DeleteResponseModel sesuai dengan FileDeletedResponse
   {
     
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 

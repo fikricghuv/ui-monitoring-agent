@@ -26,7 +26,7 @@ export class AnalyticsService
   public getFeedbacks(offset: number, limit: number): Observable<FeedbackModel[]>
   {
     
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey 
       
     });

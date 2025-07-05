@@ -1,10 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { CustomerInteractionService } from '../services/customer-interaction.service';
-import {
-  CustomerInteraction,
-  PaginatedCustomerInteractionResponse
-} from '../models/customer_interaction.model';
+import { CustomerModel } from '../models/customer.model';
+import { CustomerService } from '../services/customer_profile.service';
 import { TableModule } from 'primeng/table';
 import { CardModule } from 'primeng/card';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
@@ -20,7 +17,7 @@ import { DividerModule } from 'primeng/divider';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 
 @Component({
-  selector: 'app-customer-interactions',
+  selector: 'app-customer-profiles',
   standalone: true,
   imports: [
     CommonModule,
@@ -29,7 +26,7 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
     BreadcrumbModule,
     DialogModule,
     TagModule,
-    ButtonModule, 
+    ButtonModule,
     IconFieldModule,
     InputIconModule,
     FormsModule,
@@ -39,62 +36,42 @@ import { PaginatorModule, PaginatorState } from 'primeng/paginator';
   ],
   templateUrl: './customer.component.html',
 })
-export class CustomerInteractionsComponent implements OnInit {
+export class CustomerProfilesComponent implements OnInit {
   _listMenuItems: MenuItem[] = [];
   _defaultHomeMenu: MenuItem | undefined;
   _booleanIsLoading: boolean = false;
   _numberRows: number = 10;
   _numberTotalRecords: number = 0;
-  public _currentPageState: PaginatorState = { first: 0, rows: 10 }; 
+  _currentPageState: PaginatorState = { first: 0, rows: 10 }; 
   _searchQuery: string = '';
 
-  tableData: CustomerInteraction[] = [];
-  selectedInteraction: CustomerInteraction | null = null;
+  tableData: CustomerModel[] = [];
+  selectedCustomer: CustomerModel | null = null;
   _booleanShowDataDialog: boolean = false;
 
-  constructor(private customerInteractionService: CustomerInteractionService) {}
+  constructor(private customerService: CustomerService) {}
 
   ngOnInit(): void {
-    this._listMenuItems = [{ label: 'Customer Interactions' }];
+    this._listMenuItems = [{ label: 'Customer Profiles' }];
     this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
-    this.onLazyLoad(this._currentPageState); 
-  }
-
-  loadCustomerInteractions(): void {
-    this._booleanIsLoading = true;
-
-    const offset = this._currentPageState.first ?? 0;
-    const limit = this._currentPageState.rows ?? this._numberRows;
-
-    this.customerInteractionService.getAllCustomerInteractions(offset, limit).subscribe({
-      next: (response: PaginatedCustomerInteractionResponse) => {
-        this.tableData = response.data ?? [];
-        this._numberTotalRecords = response.total ?? 0;
-        this._booleanIsLoading = false;
-      },
-      error: (err) => {
-        console.error('❌ Failed to load interactions:', err);
-        this.tableData = [];
-        this._booleanIsLoading = false;
-      },
-    });
+    this.onLazyLoad(this._currentPageState);
   }
 
   public onLazyLoad(event: any): void {
-    this._currentPageState = event; 
+    this._currentPageState = event;
     this._booleanIsLoading = true;
 
     const offset = event.first ?? 0;
     const limit = event.rows ?? this._numberRows;
 
-    this.customerInteractionService.getAllCustomerInteractions(offset, limit).subscribe({
+    this.customerService.getAllCustomers(limit, offset).subscribe({
       next: (response) => {
         this.tableData = response.data ?? [];
         this._numberTotalRecords = response.total ?? 0;
         this._booleanIsLoading = false;
       },
       error: (error) => {
-        console.error('❌ Gagal memuat data:', error);
+        console.error('❌ Gagal memuat data customer:', error);
         this.tableData = [];
         this._booleanIsLoading = false;
       }
@@ -102,12 +79,11 @@ export class CustomerInteractionsComponent implements OnInit {
   }
 
   public onRefreshData(): void {
-    console.log('Refresh button clicked for Customer Interactions!');
-    this.onLazyLoad(this._currentPageState); 
+    this.onLazyLoad(this._currentPageState);
   }
 
   onSelectRow(event: any): void {
-    this.selectedInteraction = event.data as CustomerInteraction;
+    this.selectedCustomer = event.data as CustomerModel;
     this._booleanShowDataDialog = true;
   }
 }

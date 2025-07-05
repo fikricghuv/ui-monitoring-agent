@@ -72,11 +72,11 @@ export class AppTopbar {
             },
             routerLink: '/profile'
         },
-        {
-            label: 'Pengaturan',
-            icon: 'pi pi-cog',
-            routerLink: '/settings'
-        },
+        // {
+        //     label: 'Pengaturan',
+        //     icon: 'pi pi-cog',
+        //     routerLink: '/settings'
+        // },
         { separator: true },
         {
             label: 'Logout',

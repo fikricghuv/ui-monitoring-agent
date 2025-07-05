@@ -106,16 +106,12 @@ export class RealtimeMonitoringComponent implements OnInit {
 
     this.monitoringService.getChatHistory(offset, limit).subscribe({
       next: (response) => {
-        console.log('RESPONSE from backend:', response);
         this._arrayChatHistoryModel = response.data;
         this._numberTotalRecords = response.total;
         this._booleanIsLoading = false;
 
-        console.log('Displayed Data:', this._arrayChatHistoryModel);
       },
       error: (error) => {
-
-        console.error('Error fetching chat history:', error);
 
         this._booleanIsLoading = false;
 

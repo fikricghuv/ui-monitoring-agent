@@ -57,7 +57,7 @@ export class SessionService {
 
     console.log('SessionService: User ID atau Admin ID tidak ditemukan, melakukan generate dari server.');
 
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey,
       'Content-Type': 'application/json' 
     });

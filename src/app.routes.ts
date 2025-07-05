@@ -17,7 +17,7 @@ export const appRoutes: Routes = [
         children: [
             { path: 'dashboard', component: Dashboard },
             { path: 'documentation', component: DocumentationComponent },
-            { path: 'settings', component: SettingsComponent },
+            // { path: 'settings', component: SettingsComponent },
             { path: 'profile', component: ProfileComponent },
             { path: 'notification', component: NotificationComponent },
             { path: 'pages', loadChildren: () => import('./app/pages/pages.routes') }

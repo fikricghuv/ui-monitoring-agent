@@ -67,12 +67,17 @@ export class LoginComponent {
     this._booleanLoading = true;
 
     this.loginService.login(this._stringUsername, this._stringPassword).subscribe({
-      next: (token) => {
+      next: (tokens) => {
+        const { access_token, refresh_token } = tokens;
+
         if (this._booleanRememberMe) {
-          localStorage.setItem('access_token', token);
+          localStorage.setItem('access_token', access_token);
+          localStorage.setItem('refresh_token', refresh_token);
         } else {
-          sessionStorage.setItem('access_token', token);
+          sessionStorage.setItem('access_token', access_token);
+          sessionStorage.setItem('refresh_token', refresh_token);
         }
+
 
         this._booleanLoading = false;
         this.router.navigate(['/dashboard']);

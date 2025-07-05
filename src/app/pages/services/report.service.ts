@@ -21,7 +21,7 @@ export class ReportService {
    * @returns Observable berisi file CSV (blob)
    */
   public downloadCSVReport(reportType: string, startDate: string, endDate: string): Observable<Blob> {
-    const headers = new HttpHeaders({
+    let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 

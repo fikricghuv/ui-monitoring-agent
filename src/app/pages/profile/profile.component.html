@@ -6,14 +6,14 @@
         <div class="col-12 lg:col-4 flex flex-column align-items-center justify-content-center p-4 text-center"
         style="flex-direction: column; align-items: flex-start;">
             <div>
-                <h3 class="text-2xl font-bold mb-2">{{ userProfile.name }}</h3>
+                <h3 class="text-2xl font-bold mb-2">{{ userProfile?.name }}</h3>
             </div>
             
             <div class="flex align-items-center gap-2 mb-2">
-                <span class="text-color-secondary">{{ userProfile.role }}</span>
+                <span class="text-color-secondary">{{ userProfile?.role }}</span>
             </div>
 
-            <p class="text-muted-color text-sm mb-4">Joined At {{ userProfile.joinedDate | date:'longDate' }}</p>
+            <p class="text-muted-color text-sm mb-4">Joined At {{ userProfile?.joinedDate | date:'longDate' }}</p>
         </div>
 
 
@@ -39,11 +39,35 @@
                     <div class="mt-5 text-left">
                         <p-button
                             label="Update Profile"
-                            icon="pi pi-pencil"
-                            styleClass="p-button-md"
+                            icon="pi pi-user-edit"  styleClass="p-button-md"
                             (onClick)="confirmUpdateProfileInfo($event)"
                             [disabled]="!hasProfileChanges"
                             [raised]="true">
+                        </p-button>
+                    </div>
+
+                </p-tabPanel>
+
+                <p-tabPanel header="Change Password">
+                    <h4 class="font-semibold text-lg mb-3">Change Password</h4>
+                    <div class="p-grid p-dir-col md:p-dir-row">
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="font-medium text-sm text-color-secondary mb-1 block">Current Password</label>
+                            <input type="password" pInputText [(ngModel)]="passwordForm.currentPassword" (input)="onPasswordInputChange()" />
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="font-medium text-sm text-color-secondary mb-1 block">New Password</label>
+                            <input type="password" pInputText [(ngModel)]="passwordForm.newPassword" (input)="onPasswordInputChange()" />
+                        </div>
+                        <div class="col-12 md:col-6 mb-3">
+                            <label class="font-medium text-sm text-color-secondary mb-1 block">Confirm New Password</label>
+                            <input type="password" pInputText [(ngModel)]="passwordForm.confirmNewPassword" (input)="onPasswordInputChange()" />
+                        </div>
+                    </div>
+
+                    <div class="mt-5 text-left">
+                        <p-button
+                            label="Change Password" icon="pi pi-key" styleClass="p-button-md p-button-warning" (onClick)="confirmChangePassword($event)" [disabled]="!hasPasswordChanges" [raised]="true">
                         </p-button>
                     </div>
 
