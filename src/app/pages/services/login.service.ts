@@ -28,10 +28,14 @@ export class LoginService {
 
     const body = { email, password };
 
-    return this.http.post<{ access_token: string, refresh_token: string }>(url, body, { headers }).pipe(
+    return this.http.post<{ access_token: string, refresh_token: string, expires_in: number }>(url, body, { headers }).pipe(
       map(response => {
         localStorage.setItem('access_token', response.access_token);
         localStorage.setItem('refresh_token', response.refresh_token);
+
+        const expiresAt = Date.now() + response.expires_in * 1000;
+        localStorage.setItem('access_token_expires_at', expiresAt.toString());
+
         return response;
       }),
       catchError(this.handleError)
