@@ -15,6 +15,9 @@ import { FormsModule } from '@angular/forms';
 import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+
 
 @Component({
   selector: 'app-customer-profiles',
@@ -49,12 +52,23 @@ export class CustomerProfilesComponent implements OnInit {
   selectedCustomer: CustomerModel | null = null;
   _booleanShowDataDialog: boolean = false;
 
+  _searchSubject = new Subject<string>();
+
+
   constructor(private customerService: CustomerService) {}
 
   ngOnInit(): void {
     this._listMenuItems = [{ label: 'Customer Profiles' }];
     this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
     this.onLazyLoad(this._currentPageState);
+
+    this._searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      filter(query => query.length === 0 || query.length >= 3)
+    ).subscribe(query => {
+      this.onLazyLoad(this._currentPageState);
+    });
   }
 
   public onLazyLoad(event: any): void {
@@ -63,8 +77,9 @@ export class CustomerProfilesComponent implements OnInit {
 
     const offset = event.first ?? 0;
     const limit = event.rows ?? this._numberRows;
+    const query = this._searchQuery.trim();
 
-    this.customerService.getAllCustomers(limit, offset).subscribe({
+    this.customerService.getAllCustomers(limit, offset, query).subscribe({
       next: (response) => {
         this.tableData = response.data ?? [];
         this._numberTotalRecords = response.total ?? 0;

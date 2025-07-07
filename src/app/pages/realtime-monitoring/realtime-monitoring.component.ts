@@ -15,6 +15,8 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-realtime-monitoring',
@@ -44,6 +46,10 @@ export class RealtimeMonitoringComponent implements OnInit {
 
   public _searchQuery: string = ''; 
 
+  public _searchSubject = new Subject<string>();
+  public _searchSubscription!: Subscription;
+
+
 
   constructor(
     private monitoringService: MonitoringService,
@@ -66,6 +72,15 @@ export class RealtimeMonitoringComponent implements OnInit {
         ];
 
         this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
+    
+    this._searchSubscription = this._searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      filter(query => query.length === 0 || query.length >= 3)
+    ).subscribe(() => {
+      this._currentPageState.first = 0; 
+      this.onLazyLoad(this._currentPageState);
+    });
   }
 
   private getTotalRecords(): void {
@@ -86,6 +101,12 @@ export class RealtimeMonitoringComponent implements OnInit {
     });
   }
 
+  public onSearchChange(query: string): void {
+    this._searchQuery = query;
+    this._searchSubject.next(query);
+  }
+
+
   public setFilter(filter: string) {
     this._stringSelectedFilter = filter;
   }
@@ -95,30 +116,26 @@ export class RealtimeMonitoringComponent implements OnInit {
   }
 
   public onLazyLoad(event: any) {
-
     this._currentPageState = event;
-
     this._booleanIsLoading = true;
 
     const offset = event.first ?? 0;
-
     const limit = event.rows ?? this._numberRows;
+    const search = this._searchQuery;
 
-    this.monitoringService.getChatHistory(offset, limit).subscribe({
+    this.monitoringService.getChatHistory(offset, limit, search).subscribe({
       next: (response) => {
         this._arrayChatHistoryModel = response.data;
         this._numberTotalRecords = response.total;
         this._booleanIsLoading = false;
-
       },
-      error: (error) => {
-
+      error: () => {
         this._booleanIsLoading = false;
-
         this._arrayChatHistoryModel = [];
       },
     });
   }
+
 
   public formatLatency(durationString: string | null | undefined): string {
     if (!durationString || typeof durationString !== 'string') {
@@ -165,6 +182,10 @@ export class RealtimeMonitoringComponent implements OnInit {
     this.onLazyLoad(this._currentPageState); 
 
     this.getTotalRecords();
+  }
+
+  ngOnDestroy(): void {
+    this._searchSubscription?.unsubscribe();
   }
 
 }

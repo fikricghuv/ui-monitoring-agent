@@ -9,12 +9,19 @@
 			<div>
 				<div class="text-2xl leading-8 text-color font-medium">Data Realtime Monitoring</div>
 			</div>
-			<!-- <p-button icon="pi pi-circle-fill text-green-500" label="950 Active User" outlined severity="secondary" /> -->
 		</div>
 		<div class="mt-6 mb-4 flex items-center justify-between">
 			<p-iconfield iconPosition="left">
 				<p-inputicon class="pi pi-search"> </p-inputicon>
-				<input pInputText type="text" [(ngModel)]="_searchQuery" placeholder="Search" name="modelSearchQuery" />
+				<input
+				pInputText
+				type="text"
+				[(ngModel)]="_searchQuery"
+				(ngModelChange)="onSearchChange($event)"
+				placeholder="Search"
+				name="modelSearchQuery"
+				/>
+
 			</p-iconfield>
 			<div class="flex items-center gap-3">
 				<p-button icon="pi pi-refresh" outlined severity="secondary" (onClick)="onRefreshData()"/>

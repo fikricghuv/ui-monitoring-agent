@@ -15,7 +15,8 @@
     <div class="mt-6 mb-4 flex items-center justify-between">
       <p-iconfield iconPosition="left">
         <p-inputicon class="pi pi-search"> </p-inputicon>
-        <input pInputText type="text" [(ngModel)]="_searchQuery" placeholder="Search" />
+        <input pInputText type="text" [(ngModel)]="_searchQuery" (ngModelChange)="onSearchChange($event)" placeholder="Search" />
+
       </p-iconfield>
       <div class="flex items-center gap-3">
         <p-button icon="pi pi-refresh" outlined severity="secondary" (onClick)="onRefreshData()"/>
@@ -78,12 +79,6 @@
           <!-- Feedback -->
           <div class="field">
             <label class="font-semibold text-color">Feedback</label>
-            <!-- <div
-              class="bg-gray-50 border border-gray-200 rounded p-3 text-sm"
-              style="white-space: pre-line;"
-            >
-              {{ _selectedFeedback.feedback_from_customer }}
-            </div> -->
             <p>{{ _selectedFeedback.feedback_from_customer}}</p>
             <p-divider></p-divider>
           </div>
@@ -109,12 +104,6 @@
           <!-- Potential Actions -->
           <div class="field">
             <label class="font-semibold text-color">Potential Actions</label>
-            <!-- <div
-              class="bg-gray-100 border border-gray-200 rounded p-3 text-sm"
-              style="white-space: pre-line;"
-            >
-              {{ _selectedFeedback.potential_actions }}
-            </div> -->
             <p>{{ _selectedFeedback.potential_actions}}</p>
             <p-divider></p-divider>
           </div>

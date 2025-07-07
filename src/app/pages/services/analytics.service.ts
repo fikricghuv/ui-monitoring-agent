@@ -23,24 +23,25 @@ export class AnalyticsService
    * @param limit Jumlah item per halaman (untuk pagination, maks 200 di server).
    * @returns Observable dari array FeedbackModel.
    */
-  public getFeedbacks(offset: number, limit: number): Observable<FeedbackModel[]>
-  {
-    
-    let headers = new HttpHeaders({
-      'X-API-Key': this.apiKey 
-      
-    });
+  public getFeedbacks(offset: number, limit: number, search?: string): Observable<FeedbackModel[]> {
+    let headers = new HttpHeaders({ 'X-API-Key': this.apiKey });
 
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('offset', offset.toString())
-      .set('limit', limit.toString()); 
+      .set('limit', limit.toString());
 
-    return this.http.get<FeedbackModel[]>(`${this.apiUrl}/feedbacks`, { headers: headers, params: params })
-      .pipe(
-        
-        catchError(this.handleError)
-      );
+    if (search) {
+      params = params.set('search', search);
+    }
+
+    return this.http.get<FeedbackModel[]>(`${this.apiUrl}/feedbacks`, {
+      headers: headers,
+      params: params,
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
+
 
   public getTotalFeedbacks(): Observable<number> {
     const headers = new HttpHeaders({

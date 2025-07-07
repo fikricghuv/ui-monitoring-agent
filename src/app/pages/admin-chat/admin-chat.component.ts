@@ -58,6 +58,7 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
   public _enumSender = ENUM_SENDER;
   public _listMenuItems: MenuItem[] | undefined;
   public _defaultHomeMenu: MenuItem | undefined;
+  public _searchRoomQuery: string = '';
 
   get filteredMessages() 
   {
@@ -182,12 +183,26 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.newMessageSubscription?.unsubscribe();
   }
 
+  get filteredRooms(): RoomConversationModel[] {
+    if (!this._searchRoomQuery.trim()) {
+      return this._arrayRoomModel;
+    }
+
+    const query = this._searchRoomQuery.toLowerCase();
+
+    return this._arrayRoomModel.filter(room =>
+      room.id?.toLowerCase().includes(query) ||
+      room.lastMessage?.toLowerCase().includes(query)
+    );
+  }
+
   async selectRoom(room: RoomConversationModel): Promise<void> {
     
     this._modelSelectedRoom = room;
 
     if (room.id) {
       this.chatHistoryService.loadChatHistoryByRoomId(room.id).subscribe({
+
         next: (response) => {
           const groupedChats: MessageModel[] = [];
           
@@ -434,4 +449,12 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
   }
+
+  public onSearchChatHistory(): void {
+    if (!this._modelSelectedRoom?.id) return;
+
+    this.selectRoom(this._modelSelectedRoom);
+  }
+
+
 }

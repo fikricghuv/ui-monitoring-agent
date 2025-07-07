@@ -14,15 +14,16 @@
     <div class="px-5">
       <p-iconField iconPosition="left">
         <p-inputIcon class="pi pi-search"> </p-inputIcon>
-        <input type="text" pInputText placeholder="Search" class="w-full" />
+        <input type="text" pInputText [(ngModel)]="_searchRoomQuery" (keyup.enter)="onSearchChatHistory()" placeholder="Search room ..." class="w-full" />
       </p-iconField>
     </div>
 
     <div class="flex-1 flex flex-col overflow-y-auto">
-      <div *ngFor="let user of _arrayRoomModel"
-           class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
-           [ngClass]="{'bg-emphasis': user.id === _modelSelectedRoom?.id}"
-           (click)="selectRoom(user)">
+        <div *ngFor="let user of filteredRooms"
+          class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
+          [ngClass]="{'bg-emphasis': user.id === _modelSelectedRoom?.id}"
+          (click)="selectRoom(user)">
+
         <div class="relative">
           <p-avatar [label]="user.id ? user.id.charAt(0).toUpperCase() : ''"
             [ngClass]="{'!bg-primary-100 !text-primary-950': true}" styleClass="text-base font-medium flex"

@@ -14,6 +14,8 @@ import { FormsModule } from '@angular/forms';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-feedback-analytics',
@@ -42,6 +44,10 @@ export class AnalyticsComponent implements OnInit {
 
   public _searchQuery: string = ''; 
 
+  public _searchSubject = new Subject<string>();
+  public _searchSubscription!: Subscription;
+
+
   constructor(
     private analyticsService: AnalyticsService
   ) {
@@ -59,6 +65,16 @@ export class AnalyticsComponent implements OnInit {
         ];
 
         this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
+
+    this._searchSubscription = this._searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      filter(query => query.length === 0 || query.length >= 3)
+    ).subscribe(() => {
+      this._currentPageState.first = 0;
+      this.onLazyLoad(this._currentPageState);
+    });
+
   }
 
   /**
@@ -92,7 +108,7 @@ export class AnalyticsComponent implements OnInit {
 
     const limit = event.rows ?? this._numberRows;
 
-    this.analyticsService.getFeedbacks(offset, limit).subscribe({
+    this.analyticsService.getFeedbacks(offset, limit, this._searchQuery).subscribe({
       next: (data) => {
         this._arrayFeedbackModel = data; 
 
@@ -111,6 +127,12 @@ export class AnalyticsComponent implements OnInit {
     });
   }
 
+  public onSearchChange(query: string): void {
+    this._searchQuery = query;
+    this._searchSubject.next(query);
+  }
+
+
   public onRefreshData(): void {
     console.log('Refresh button clicked for Feedback Analytics!');
     
@@ -125,4 +147,7 @@ export class AnalyticsComponent implements OnInit {
     this._booleanShowFeedbackDialog = true;
   }
 
+  ngOnDestroy(): void {
+    this._searchSubscription?.unsubscribe();
+  }
 }

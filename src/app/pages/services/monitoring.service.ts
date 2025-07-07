@@ -21,23 +21,25 @@ export class MonitoringService {
    * @param limit Jumlah item per halaman (untuk pagination, maks 200 di server). Default 100.
    * @returns Observable dari array ChatHistoryResponseModel.
    */
-  public getChatHistory(offset: number, limit: number): Observable<PaginatedChatHistoryResponse> {
+  public getChatHistory(offset: number, limit: number, search?: string): Observable<PaginatedChatHistoryResponse> {
+  const headers = new HttpHeaders({
+    'X-API-Key': this.apiKey
+  });
 
-    const headers = new HttpHeaders({
-      'X-API-Key': this.apiKey
-    });
+  let params = new HttpParams()
+    .set('offset', offset.toString())
+    .set('limit', limit.toString());
 
-    const params = new HttpParams()
-      .set('offset', offset.toString())
-      .set('limit', limit.toString());
-
-    const url = `${this.apiUrl}/history/all`;
-
-    return this.http.get<PaginatedChatHistoryResponse>(url, { headers, params }).pipe(
-      catchError(this.handleError)
-    );
+  if (search !== undefined && search !== null) {
+    params = params.set('search', search);
   }
 
+  const url = `${this.apiUrl}/history/all`;
+
+  return this.http.get<PaginatedChatHistoryResponse>(url, { headers, params }).pipe(
+    catchError(this.handleError)
+  );
+}
 
    /**
    * Metode penanganan error untuk permintaan HTTP.

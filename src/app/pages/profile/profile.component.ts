@@ -14,7 +14,7 @@ import { MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { UserService } from '../services/user_profile.service'; 
-// Pastikan Anda juga memiliki model untuk perubahan kata sandi
+import { AuthService } from '../services/auth.service';
 import { UserModel, UserUpdateModel, UserChangePasswordModel } from '../models/user.model'; 
 
 // --- Interfaces ---
@@ -93,6 +93,8 @@ export class ProfileComponent implements OnInit {
         confirmNewPassword: ''
     };
 
+    userId: string = '';
+
     hasProfileChanges: boolean = false;
     hasPasswordChanges: boolean = false; // Flag terpisah untuk perubahan kata sandi
 
@@ -103,42 +105,34 @@ export class ProfileComponent implements OnInit {
         { id: 4, type: 'chat', description: 'Menyelesaikan 5 percakapan', time: '2 hari yang lalu' },
     ];
 
-    userId: string = '6aa15350-05a9-4a43-8c80-4622ee7cc928';
-
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private userService: UserService
+        private userService: UserService,
+        private authService: AuthService
     ) { }
 
     ngOnInit(): void {
-        if (!this.userId) {
-            this.messageService.add({
-                severity: 'warn',
-                summary: 'Peringatan',
-                detail: 'Admin ID tidak ditemukan di localStorage atau tidak disetel.'
-            });
-            return;
-        }
-
         this.loadUserProfile();
     }
 
     loadUserProfile(): void {
-        this.userService.getUserById(this.userId).subscribe({
-            next: (user: UserModel) => {
+        this.authService.getCurrentUser().subscribe({
+            next: (user: any) => {
+                this.userId = user.id; // Update userId supaya updateProfile masih bisa dipakai
+
                 this.originalProfile = {
                     id: user.id,
                     name: user.full_name || 'N/A',
                     email: user.email,
-                    phoneNumber: '', // Sesuaikan jika ada di UserModel
-                    role: 'Admin', 
+                    phoneNumber: '', // Sesuaikan jika tersedia
+                    role: user.role || 'User',
                     joinedDate: user.created_at ? new Date(user.created_at) : new Date(),
                     status: user.is_active ? 'Aktif' : 'Tidak Aktif',
-                    location: 'Jakarta, Indonesia', 
+                    location: 'Jakarta, Indonesia', // Opsional: bisa diganti dari user data
                     lastLogin: user.updated_at ? new Date(user.updated_at) : new Date(),
-                    avatarUrl: '/assets/images/just-logo.png', 
-                    bio: 'Agen layanan pelanggan yang berdedikasi...' 
+                    avatarUrl: '/assets/images/just-logo.png',
+                    bio: 'Agen layanan pelanggan yang berdedikasi...'
                 };
 
                 this.userProfile = { ...this.originalProfile };
@@ -146,13 +140,12 @@ export class ProfileComponent implements OnInit {
                 this.editableProfile = {
                     name: this.originalProfile.name,
                     email: this.originalProfile.email,
-                    phoneNumber: this.originalProfile.phoneNumber 
+                    phoneNumber: this.originalProfile.phoneNumber
                 };
 
-                // Reset form password dan status perubahan saat profil dimuat
                 this.resetPasswordForm();
                 this.checkProfileChanges();
-                
+
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Berhasil',

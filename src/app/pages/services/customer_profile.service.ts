@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { CustomerModel } from '../models/customer.model';
@@ -44,14 +44,28 @@ export class CustomerService {
    * GET /customers?limit=10&offset=0
    * Mengambil semua customer dengan pagination
    */
-  getAllCustomers(limit: number = 10, offset: number = 0): Observable<CustomerResponse> {
-    const url = `${this.apiUrl}/customer?limit=${limit}&offset=${offset}`;
-    return this.http
-      .get<CustomerResponse>(url, {
-        headers: this.getHeaders(),
-      })
-      .pipe(catchError(this.handleError));
+
+  getAllCustomers(
+    limit: number = 10,
+    offset: number = 0,
+    searchQuery?: string
+  ): Observable<CustomerResponse> {
+    let params = new HttpParams()
+      .set('limit', limit.toString())
+      .set('offset', offset.toString());
+
+    if (searchQuery && searchQuery.trim() !== '') {
+      params = params.set('search', searchQuery.trim());
+    }
+
+    const url = `${this.apiUrl}/customer`;
+
+    return this.http.get<CustomerResponse>(url, {
+      headers: this.getHeaders(),
+      params: params
+    }).pipe(catchError(this.handleError));
   }
+
 
   /**
    * GET /customers/{customer_id}

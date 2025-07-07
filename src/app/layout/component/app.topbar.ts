@@ -126,7 +126,10 @@ export class AppTopbar {
 
     public onLogout(): void {
         sessionStorage.removeItem('access_token');
+        sessionStorage.removeItem('refresh_token');
         localStorage.removeItem('access_token');
+        localStorage.removeItem('access_token_expires_at')
+        localStorage.removeItem('refresh_token')
         this._stringUsername = '';
         this._stringPassword = '';
 
