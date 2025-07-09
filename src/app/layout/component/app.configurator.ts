@@ -65,6 +65,8 @@ export class AppConfigurator {
         { label: 'Overlay', value: 'overlay' }
     ];
 
+    private _elementHTMLDivCurtainLoading: HTMLElement | null = document.getElementById("divLoading");
+
     ngOnInit() {
         if (isPlatformBrowser(this.platformId)) {
             this.onPresetChange(this.layoutService.layoutConfig().preset);
@@ -392,5 +394,19 @@ export class AppConfigurator {
 
     onMenuModeChange(event: string) {
         this.layoutService.layoutConfig.update((prev) => ({ ...prev, menuMode: event }));
+    }
+
+    public showLoading() {
+        if (this._elementHTMLDivCurtainLoading) 
+        {
+            this._elementHTMLDivCurtainLoading.style.setProperty("display", "flex", "important");
+        }
+    }
+
+    public hideLoading() {
+        if (this._elementHTMLDivCurtainLoading) 
+        {
+            this._elementHTMLDivCurtainLoading.style.display = "none";
+        }
     }
 }

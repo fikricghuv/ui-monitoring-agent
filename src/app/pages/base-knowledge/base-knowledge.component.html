@@ -9,21 +9,23 @@
 		<h2 class="text-2xl font-bold text-900">Base Knowledge</h2>
 
 		<p-fieldset legend="Upload Documents" [toggleable]="true" styleClass="p-mb-4">
-			<p-fileUpload name="uploadFile" (onSelect)="onFileSelected($event)" (onClear)="onFileClear()" [multiple]="false"
+			<p-fileUpload #fileUploader name="uploadFile" (onSelect)="onFileSelected($event)" (onClear)="onFileClear()" [multiple]="true"
 				accept=".pdf" [maxFileSize]="10000000" chooseLabel="Select File" uploadLabel="Upload"
 				cancelLabel="Cancel" [showUploadButton]="false" [showCancelButton]="false">
 				<ng-template pTemplate="content">
-					<div *ngIf="_fileSelectedFile" class="p-d-flex p-ai-center p-mt-2" style="flex-direction: column;">
-						<div >
-							<p-button icon="pi pi-upload" label="Upload File"
-								styleClass="p-button-raised p-button-md p-ml-3" (onClick)="confirmUploadFile($event)"
-								[disabled]="!_fileSelectedFile || _booleanIsLoading"
-								[raised]="true">
-							</p-button>
+					<div *ngIf="(_fileSelectedFiles?.length ?? 0) > 0" class="p-d-flex p-ai-center p-mt-2" style="flex-direction: column;">
+						<div>
+						<p-button
+							icon="pi pi-upload"
+							label="Upload File"
+							styleClass="p-button-raised p-button-md p-ml-3"
+							(onClick)="confirmUploadFiles($event)"
+							[disabled]="_fileSelectedFiles.length === 0"
+							[raised]="true"
+						></p-button>
 						</div>
-						
+						<small class="p-text-secondary">Max size file 10MB (.pdf)</small>
 					</div>
-					<small class="p-text-secondary">Max size file 10MB (.pdf)</small>
 				</ng-template>
 			</p-fileUpload>
 		</p-fieldset>
@@ -33,14 +35,33 @@
 				[style]="{'width':'100%', 'min-height':'150px'}" [emptyMessage]="'Tidak ada file yang diunggah.'">
 				<ng-template let-file pTemplate="item">
 
-					<div style="display: contents; justify-content: space-between; align-items: center;">
-						<div class="p-d-flex p-jc-between p-ai-center p-py-2">
-							<span>{{ file.filename }}</span>
+					<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+						<div style="display: flex;">
+							<div class="p-d-flex p-jc-between p-ai-center p-py-2">
+								<span>{{ file.filename }}&nbsp;&nbsp;</span>
+							</div>
+							<div class="text-muted-color text-sm">
+								<span>{{ file.uploaded_at | date:'dd MMM yyyy, HH:mm' }}&nbsp;&nbsp;</span>
+							</div>
+							<div>
+							<p-tag
+								*ngIf="file.status === 'pending'"
+								icon="pi pi-exclamation-triangle"
+								severity="warn"
+								value="Pending Process"
+							></p-tag>
+							<p-tag
+								*ngIf="file.status !== 'pending'"
+								icon="pi pi-check"
+								severity="success"
+								value="Processed"
+							></p-tag>
+							</div>
 						</div>
 						<div class="p-d-flex p-jc-between p-ai-center p-py-2">
 							<p-button icon="pi pi-trash"
 								styleClass="p-button-danger p-button-rounded p-button-sm p-button-text ml-2"
-								(onClick)="confirmRemoveFile($event, file)" [disabled]="_booleanIsLoading" pTooltip="Hapus File"
+								(onClick)="confirmRemoveFile($event, file)" pTooltip="Hapus File"
 								tooltipPosition="right"
 								[raised]="true">
 							</p-button>
@@ -51,15 +72,10 @@
 			</p-listbox>
 			<div class="p-d-flex p-jc-center p-mt-4">
 				<p-button label="Process File" icon="pi pi-sync" styleClass="p-button-primary p-button-md"
-					[style]="{'margin-top': '15px'}" (onClick)="confirmEmbeddingFile($event)" [disabled]="_booleanIsLoading"
+					[style]="{'margin-top': '15px'}" (onClick)="confirmEmbeddingFile($event)"
 					[raised]="true">
 				</p-button>
 			</div>
 		</p-fieldset>
 	</p-card>
-
-	<div class="loading-overlay" *ngIf="_booleanIsLoading">
-		<p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" animationDuration=".8s"></p-progressSpinner>
-		<p>Processing, please wait...</p>
-	</div>
 </div>

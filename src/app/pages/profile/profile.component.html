@@ -10,7 +10,19 @@
             </div>
             
             <div class="flex align-items-center gap-2 mb-2">
-                <span class="text-color-secondary">{{ userProfile?.role }}</span>
+                <p-tag
+                    *ngIf="userProfile?.role === 'SUPER_ADMIN'"
+                    icon="pi pi-verified"
+                    severity="success"
+                    value="Super Admin"
+                ></p-tag>
+                <p-tag
+                    *ngIf="userProfile?.role !== 'SUPER_ADMIN'"
+                    icon="pi pi-verified"
+                    severity="success"
+                    value="Admin"
+                ></p-tag>
+                <!-- <span class="text-color-secondary">{{ userProfile?.role }}</span> -->
             </div>
 
             <p class="text-muted-color text-sm mb-4">Joined At {{ userProfile?.joinedDate | date:'longDate' }}</p>

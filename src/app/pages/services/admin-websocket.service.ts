@@ -84,7 +84,6 @@ export class WebSocketService
         {
           console.error('❌ Gagal parse pesan JSON:', event.data, e);
           
-          alert("Gagal parse pesan JSON")
         }
       };
 
@@ -182,8 +181,6 @@ export class WebSocketService
     else
     {
       console.error('❌ WebSocket belum terhubung! Pesan gagal dikirim:', payload);
-      
-      alert("WebSocket belum terhubung! Pesan gagal dikirim.");
     
     }
   }

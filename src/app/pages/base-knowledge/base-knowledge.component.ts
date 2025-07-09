@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { KnowledgeBaseService } from '../services/knowledge-base.service';
@@ -18,6 +18,11 @@ import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
 import { ConfirmationService } from 'primeng/api'; 
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { AppConfigurator } from '../../layout/component/app.configurator';
+import { TagModule } from 'primeng/tag';
+import { Observable, forkJoin } from 'rxjs';
+import { UploadResponseModel } from '../models/upload_file_response.model';
+import { FileSelectEvent } from 'primeng/fileupload';
 
 @Component({
   selector: 'app-base-knowledge',
@@ -35,7 +40,8 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
     ToastModule,         
     TooltipModule,     
     BreadcrumbModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    TagModule
   ],
   templateUrl: './base-knowledge.component.html',
   styleUrl: './base-knowledge.component.scss',
@@ -43,12 +49,15 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 })
 export class BaseKnowledgeComponent implements OnInit {
   public _fileSelectedFile: File | null;
+  public _fileSelectedFiles: File[];
   public _arrayUploadedFiles: Array<FileInfoModel>;
-  public _booleanIsLoading: boolean;
   public _arrayKnowledgeBaseConfig: KnowledgeBaseConfigModel;
   public _arrayOriginalConfig: KnowledgeBaseConfigModel; 
   public _listMenuItems: MenuItem[] | undefined;
   public _defaultHomeMenu: MenuItem | undefined;
+  public _appConfigurator: AppConfigurator;
+
+  @ViewChild('fileUploader') fileUploader: any;
 
   constructor(
     private knowledgeBaseService: KnowledgeBaseService,
@@ -57,9 +66,10 @@ export class BaseKnowledgeComponent implements OnInit {
   ) {
     this._fileSelectedFile = null;
     this._arrayUploadedFiles = [];
-    this._booleanIsLoading = false;
+    this._fileSelectedFiles = [];
     this._arrayKnowledgeBaseConfig = { chunk_size: 0, overlap: 0, num_documents: 0 };
     this._arrayOriginalConfig = { chunk_size: 0, overlap: 0, num_documents: 0 };
+    this._appConfigurator = new AppConfigurator();
   }
 
   ngOnInit() {
@@ -70,6 +80,7 @@ export class BaseKnowledgeComponent implements OnInit {
         ];
 
         this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
+    this._appConfigurator.hideLoading();
   }
 
   public loadKnowledgeBaseConfig() {
@@ -106,7 +117,7 @@ export class BaseKnowledgeComponent implements OnInit {
   }
 
   public updateKnowledgeBaseConfig() {
-    this._booleanIsLoading = true; 
+   this._appConfigurator.showLoading(); 
     this.knowledgeBaseService.updateKnowledgeBaseConfig(this._arrayKnowledgeBaseConfig).subscribe({
       next: () => {
 
@@ -117,7 +128,7 @@ export class BaseKnowledgeComponent implements OnInit {
         });
 
         this.loadKnowledgeBaseConfig(); 
-        this._booleanIsLoading = false; 
+        this._appConfigurator.hideLoading(); 
       },
       error: (error) => {
         console.error('Failed to update knowledge base config:', error);
@@ -128,7 +139,7 @@ export class BaseKnowledgeComponent implements OnInit {
           detail:'Failed to update Knowledge Base Config!'
         });
         
-        this._booleanIsLoading = false; 
+        this._appConfigurator.hideLoading(); 
       }
     });
   }
@@ -148,58 +159,67 @@ export class BaseKnowledgeComponent implements OnInit {
     return JSON.stringify(this._arrayKnowledgeBaseConfig) !== JSON.stringify(this._arrayOriginalConfig);
   }
 
-  public onFileSelected(event: any) {
-    if (event.files && event.files.length > 0) {
-      this._fileSelectedFile = event.files[0];
+  public onFileClear() {
+    this._fileSelectedFile = null;
+    if (this.fileUploader) {
+      this.fileUploader.clear();
     }
   }
 
-  public onFileClear() {
-    this._fileSelectedFile = null;
-  }
-
-  public uploadFile() {
-    if (!this._fileSelectedFile) {
+  public uploadFiles() {
+    if (!this._fileSelectedFiles || this._fileSelectedFiles.length === 0) {
       this.messageService.add({
-        severity:'warn', 
-        summary:'Warning', 
-        detail:'No file selected for upload.'
+        severity: 'warn',
+        summary: 'Warning',
+        detail: 'No files selected for upload.'
       });
-      
       return;
     }
 
-    this._booleanIsLoading = true; 
-    this.knowledgeBaseService.uploadFile(this._fileSelectedFile).subscribe({
-      next: (response) => {
-        this.fetchUploadedFiles(); 
-        this._fileSelectedFile = null;
+    this._appConfigurator.showLoading();
+
+    const uploadObservables = this._fileSelectedFiles.map(file =>
+      this.knowledgeBaseService.uploadFile(file)
+    );
+
+    forkJoin(uploadObservables).subscribe({
+      next: (responses) => {
+        this.fetchUploadedFiles();
+        this._fileSelectedFiles = [];
+        
+        if (this.fileUploader) {
+          this.fileUploader.clear();
+        }
 
         this.messageService.add({
-          severity:'success', 
-          summary:'Success', 
-          detail:'File berhasil diunggah.'
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Semua file berhasil diunggah.'
         });
 
-        this._booleanIsLoading = false; 
+        this._appConfigurator.hideLoading();
       },
       error: (error) => {
-        console.error('Error uploading file:', error);
-
+        console.error('Error uploading files:', error);
         this.messageService.add({
-          severity:'error', 
-          summary:'Error', 
-          detail:'Gagal mengunggah file. Silakan coba lagi nanti.'
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Gagal mengunggah satu atau lebih file.'
         });
-
-        this._booleanIsLoading = false; 
+        this._appConfigurator.hideLoading();
       }
     });
+  }
+
+  public onFileSelected(event: FileSelectEvent) {
+    console.log("📂 File selected:", event.files);
+    this._fileSelectedFiles = Array.from(event.files);
   }
 
   public fetchUploadedFiles() {
     this.knowledgeBaseService.getUploadedFiles().subscribe({
       next: (response) => {
+        console.log('📦 Fetched files from API:', response);
         if (!Array.isArray(response)) {
           console.error('Invalid response format:', response);
           
@@ -211,12 +231,15 @@ export class BaseKnowledgeComponent implements OnInit {
           
           return;
         }
+        console.log('File response:', response);
         
         this._arrayUploadedFiles = response.map((file: any) => ({
           uuid_file: file.uuid_file,
           filename: file.filename,
-          
+          uploaded_at: file.uploaded_at,
+          status: file.status,
         }));
+        
       },
       error: (error) => {
         console.error('Error fetching files:', error);
@@ -242,7 +265,8 @@ export class BaseKnowledgeComponent implements OnInit {
       return;
     }
 
-    this._booleanIsLoading = true;
+   this._appConfigurator.showLoading();
+    this._appConfigurator.showLoading();
     try {
       const response = await this.knowledgeBaseService.embeddingFile().toPromise();
       if (response) {
@@ -261,12 +285,14 @@ export class BaseKnowledgeComponent implements OnInit {
       });
 
     } finally {
-      this._booleanIsLoading = false;
+      this._appConfigurator.hideLoading();
+      this._appConfigurator.hideLoading();
+      this.fetchUploadedFiles()
     }
   }
 
   public removeFile(file: FileInfoModel) { 
-    this._booleanIsLoading = true;
+   this._appConfigurator.showLoading();
     this.knowledgeBaseService.removeFile(file.uuid_file!).subscribe({
       next: (response) => {
         this.fetchUploadedFiles(); 
@@ -277,7 +303,7 @@ export class BaseKnowledgeComponent implements OnInit {
           detail:`File "${file.filename}" berhasil dihapus.`
         });
 
-        this._booleanIsLoading = false;
+        this._appConfigurator.hideLoading();
       },
       error: (error) => {
         console.error('Error deleting file:', error);
@@ -288,13 +314,13 @@ export class BaseKnowledgeComponent implements OnInit {
           detail:'Gagal menghapus file. Silakan coba lagi nanti.'
         });
 
-        this._booleanIsLoading = false; 
+        this._appConfigurator.hideLoading(); 
       }
     });
   }
 
-  public confirmUploadFile(event: Event): void {
-    if (!this._fileSelectedFile) {
+  public confirmUploadFiles(event: Event): void {
+    if (!this._fileSelectedFiles) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Peringatan',
@@ -305,7 +331,7 @@ export class BaseKnowledgeComponent implements OnInit {
 
     this.confirmationService.confirm({
       target: event.target as EventTarget,
-      message: `Anda yakin ingin mengunggah file "${this._fileSelectedFile.name}"?`,
+      message: `Anda yakin ingin mengunggah "${this._fileSelectedFiles.length} file"?`,
       header: 'Konfirmasi Upload',
       icon: 'pi pi-upload',
       acceptLabel: 'Upload',
@@ -314,7 +340,7 @@ export class BaseKnowledgeComponent implements OnInit {
                 severity: 'secondary',
                 outlined: true
             },
-      accept: () => this.uploadFile(),
+      accept: () => this.uploadFiles(),
       reject: () => {
         this.messageService.add({
           severity: 'info',
@@ -350,6 +376,7 @@ export class BaseKnowledgeComponent implements OnInit {
   }
 
   public confirmEmbeddingFile(event: Event): void {
+
     if (this._arrayUploadedFiles.length === 0) {
       this.messageService.add({
         severity: 'warn',
@@ -370,7 +397,7 @@ export class BaseKnowledgeComponent implements OnInit {
                 severity: 'secondary',
                 outlined: true
             },
-      accept: () => this.embeddingFile(),
+      accept: () => this.embeddingFile(), 
       reject: () => {
         this.messageService.add({
           severity: 'info',
@@ -379,6 +406,8 @@ export class BaseKnowledgeComponent implements OnInit {
         });
       }
     });
+
   }
 
 }
+

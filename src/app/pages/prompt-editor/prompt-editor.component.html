@@ -1,35 +1,59 @@
-<div class="card flex" style="padding: 0; ">
-    <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems" [home]="_defaultHomeMenu" />
-</div> 
+<div class="card flex" style="padding: 0;">
+  <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems" [home]="_defaultHomeMenu" />
+</div>
+
 <div class="prompt-editor-container">
   <p-toast></p-toast>
+
   <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
     <p-confirmDialog></p-confirmDialog>
-    <h2 class="text-2xl font-bold text-900">Prompt Editor</h2>
-    <div class="editor-content">
-      <div class="prompt-editor" *ngIf="_objtSelectedPrompt?.name">
 
-        <h6 style="padding-top: 10px;">Prompt {{ _objtSelectedPrompt!.name }} : </h6>
-        <textarea pTextarea  [(ngModel)]="_objtSelectedPrompt.content" style="width: 100%; height: 400px;">{{ _objtSelectedPrompt.content }}</textarea>
+    <h2 class="text-2xl font-bold text-900 mb-4">Prompt Editor</h2>
 
-        <div class="button-group" [style]="{'margin-top': '10px'}">
-          <p-button
-            label="Reset"
-            icon="pi pi-refresh"
-            styleClass="p-button-md p-button-secondary"
-            [style]="{'margin-right': '10px'}"
-            (onClick)="confirmResetPrompt($event)"
-            [raised]="true">
-          </p-button>
-          <p-button
-            label="Save"
-            icon="pi pi-save"
-            styleClass="p-button-md"
-            (onClick)="confirmSavePrompt($event)"
-            [disabled]="!isPromptChanged()"
-            [raised]="true">
-          </p-button>
-        </div>
+    <div class="editor-content" *ngIf="_objtSelectedPrompt">
+      <!-- Prompt Name -->
+      <div class="field mb-3">
+        <label for="promptName" class="font-semibold mb-5">Prompt Name</label>
+        <textarea id="promptName" pInputTextarea rows="2" [(ngModel)]="_objtSelectedPrompt.name" placeholder="Enter prompt name..." style="width: 100%;"></textarea>
+      </div>
+
+      <!-- Agent Name -->
+      <div class="field mb-3">
+        <label for="nameAgent" class="font-semibold">Agent Name</label>
+        <textarea id="nameAgent" pInputTextarea rows="2" [(ngModel)]="_objtSelectedPrompt.name_agent" placeholder="Enter agent name..." style="width: 100%;"></textarea>
+      </div>
+
+      <!-- Agent Description -->
+      <div class="field mb-3">
+        <label for="descriptionAgent" class="font-semibold">Agent Description</label>
+        <textarea id="descriptionAgent" pInputTextarea rows="4" [(ngModel)]="_objtSelectedPrompt.description_agent" placeholder="Enter agent description..." style="width: 100%;"></textarea>
+      </div>
+
+      <!-- Style Communication -->
+      <div class="field mb-3">
+        <label for="styleCommunication" class="font-semibold">Style Communication</label>
+        <textarea id="styleCommunication" pInputTextarea rows="7" [(ngModel)]="_objtSelectedPrompt.style_communication" placeholder="Enter style communication..." style="width: 100%;"></textarea>
+      </div>
+
+      <!-- Tombol Aksi -->
+      <div class="button-group mt-3">
+        <p-button
+          label="Reset"
+          icon="pi pi-refresh"
+          styleClass="p-button-md p-button-secondary mr-4"
+          [style]="{'margin-right': '10px;'}"
+          (onClick)="confirmResetPrompt($event)"
+          [raised]="true">
+        </p-button>
+
+        <p-button
+          label="Save"
+          icon="pi pi-save"
+          styleClass="p-button-md"
+          (onClick)="confirmSavePrompt($event)"
+          [disabled]="!isPromptChanged()"
+          [raised]="true">
+        </p-button>
       </div>
     </div>
   </p-card>

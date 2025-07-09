@@ -24,23 +24,18 @@ export class PromptService
    * @param content Konten prompt.
    * @returns Observable dari Prompt (prompt yang diperbarui).
    */
-  public savePrompt(promptName: string, content: string): Observable<Prompt>
-  {
-
-    let headers = new HttpHeaders({
+  public savePrompt(promptId: string, updatedPrompt: Prompt): Observable<Prompt> {
+    const headers = new HttpHeaders({
       'X-API-Key': this.apiKey,
-      'Content-Type': 'application/json' 
+      'Content-Type': 'application/json'
     });
 
-    const url = `${this.apiUrl}/prompts/${promptName}`;
-    
-    const payload = { content: content }; 
-
-    return this.httpClient.put<Prompt>(url, payload, { headers: headers }) 
-       .pipe(
-        catchError(this.handleError) 
-      );
+    const url = `${this.apiUrl}/prompts/${promptId}`;
+    return this.httpClient.put<Prompt>(url, updatedPrompt, { headers }).pipe(
+      catchError(this.handleError)
+    );
   }
+
 
   /**
    * Mendapatkan daftar semua prompt dari server.

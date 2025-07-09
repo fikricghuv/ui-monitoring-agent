@@ -65,21 +65,21 @@ export class KnowledgeBaseService
    * @param file File yang akan diunggah.
    * @returns Observable dari UploadResponseModel.
    */
-  public uploadFile(file: File): Observable<UploadResponseModel> 
-  {
-    
+  public uploadFile(file: File): Observable<UploadResponseModel> {
+    const formData = new FormData();
+    formData.append('files', file); // backend menerima multiple 'files'
+
     let headers = new HttpHeaders({
       'X-API-Key': this.apiKey
     });
 
-    const formData = new FormData();
-    formData.append('file', file);
-
-    return this.http.post<UploadResponseModel>(`${this.apiUrl}/files/upload-file`, formData, { headers: headers })
-       .pipe(
-        catchError(this.handleError) 
-      );
+    return this.http.post<UploadResponseModel>(`${this.apiUrl}/files/upload-file`, formData, {
+      headers: headers
+    }).pipe(
+      catchError(this.handleError)
+    );
   }
+
 
   /**
    * Mendapatkan daftar file yang telah diunggah dari server.

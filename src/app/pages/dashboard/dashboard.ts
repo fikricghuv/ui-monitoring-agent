@@ -5,6 +5,7 @@ import { MostQuestionsWidget } from './components/most-question-widget';
 import { AgentPerformanceWidget } from './components/agent-performance-widget';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { MenuItem } from 'primeng/api';
+// import { AppConfigurator } from '../../layout/component/app.configurator';
 
 @Component({
     selector: 'app-dashboard',
@@ -16,11 +17,21 @@ export class Dashboard implements OnInit {
 
     _selectedMenuHome: MenuItem | undefined;
 
+    // public _appConfigurator: AppConfigurator;
+
+    constructor() {
+        // this._appConfigurator = new AppConfigurator();
+    }
+
     ngOnInit() {
         this._listIems = [
             { label: 'Dashboard' }
         ];
 
         this._selectedMenuHome = { icon: 'pi pi-home', routerLink: '/dashboard' };
+
+        // if (this._appConfigurator) {
+        //     this._appConfigurator.hideLoading();
+        // }
     }
 }

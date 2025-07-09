@@ -76,8 +76,6 @@ export class AnalyticsService
 
     console.error("analytics service: error: " , errorMessage); 
     
-    alert(errorMessage)
-    
     return throwError(() => new Error(errorMessage)); 
   }
 

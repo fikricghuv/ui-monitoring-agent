@@ -1,5 +1,20 @@
-
-<router-outlet></router-outlet>
-<app-chat-widget></app-chat-widget>
+<div class="DivAppParent">
+    <router-outlet></router-outlet>
+    <app-chat-widget></app-chat-widget>
+    <div class="loading-overlay" id="divLoading" style="
+    display: none !important;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 1000;">
+        <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" animationDuration=".8s"></p-progressSpinner>
+        <p>Processing, please wait...</p>
+    </div>
+</div>
 
 <!-- <router-outlet></router-outlet> -->

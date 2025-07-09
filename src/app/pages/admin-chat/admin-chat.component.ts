@@ -284,7 +284,6 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
         },
       });
     } else {
-      alert("⚠️ ID room tidak valid.");
 
       this.messageService.add({
           severity: 'warn',
