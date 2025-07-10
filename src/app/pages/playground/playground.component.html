@@ -6,6 +6,17 @@
   style="height: calc(100vh - 100px); max-height: calc(100vh - 100px); border-radius: 6px;">
 
   <div class="w-full border-x border-surface flex flex-col" style="max-height: 100%; height: 100%;">
+    
+    <div class="flex items-center p-4 gap-7 border-b border-surface sticky top-0 z-10 border-0">
+      <div class="flex items-center">
+          <p-avatar image="/assets/images/just-logo.png" styleClass="mr-2 av" size="normal" shape="circle" />
+          <div class="flex-1">
+              <div class="text-color">
+                  TalkVera
+              </div>
+          </div>
+      </div>
+  </div>
     <div #chatScroll class="flex-1 overflow-y-auto flex flex-col gap-8 py-8 px-6">
       <div *ngFor="let message of _arrayModelFilteredMessage" class="flex items-start min-w-64 w-fit max-w-[60%]"
         [ngClass]="{ 'ml-auto mr-0 flex-row-reverse': message.sender === _enumSender.User }">

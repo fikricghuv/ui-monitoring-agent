@@ -98,6 +98,28 @@ export class LayoutService {
         });
     }
 
+    initializeThemeFromSystem() {
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        const savedTheme = localStorage.getItem('user-theme');
+
+        if (!savedTheme) {
+            
+            this.layoutConfig.update(config => ({
+                ...config,
+                darkTheme: prefersDark
+            }));
+            localStorage.setItem('user-theme', prefersDark ? 'dark' : 'light');
+        } else {
+            
+            const isDark = savedTheme === 'dark';
+            this.layoutConfig.update(config => ({
+                ...config,
+                darkTheme: isDark
+            }));
+        }
+    }
+
     private handleDarkModeTransition(config: layoutConfig): void {
         if ((document as any).startViewTransition) {
             this.startViewTransition(config);

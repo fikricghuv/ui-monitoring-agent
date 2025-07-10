@@ -14,15 +14,21 @@ export class CustomerInteractionService {
 
   public getAllCustomerInteractions(
     offset: number = 0,
-    limit: number = 50
+    limit: number = 50,
+    search?: string
   ): Observable<PaginatedCustomerInteractionResponse> {
     let headers = new HttpHeaders({ 'X-API-Key': this.apiKey });
-    const params = new HttpParams()
+    let params = new HttpParams()
       .set('offset', offset.toString())
       .set('limit', limit.toString());
+
+    if (search) {
+      params = params.set('search', search);
+    }
 
     return this.http
       .get<PaginatedCustomerInteractionResponse>(`${this.apiUrl}/interactions`, { headers, params })
       .pipe(catchError((err) => { throw err }));
   }
+
 }

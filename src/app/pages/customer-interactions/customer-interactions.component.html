@@ -1,0 +1,105 @@
+<div class="card flex" style="padding: 0;">
+  <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems"
+    [home]="_defaultHomeMenu" />
+</div>
+
+<div class="customer-interactions-container">
+  <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
+    <div class="flex items-start gap-2 justify-between">
+      <div class="text-2xl leading-8 text-color font-medium">Customer Interactions</div>
+    </div>
+
+    <div class="mt-6 mb-4 flex items-center justify-between">
+      <p-iconfield iconPosition="left">
+        <p-inputicon class="pi pi-search"> </p-inputicon>
+        <input
+        pInputText
+        type="text"
+        [(ngModel)]="_searchQuery"
+        (ngModelChange)="_searchSubject.next($event)"
+        placeholder="Search"
+        />
+
+      </p-iconfield>
+      <div class="flex items-center gap-3">
+        <p-button icon="pi pi-refresh" outlined severity="secondary" (onClick)="onRefreshData()" />
+      </div>
+    </div>
+
+    <div class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full overflow-auto">
+      <p-table [value]="tableData" stripedRows [paginator]="true" [rows]="_numberRows"
+        [totalRecords]="_numberTotalRecords" [showCurrentPageReport]="true" [loading]="_booleanIsLoading"
+        [rowsPerPageOptions]="[5, 10, 20, 30]" selectionMode="single"
+        (onRowSelect)="onSelectRow($event)" dataKey="customer_id" [scrollable]="true" [style]="{'border-radius': '6px'}"
+        [lazy]="true" (onLazyLoad)="onLazyLoad($event)">
+
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Customer ID</th>
+            <th>Channel</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Feedback Score</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-data>
+          <tr [pSelectableRow]="data">
+            <td>{{ data.customer_id || '-' }}</td>
+            <td>{{ data.channel }}</td>
+            <td>{{ data.start_time | date:'short' }}</td>
+            <td>{{ data.end_time ? (data.end_time | date:'short') : '-' }}</td>
+            <td>
+              <p-tag [value]="data.customer_feedback_score ?? '-'" [severity]="data.customer_feedback_score >= 4 ? 'success' : 'warning'"></p-tag>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="5">No customer data found.</td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="loadingbody">
+          <tr>
+            <td colspan="5" class="loading">Loading customers, please wait...</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-card>
+
+  <p-dialog header="Customer Detail" [(visible)]="_booleanShowDataDialog" [modal]="true"
+    [style]="{ width: '40vw' }" [closable]="true" [dismissableMask]="true">
+    <ng-container *ngIf="selectedInteraction">
+      <div class="p-fluid">
+        <div class="field">
+          <label>Conversation ID:</label>
+          <p>{{ selectedInteraction.conversation_id }}</p>
+          <p-divider></p-divider>
+        </div>
+        <div class="field">
+          <label>Channel:</label>
+          <p>{{ selectedInteraction.channel }}</p>
+          <p-divider></p-divider>
+        </div>
+        <div class="field">
+          <label>Detected Intent:</label>
+          <p>{{ selectedInteraction.detected_intent || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+        <div class="field">
+          <label>Main Topic:</label>
+          <p>{{ selectedInteraction.main_topic || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+        <div class="field">
+          <label>Feedback Comment:</label>
+          <p>{{ selectedInteraction.customer_feedback_comment || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+      </div>
+    </ng-container>
+  </p-dialog>
+</div>

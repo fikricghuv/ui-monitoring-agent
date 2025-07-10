@@ -12,6 +12,7 @@ import { ProfileComponent } from './profile/profile.component';
 import { ReportComponent } from './report/report.component';
 import { CustomerProfilesComponent } from './customer/customer.component';
 import { NotificationComponent } from './notification/notification.component';
+import { CustomerInteractionsComponent } from './customer-interactions/customer-interactions.component';
 
 export default [
     { path: 'dashboard', component: Dashboard },
@@ -23,6 +24,7 @@ export default [
     { path: 'feedback', component: AnalyticsComponent},
     { path: 'report', component: ReportComponent },
     { path: 'customer', component: CustomerProfilesComponent },
+    { path: 'customer-interactions', component: CustomerInteractionsComponent },
     // { path: 'settings', component: SettingsComponent},
     { path: 'profile', component: ProfileComponent},
     { path: 'notification', component:NotificationComponent},

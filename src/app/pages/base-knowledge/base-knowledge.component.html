@@ -1,3 +1,4 @@
+
 <div class="card flex" style="padding: 0; ">
 	<p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems"
 		[home]="_defaultHomeMenu" />
@@ -9,24 +10,26 @@
 		<h2 class="text-2xl font-bold text-900">Base Knowledge</h2>
 
 		<p-fieldset legend="Upload Documents" [toggleable]="true" styleClass="p-mb-4">
-			<p-fileUpload #fileUploader name="uploadFile" (onSelect)="onFileSelected($event)" (onClear)="onFileClear()" [multiple]="true"
-				accept=".pdf" [maxFileSize]="10000000" chooseLabel="Select File" uploadLabel="Upload"
-				cancelLabel="Cancel" [showUploadButton]="false" [showCancelButton]="false">
-				<ng-template pTemplate="content">
-					<div *ngIf="(_fileSelectedFiles?.length ?? 0) > 0" class="p-d-flex p-ai-center p-mt-2" style="flex-direction: column;">
-						<div>
-						<p-button
-							icon="pi pi-upload"
-							label="Upload File"
-							styleClass="p-button-raised p-button-md p-ml-3"
-							(onClick)="confirmUploadFiles($event)"
-							[disabled]="_fileSelectedFiles.length === 0"
-							[raised]="true"
-						></p-button>
-						</div>
-						<small class="p-text-secondary">Max size file 10MB (.pdf)</small>
-					</div>
-				</ng-template>
+			<p-fileUpload
+			#fileUploader
+			name="files[]"
+			mode="advanced"
+			[auto]="false"
+			[multiple]="true"
+			accept=".pdf"
+			maxFileSize="10000000"
+			chooseLabel="Choose Files"
+			uploadLabel="Upload"
+			cancelLabel="Cancel"
+			[customUpload]="true"
+			(uploadHandler)="onUpload($event)"
+			(onSelect)="onFileSelected($event)"
+			(onClear)="onFileClear()"
+			(onRemove)="onRemoveFile($event)"
+			>
+			<ng-template #empty>
+				<div>Drag and drop PDF files here to upload.</div>
+			</ng-template>
 			</p-fileUpload>
 		</p-fieldset>
 
@@ -73,7 +76,7 @@
 			<div class="p-d-flex p-jc-center p-mt-4">
 				<p-button label="Process File" icon="pi pi-sync" styleClass="p-button-primary p-button-md"
 					[style]="{'margin-top': '15px'}" (onClick)="confirmEmbeddingFile($event)"
-					[raised]="true">
+					[raised]="true" [disabled]="isProcessDisabled">
 				</p-button>
 			</div>
 		</p-fieldset>

@@ -21,7 +21,8 @@ export class AppMenu {
                     { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/dashboard'] },
                     { label: 'Realtime Monitoring', icon: 'pi pi-fw pi-desktop', routerLink: ['/pages/monitoring'] },
                     { label: 'Feedback Analytics', icon: 'pi pi-fw pi-chart-bar', routerLink: ['/pages/feedback'] },
-                    { label: 'Users Profile', icon: 'pi pi-fw pi-users', routerLink: ['/pages/customer'] }
+                    { label: 'Users Profile', icon: 'pi pi-fw pi-users', routerLink: ['/pages/customer'] },
+                    { label: 'Users Interactions', icon: 'pi pi-fw pi-list-check', routerLink: ['/pages/customer-interactions'] },
                 ]
             },
             {

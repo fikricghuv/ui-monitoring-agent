@@ -74,7 +74,6 @@ export class BaseKnowledgeComponent implements OnInit {
 
   ngOnInit() {
     this.fetchUploadedFiles();
-    this.loadKnowledgeBaseConfig();
     this._listMenuItems = [
             { label: 'Base Knowledge' }
         ];
@@ -83,88 +82,16 @@ export class BaseKnowledgeComponent implements OnInit {
     this._appConfigurator.hideLoading();
   }
 
-  public loadKnowledgeBaseConfig() {
-    this.knowledgeBaseService.getKnowledgeBaseConfig().subscribe({
-      next: (data) => {
-        if (!data) { 
-          console.error('Invalid response format: data is null or undefined');
-          
-          this.messageService.add({
-            severity:'error', 
-            summary:'Error', 
-            detail:'Failed to load knowledge base config: Invalid data received.'
-          });
-          
-          return;
-        }
-        this._arrayKnowledgeBaseConfig = {
-          chunk_size: data.chunk_size ?? 0,
-          overlap: data.overlap ?? 0,
-          num_documents: data.num_documents ?? 0
-        };
-        this._arrayOriginalConfig = { ...this._arrayKnowledgeBaseConfig }; // Salin objek
-      },
-      error: (error) => {
-        console.error('Failed to load knowledge base config:', error);
-        
-        this.messageService.add({
-          severity:'error', 
-          summary:'Error', 
-          detail:'Failed to load knowledge base configuration!'
-        });
-      }
-    });
-  }
-
-  public updateKnowledgeBaseConfig() {
-   this._appConfigurator.showLoading(); 
-    this.knowledgeBaseService.updateKnowledgeBaseConfig(this._arrayKnowledgeBaseConfig).subscribe({
-      next: () => {
-
-        this.messageService.add({
-          severity:'success', 
-          summary:'Success', 
-          detail:'Knowledge Base Config updated successfully!'
-        });
-
-        this.loadKnowledgeBaseConfig(); 
-        this._appConfigurator.hideLoading(); 
-      },
-      error: (error) => {
-        console.error('Failed to update knowledge base config:', error);
-        
-        this.messageService.add({
-          severity:'error', 
-          summary:'Error', 
-          detail:'Failed to update Knowledge Base Config!'
-        });
-        
-        this._appConfigurator.hideLoading(); 
-      }
-    });
-  }
-
-  public resetConfig() {
-    this._arrayKnowledgeBaseConfig = { ...this._arrayOriginalConfig }; 
-    
-    this.messageService.add({
-      severity:'info', 
-      summary:'Info', 
-      detail:'Knowledge Base config reset.'
-    });
-  }
-
-  public isConfigChanged(): boolean {
-    
-    return JSON.stringify(this._arrayKnowledgeBaseConfig) !== JSON.stringify(this._arrayOriginalConfig);
-  }
-
   public onFileClear() {
     this._fileSelectedFile = null;
-    if (this.fileUploader) {
-      this.fileUploader.clear();
-    }
+    this._fileSelectedFiles = [];
   }
+
+  public onRemoveFile(event: { file: File }) {
+    const removedFile = event.file;
+    this._fileSelectedFiles = this._fileSelectedFiles.filter(f => f.name !== removedFile.name);
+  }
+
 
   public uploadFiles() {
     if (!this._fileSelectedFiles || this._fileSelectedFiles.length === 0) {
@@ -211,10 +138,34 @@ export class BaseKnowledgeComponent implements OnInit {
     });
   }
 
-  public onFileSelected(event: FileSelectEvent) {
-    console.log("📂 File selected:", event.files);
-    this._fileSelectedFiles = Array.from(event.files);
+  public onUpload(event: any): void {
+    this.confirmUploadFiles();
   }
+
+  public onFileSelected(event: FileSelectEvent) {
+    const selectedFiles = Array.from(event.files);
+    const existingFilenames = this._arrayUploadedFiles.map(file => (file.filename ?? '').toLowerCase());
+
+    const duplicateFiles = selectedFiles
+      .filter(file => existingFilenames.includes(file.name.toLowerCase()))
+      .map(file => file.name);
+
+    if (duplicateFiles.length > 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'File Duplikat',
+        detail: `File berikut sudah pernah diunggah: ${duplicateFiles.join(', ')}`
+      });
+
+      if (this.fileUploader) {
+        this.fileUploader.clear();
+      }
+      this._fileSelectedFiles = [];
+    } else {
+      this._fileSelectedFiles = selectedFiles;
+    }
+  }
+
 
   public fetchUploadedFiles() {
     this.knowledgeBaseService.getUploadedFiles().subscribe({
@@ -319,7 +270,7 @@ export class BaseKnowledgeComponent implements OnInit {
     });
   }
 
-  public confirmUploadFiles(event: Event): void {
+  public confirmUploadFiles(event?: Event): void {
     if (!this._fileSelectedFiles) {
       this.messageService.add({
         severity: 'warn',
@@ -330,7 +281,7 @@ export class BaseKnowledgeComponent implements OnInit {
     }
 
     this.confirmationService.confirm({
-      target: event.target as EventTarget,
+      target: event?.target as EventTarget,
       message: `Anda yakin ingin mengunggah "${this._fileSelectedFiles.length} file"?`,
       header: 'Konfirmasi Upload',
       icon: 'pi pi-upload',
@@ -406,8 +357,12 @@ export class BaseKnowledgeComponent implements OnInit {
         });
       }
     });
-
   }
+
+  public get isProcessDisabled(): boolean {
+    return !this._arrayUploadedFiles.some(file => file.status === 'pending');
+  }
+
 
 }
 
