@@ -16,6 +16,8 @@ import { ConfirmationService } from 'primeng/api';
 import { UserService } from '../services/user_profile.service'; 
 import { AuthService } from '../services/auth.service';
 import { UserModel, UserUpdateModel, UserChangePasswordModel } from '../models/user.model'; 
+import { UserActivityLogService } from '../services/user-activity-log.service'; 
+import { UserActivityLogModel } from '../models/user-activity-log.model'; 
 
 // --- Interfaces ---
 interface UserProfileData {
@@ -98,18 +100,14 @@ export class ProfileComponent implements OnInit {
     hasProfileChanges: boolean = false;
     hasPasswordChanges: boolean = false; // Flag terpisah untuk perubahan kata sandi
 
-    recentActivities: RecentActivity[] = [
-        { id: 1, type: 'chat', description: 'Menangani percakapan dengan User ID 1012', time: '10 menit yang lalu' },
-        { id: 2, type: 'knowledge_base', description: 'Memperbarui artikel "Prosedur Klaim Asuransi Mobil"', time: '1 jam yang lalu' },
-        { id: 3, type: 'setting', description: 'Mengubah pengaturan notifikasi email', time: 'Kemarin' },
-        { id: 4, type: 'chat', description: 'Menyelesaikan 5 percakapan', time: '2 hari yang lalu' },
-    ];
+    recentActivities: UserActivityLogModel[] = [];
 
     constructor(
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
         private userService: UserService,
-        private authService: AuthService
+        private authService: AuthService,
+        private userActivityService: UserActivityLogService
     ) { }
 
     ngOnInit(): void {
@@ -119,24 +117,24 @@ export class ProfileComponent implements OnInit {
     loadUserProfile(): void {
         this.authService.getCurrentUser().subscribe({
             next: (user: any) => {
-                this.userId = user.id; // Update userId supaya updateProfile masih bisa dipakai
+                this.userId = user.id;
 
+                // Inisialisasi profil
                 this.originalProfile = {
                     id: user.id,
                     name: user.full_name || 'N/A',
                     email: user.email,
-                    phoneNumber: '', // Sesuaikan jika tersedia
+                    phoneNumber: '', // Sesuaikan jika ada
                     role: user.role || 'User',
                     joinedDate: user.created_at ? new Date(user.created_at) : new Date(),
                     status: user.is_active ? 'Aktif' : 'Tidak Aktif',
-                    location: 'Jakarta, Indonesia', // Opsional: bisa diganti dari user data
+                    location: 'Jakarta, Indonesia',
                     lastLogin: user.updated_at ? new Date(user.updated_at) : new Date(),
                     avatarUrl: '/assets/images/just-logo.png',
                     bio: 'Agen layanan pelanggan yang berdedikasi...'
                 };
 
                 this.userProfile = { ...this.originalProfile };
-
                 this.editableProfile = {
                     name: this.originalProfile.name,
                     email: this.originalProfile.email,
@@ -145,6 +143,8 @@ export class ProfileComponent implements OnInit {
 
                 this.resetPasswordForm();
                 this.checkProfileChanges();
+
+                this.loadRecentActivities();
 
                 this.messageService.add({
                     severity: 'success',
@@ -167,6 +167,7 @@ export class ProfileComponent implements OnInit {
             }
         });
     }
+
 
     onInputChange(): void {
         this.checkProfileChanges();
@@ -365,4 +366,43 @@ export class ProfileComponent implements OnInit {
                 return 'info';
         }
     }
+
+    loadRecentActivities(): void {
+        if (!this.userId) return;
+
+        this.userActivityService.getActivityLogsByUserId(this.userId, 0, 5).subscribe({
+            next: (activities) => {
+                this.recentActivities = activities.map(activity => ({
+                    ...activity,
+                    type: this.mapEndpointToType(activity.endpoint)
+                }));
+            },
+            error: (err) => {
+                console.error('Gagal memuat aktivitas:', err);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Gagal memuat log aktivitas.'
+                });
+            }
+        });
+    }
+
+    mapEndpointToType(endpoint: string | undefined): string {
+        if (!endpoint) return 'setting';
+        const lower = endpoint.toLowerCase();
+        if (lower.includes('chat')) return 'chat';
+        if (lower.includes('knowledge') || lower.includes('faq')) return 'knowledge_base';
+        return 'setting';
+    }
+
+    getStatusSeverity(statusCode: number): 'success' | 'info' | 'warn' | 'danger' {
+        if (!statusCode) return 'info';
+        if (statusCode >= 200 && statusCode < 300) return 'success';
+        if (statusCode >= 400 && statusCode < 500) return 'warn';
+        if (statusCode >= 500) return 'danger';
+        return 'info';
+    }
+
+
 }

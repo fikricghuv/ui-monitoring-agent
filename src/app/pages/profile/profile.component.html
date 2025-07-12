@@ -85,22 +85,43 @@
 
                 </p-tabPanel>
 
-                <p-tabPanel header="New Activity">
+                <p-tabPanel header="Log Activity">
                     <h4 class="font-semibold text-lg mb-3">Log Activity</h4>
+
                     <div *ngIf="recentActivities.length > 0; else noActivities">
-                        <div *ngFor="let activity of recentActivities" class="flex align-items-center py-2 px-3 border-round-md hover:surface-hover transition-duration-150">
-                            <i [ngClass]="{
-                                'pi': true,
-                                'pi-comments': activity.type === 'chat',
-                                'pi-book': activity.type === 'knowledge_base',
-                                'pi-cog': activity.type === 'setting'
-                            }" class="mr-3 text-xl text-primary"></i>
-                            <div class="flex flex-column" style="flex-direction: column;">
-                                <span class="font-medium">{{ activity.description }}</span>
-                                <span class="text-muted-color text-sm">{{ activity.time }}</span>
+                        <div
+                            *ngFor="let activity of recentActivities"
+                            class="flex align-items-center justify-between gap-3 py-3 px-4 mb-2 border-1 border-round-md hover:surface-hover transition-duration-150"
+                        >
+                            <!-- Icon berdasarkan metode HTTP -->
+                            <i
+                                [ngClass]="{
+                                    'pi': true,
+                                    'pi-send': activity.method === 'POST',
+                                    'pi-pencil': activity.method === 'PUT' || activity.method === 'PATCH',
+                                    'pi-trash': activity.method === 'DELETE',
+                                    'pi-eye': activity.method === 'GET',
+                                    'pi-cog': activity.method === 'OPTIONS'
+                                }"
+                                class="text-xl text-primary"
+                                style="min-width: 2rem"
+                            ></i>
+
+                            <!-- Detail activity -->
+                            <div class="flex flex-column flex-1">
+                                <span class="font-medium">{{ activity.endpoint }}</span>
+                                <span class="text-sm text-muted">{{ activity.timestamp | date:'short' }}</span>
                             </div>
+
+                            <!-- Status code badge -->
+                            <p-tag
+                                [value]="activity.status_code.toString()"
+                                [severity]="getStatusSeverity(activity.status_code)"
+                                class="ml-auto"
+                            ></p-tag>
                         </div>
                     </div>
+
                     <ng-template #noActivities>
                         <div class="text-center p-5 text-color-secondary surface-section border-round">
                             <i class="pi pi-box text-6xl block mb-3"></i>
