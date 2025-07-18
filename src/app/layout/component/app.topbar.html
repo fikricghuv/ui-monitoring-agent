@@ -6,7 +6,7 @@
             <i class="pi pi-bars"></i>
         </button>
         <a class="layout-topbar-logo" routerLink="/dashboard">
-            <img src="/assets/images/just-logo.png" alt="Logo" height="auto" max-width="10%"/>
+            <img src="/assets/images/just-logo.png" alt="Logo" height="auto" max-width="10%" />
             <span> TalkVera</span>
         </a>
     </div>
@@ -14,36 +14,34 @@
     <div class="layout-topbar-actions">
         <div class="layout-config-menu">
             <button type="button" class="layout-topbar-action" (click)="toggleDarkMode()">
-                <i [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
+                <i
+                    [ngClass]="{ 'pi ': true, 'pi-moon': layoutService.isDarkTheme(), 'pi-sun': !layoutService.isDarkTheme() }"></i>
             </button>
             <div class="relative">
-                <button
-                    class="layout-topbar-action layout-topbar-action-highlight"
-                    pStyleClass="@next"
-                    enterFromClass="hidden"
-                    enterActiveClass="animate-scalein"
-                    leaveToClass="hidden"
-                    leaveActiveClass="animate-fadeout"
-                    [hideOnOutsideClick]="true"
-                >
+                <button class="layout-topbar-action layout-topbar-action-highlight" pStyleClass="@next"
+                    enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden"
+                    leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
                     <i class="pi pi-palette"></i>
                 </button>
                 <app-configurator />
             </div>
         </div>
 
-        <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden" enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout" [hideOnOutsideClick]="true">
+        <button class="layout-topbar-menu-button layout-topbar-action" pStyleClass="@next" enterFromClass="hidden"
+            enterActiveClass="animate-scalein" leaveToClass="hidden" leaveActiveClass="animate-fadeout"
+            [hideOnOutsideClick]="true">
             <i class="pi pi-ellipsis-v"></i>
         </button>
 
         <div class="layout-topbar-menu hidden lg:block">
             <div class="layout-topbar-menu-content">
                 <button type="button" class="layout-topbar-action" (click)="toggleNotificationPanel($event)">
-                    <i class="pi pi-bell"></i>
+                    <p-overlaybadge [value]="unreadNotificationsCount" severity="danger" badgeSize="small" [badgeDisabled]="isAllNotificationsRead()">
+                        <i class="pi pi-bell" ></i>
+                    </p-overlaybadge>
                     <span>Notifikasi</span>
-                    <span *ngIf="unreadNotificationsCount > 0"
-                          class="p-badge p-component p-badge-danger"
-                          style="position: absolute; top: 8px; right: 8px;">
+                    <span *ngIf="unreadNotificationsCount > 0" class="p-badge p-component p-badge-danger"
+                        style="position: absolute; top: 8px; right: 8px;">
                         {{ unreadNotificationsCount }}
                     </span>
                 </button>
@@ -60,23 +58,29 @@
     <ng-template pTemplate="content">
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem;">
             <h4 class="font-semibold text-lg" style="margin: 0;">Notifications</h4>
-            <button pButton class="p-button-text p-button-sm" (click)="markAllAsRead()">Mark as read</button>
+            <button pButton class="p-button-text p-button-sm" (click)="markAllAsRead()"
+                [disabled]="isAllNotificationsRead()">
+                Mark as read
+            </button>
         </div>
-        
-        <div *ngIf="dummyNotifications.length > 0; else noNotifications" class="p-fluid">
-            <p-scroller [items]="dummyNotifications" [itemSize]="70" [scrollHeight]="'300px'" styleClass="w-full">
+
+        <div *ngIf="notifications.length > 0; else noNotifications" class="p-fluid">
+            <p-scroller [items]="notifications" [itemSize]="70" [scrollHeight]="'300px'" styleClass="w-full">
                 <ng-template pTemplate="item" let-notification>
                     <div class="flex align-items-center p-3 border-bottom-1 surface-border hover:surface-hover transition-duration-150"
-                         [ngClass]="{'bg-blue-50 dark:bg-blue-900/15': !notification.read}">
-                        <div class="flex flex-column flex-grow-1" style="flex-direction: column;" [ngClass]="{'font-semibold': !notification.read}">
+                        [ngClass]="{'bg-blue-50 dark:bg-blue-900/15': !notification.is_read}" (click)="toggleReadStatus(notification)">
+                        <div class="flex flex-column flex-grow-1" style="flex-direction: column;"
+                            [ngClass]="{'font-semibold': !notification.is_read}">
                             <div class="text-color text-base">{{ notification.message }}</div>
-                            <div class="text-muted-color text-sm mt-1">{{ notification.time }}</div>
+                            <div class="text-muted-color text-sm mt-1">{{ notification.created_at | date:'short' }}
+                            </div>
                         </div>
                     </div>
                 </ng-template>
             </p-scroller>
             <div class="flex justify-content-center pt-3">
-                <button pButton label="Lihat Semua Notifikasi" class="p-button-text p-button-sm" (click)="viewAllNotifications()"></button>
+                <button pButton label="Lihat Semua Notifikasi" class="p-button-text p-button-sm"
+                    (click)="viewAllNotifications()"></button>
             </div>
         </div>
         <ng-template #noNotifications>

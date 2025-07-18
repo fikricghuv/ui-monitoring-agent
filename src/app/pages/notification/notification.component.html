@@ -3,7 +3,6 @@
     <p-confirmDialog></p-confirmDialog>
     <div class="flex align-items-center justify-content-between mb-4" style="justify-content: space-between;">
         <div class="flex align-items-center">
-            <i class="pi pi-bell text-3xl mr-3 text-primary"></i>
             <div>
                 <div class="font-semibold text-2xl">Notifications</div>
                 <p class="text-color-secondary">Manage all your recent activities and alerts.</p>
@@ -24,21 +23,21 @@
     <div *ngIf="notifications.length > 0; else noNotifications" class="mt-4">
         <div *ngFor="let notification of notifications; trackBy: trackById"
              class="flex align-items-center p-3 mb-3 border-round transition-all transition-duration-200"
-             [ngClass]="{'surface-card shadow-1 bg-blue-50 dark:bg-blue-900/15': !notification.read, 'surface-200 text-color-secondary': notification.read}"
+             [ngClass]="{'surface-card shadow-1 bg-blue-50 dark:bg-blue-900/15': !notification.is_read, 'surface-200 text-color-secondary': notification.is_read}"
              (click)="toggleReadStatus(notification)" style="cursor: pointer;">
 
             <div class="flex align-items-center justify-content-center mr-3"
-                 [ngClass]="{'text-primary': !notification.read, 'text-muted': notification.read}"
+                 [ngClass]="{'text-primary': !notification.is_read, 'text-muted': notification.is_read}"
                  >
                 <i [ngClass]="getNotificationIcon(notification.type)" class="text-xl"></i>
             </div>
 
             <div class="flex flex-column flex-grow-1" style="flex-direction: column;">
                 <div class="flex justify-content-between align-items-center mb-1" style="flex-direction: column;">
-                    <span class="font-medium text-lg" [ngClass]="{'text-900': !notification.read}">{{ notification.title }}</span>
+                    <span class="font-medium text-lg" [ngClass]="{'text-900': !notification.is_read}">{{ notification.title }}</span>
                     <span class="text-sm text-color-secondary">{{ notification.time }}</span>
                 </div>
-                <p class="m-0 text-sm" [ngClass]="{'text-700': !notification.read, 'text-color-secondary': notification.read}">
+                <p class="m-0 text-sm" [ngClass]="{'text-700': !notification.is_read, 'text-color-secondary': notification.is_read}">
                     {{ notification.message }}
                 </p>
             </div>

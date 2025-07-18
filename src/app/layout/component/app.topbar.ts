@@ -20,6 +20,12 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { MessageService } from 'primeng/api'; 
 import { ToastModule } from 'primeng/toast'; 
+import { environment } from '../../../environments/environment';
+import { NotificationService } from '../../pages/services/notification.service';
+import { NotificationModel } from '../../pages/models/notification.model';
+import { FirebaseMessagingService } from '../../pages/services/firebase-messaging.service'; 
+import { BadgeModule } from 'primeng/badge';
+import { OverlayBadgeModule } from 'primeng/overlaybadge';
 
 @Component({
     selector: 'app-topbar',
@@ -37,7 +43,9 @@ import { ToastModule } from 'primeng/toast';
         AvatarModule,
         TooltipModule,
         ConfirmDialogModule,
-        ToastModule
+        ToastModule,
+        BadgeModule,
+        OverlayBadgeModule
         
     ],
     templateUrl: './app.topbar.html',
@@ -49,19 +57,11 @@ export class AppTopbar {
     @ViewChild('notificationPanel') notificationPanel: any;
     @ViewChild('profileMenu') profileMenu: any;
 
-    unreadNotificationsCount: number = 5;
+    unreadNotificationsCount: number = 0;
     public _stringUsername: string = '';
     public _stringPassword: string = '';
 
-    dummyNotifications = [
-        { id: 1, message: 'Pesan baru dari John Doe.', time: '2 menit yang lalu', read: false },
-        { id: 2, message: 'Tugas "Review dokumentasi" jatuh tempo besok.', time: '1 jam yang lalu', read: false },
-        { id: 3, message: 'Update sistem berhasil diselesaikan.', time: 'Kemarin', read: true },
-        { id: 4, message: 'Pengingat: Rapat tim pukul 10 pagi.', time: '2 hari yang lalu', read: false },
-        { id: 5, message: 'Pembayaran untuk faktur #12345 diterima.', time: '3 hari yang lalu', read: true },
-        { id: 6, message: 'Pengguna baru mendaftar di TalkVera!', time: '1 minggu yang lalu', read: false },
-        { id: 7, message: 'Pemeliharaan server dijadwalkan Senin depan.', time: '1 minggu yang lalu', read: false }
-    ];
+    notifications: NotificationModel[] = [];
 
     profileMenuItems: MenuItem[] = [
         {
@@ -90,8 +90,176 @@ export class AppTopbar {
     constructor(public layoutService: LayoutService,
         private router: Router,
         private confirmationService: ConfirmationService,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private notificationService: NotificationService,
+        private firebaseMessaging: FirebaseMessagingService,
     ) {}
+
+    ngOnInit() {
+        const token = localStorage.getItem('access_token');
+
+        if (token) {
+            // Ambil notifikasi awal via HTTP
+            this.notificationService.getNotifications().subscribe({
+                next: (res) => {
+                    this.notifications = res?.data || [];
+                    this.updateUnreadCount();
+                },
+                error: (err) => {
+                    console.error('[TOPBAR] Gagal mengambil notifikasi awal:', err.message);
+                }
+            });
+
+            this.firebaseMessaging.checkNotificationPermission();
+
+            // Request izin dan ambil token FCM
+            this.firebaseMessaging.requestPermissionAndGetToken().then(token => {
+            if (!token) {
+                console.warn('[FCM] Tidak ada token yang diperoleh.');
+                return;
+            }
+
+            const storedToken = localStorage.getItem('fcm_token');
+            if (storedToken === token) {
+                console.log('[FCM] Token FCM sudah tersimpan sebelumnya.');
+                return;
+            }
+
+            // Simpan token baru di localStorage
+            localStorage.setItem('fcm_token', token);
+
+            // Kirim ke backend untuk disimpan
+            this.notificationService.registerFCMToken(token).subscribe({
+                next: () => {
+                console.log('[FCM] Token berhasil diregister ke backend');
+
+                },
+                error: (err) => {
+                console.error('[FCM] Gagal register token ke backend:', err);
+                localStorage.removeItem('fcm_token'); 
+                }
+            });
+
+            }).catch(err => {
+            console.error('[FCM] Gagal meminta izin atau mengambil token:', err);
+            });
+
+            // Tangani pesan notifikasi yang masuk
+            this.firebaseMessaging.onMessage((payload: any) => {
+                console.log('[FCM] Notification received:', payload);
+
+                const messageBody = payload?.notification?.body || payload?.data?.body;
+                const createdAt = payload?.data?.created_at || new Date().toISOString();
+                const allowedTypes = ['chat', 'info', 'warning', 'error', 'success', 'new_feature', 'promotion'];
+                const type = allowedTypes.includes(payload?.data?.type) ? payload.data.type : 'info';
+
+                if (messageBody) {
+                    const isRealNotification = payload?.data?.id && payload?.data?.id.length === 36; // UUID format
+
+                    this.notifications.unshift({
+                        id: isRealNotification ? payload.data.id : crypto.randomUUID(),
+                        message: messageBody,
+                        type: type,
+                        created_at: createdAt,
+                        is_read: false
+                    });
+
+                    this.updateUnreadCount();
+                } else {
+                    console.warn('[FCM] Payload tidak memiliki message body:', payload);
+                }
+            });
+        } else {
+            console.warn('[TOPBAR] Token atau adminId tidak ditemukan di localStorage.');
+        }
+    }
+
+    isAllNotificationsRead(): boolean {
+        return this.notifications.length === 0 || this.notifications.every(n => n.is_read);
+    }
+
+    updateUnreadCount() {
+        this.unreadNotificationsCount = this.notifications.filter(n => !n.is_read).length;
+    }
+
+    toggleReadStatus(notification: NotificationModel): void {
+        const isValidUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(notification.id);
+        
+        if (!notification.is_read && isValidUUID) {
+            this.notificationService.markNotificationAsRead(notification.id).subscribe({
+                next: () => {
+                    notification.is_read = true;
+                    this.updateUnreadCount();
+                },
+                error: (err) => {
+                    console.error('Gagal update status read:', err);
+                }
+            });
+        } else {
+            // Kalau bukan UUID valid, tandai sebagai read secara lokal saja
+            notification.is_read = true;
+            this.updateUnreadCount();
+        }
+    }
+
+    markAllAsRead(): void {
+        const unreadNotifications = this.notifications.filter(notif => !notif.is_read);
+
+        if (unreadNotifications.length === 0) {
+            this.messageService.add({
+                severity: 'info',
+                summary: 'No Unread Notifications',
+                detail: 'All notifications are already marked as read.'
+            });
+            return;
+        }
+
+        const isUUID = (id: string) =>
+            /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(id);
+
+        const validUUIDNotifs = unreadNotifications.filter(n => isUUID(n.id));
+        const localOnlyNotifs = unreadNotifications.filter(n => !isUUID(n.id));
+
+        const markReadObservables = validUUIDNotifs.map(notif =>
+            this.notificationService.markNotificationAsRead(notif.id).toPromise()
+        );
+
+        Promise.allSettled(markReadObservables)
+            .then(results => {
+                // Tandai notifikasi UUID yang sukses
+                results.forEach((res, index) => {
+                    if (res.status === 'fulfilled') {
+                        validUUIDNotifs[index].is_read = true;
+                    } else {
+                        console.error(`Gagal update notif ID ${validUUIDNotifs[index].id}`, res.reason);
+                    }
+                });
+
+                // Tandai notifikasi non-UUID sebagai read secara lokal
+                localOnlyNotifs.forEach(notif => notif.is_read = true);
+
+                this.updateUnreadCount();
+
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'All Notifications Read',
+                    detail: 'All notifications have been marked as read.'
+                });
+            })
+            .catch(err => {
+                console.error('Gagal menandai beberapa notifikasi:', err);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Some notifications could not be marked as read.'
+                });
+            });
+    }
+
+
+    // trackByNotificationId(index: number, notif: NotificationModel): string {
+    //     return notif.id;
+    // }
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));
@@ -103,19 +271,6 @@ export class AppTopbar {
 
     toggleProfileMenu(event: Event) {
         this.profileMenu.toggle(event);
-    }
-
-    markAsRead(notificationId: number) {
-        const notification = this.dummyNotifications.find(n => n.id === notificationId);
-        if (notification) {
-            notification.read = true;
-
-            this.messageService.add({
-                severity: 'info',
-                summary: 'Notifications Readed',
-                detail: `All Notifications have been marked as read.`
-            });
-        }
     }
 
     viewAllNotifications() {
@@ -138,11 +293,6 @@ export class AppTopbar {
             summary: 'Success logout',
             detail: 'You have successfully logged out.'
         });
-    }
-
-
-    markAllAsRead(): void {
-        this.dummyNotifications.forEach(notif => notif.read = true);
     }
 
     public confirmLogout() {

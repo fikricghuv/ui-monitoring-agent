@@ -9,16 +9,17 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api'; 
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
-
+import { NotificationService } from '../../pages/services/notification.service';
+import { environment } from '../../../environments/environment';
 
 interface Notification {
-    id: number;
-    title: string;
+    id: string;
     message: string;
-    type: 'info' | 'warning' | 'error' | 'success' | 'new_feature' | 'promotion'; 
-    read: boolean;
-    timestamp: Date; 
-    time?: string; 
+    type: 'chat' | 'info' | 'warning' | 'error' | 'success' | 'new_feature' | 'promotion';
+    is_read: boolean;
+    created_at: string; 
+    time?: string;
+    title?: string; 
 }
 
 @Component({
@@ -41,126 +42,152 @@ interface Notification {
 export class NotificationComponent implements OnInit {
 
     notifications: Notification[] = [];
+    userId!: string;
 
-    constructor(private datePipe: DatePipe,
-                private messageService: MessageService,
-                private confirmationService: ConfirmationService
-    ) { } 
+    constructor(
+        private datePipe: DatePipe,
+        private messageService: MessageService,
+        private confirmationService: ConfirmationService,
+        private notificationService: NotificationService
+    ) {}
 
     ngOnInit(): void {
-        this.loadNotifications();
-    }
+        const userId = localStorage.getItem('adminId');
 
-    loadNotifications(): void {
-        
-        const dummyNotifications: Notification[] = [
-            {
-                id: 1,
-                title: 'New Message from Support',
-                message: 'Your recent query #12345 has been updated.',
-                type: 'info',
-                read: false,
-                timestamp: new Date(2025, 5, 25, 10, 30) 
-            },
-            {
-                id: 2,
-                title: 'System Maintenance Alert',
-                message: 'Scheduled maintenance on 26 June 2025, 02:00 AM WIB.',
-                type: 'warning',
-                read: false,
-                timestamp: new Date(2025, 5, 24, 18, 0) 
-            },
-            {
-                id: 3,
-                title: 'Payment Successful',
-                message: 'Your subscription payment for June has been processed.',
-                type: 'success',
-                read: true,
-                timestamp: new Date(2025, 5, 23, 11, 45) 
-            },
-            {
-                id: 4,
-                title: 'New Feature Available!',
-                message: 'Explore our new analytics dashboard.',
-                type: 'new_feature',
-                read: false,
-                timestamp: new Date(2025, 5, 22, 9, 0) 
-            },
-            {
-                id: 5,
-                title: 'Exclusive Offer for You',
-                message: 'Get 20% off on your next purchase!',
-                type: 'promotion',
-                read: true,
-                timestamp: new Date(2025, 5, 20, 14, 15) 
-            },
-             {
-                id: 6,
-                title: 'Login Attempt from New Device',
-                message: 'Someone tried to log in from an unrecognized device.',
-                type: 'error',
-                read: false,
-                timestamp: new Date(2025, 5, 25, 12, 10) 
-            }
-        ];
+        if (userId) {
+            this.notificationService.getNotifications().subscribe({
+                next: (res) => {
+                    this.notifications = res.data.map((n) => {
+                        const allowedTypes = [
+                            'chat',
+                            'info',
+                            'warning',
+                            'error',
+                            'success',
+                            'new_feature',
+                            'promotion'
+                        ] as const;
+                        const type = allowedTypes.includes(n.type as Notification['type']) ? n.type as Notification['type'] : 'info';
+                        return {
+                            ...n,
+                            type,
+                            is_read: n.is_read ?? false,
+                            time: this.formatRelativeTime(new Date(n.created_at)),
+                            title: this.getTitleFromType(type)
+                        };
+                    });
+                },
+                error: (err) => {
+                    console.error('Gagal mengambil notifikasi:', err);
+                }
+            });
 
-        this.notifications = dummyNotifications.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
-
-        this.notifications.forEach(notif => {
-            notif.time = this.formatRelativeTime(notif.timestamp);
-        });
+        }
     }
 
     toggleReadStatus(notification: Notification): void {
-        notification.read = !notification.read;
-        
+        if (!notification.is_read) {
+            // const userId = localStorage.getItem('adminId');
+            // if (!userId) return;
+
+            this.notificationService.markNotificationAsRead(notification.id).subscribe({
+                next: () => {
+                    notification.is_read = true;
+                },
+                error: (err) => {
+                    console.error('Gagal update status read:', err);
+                }
+            });
+        }
     }
 
     markAllAsRead(): void {
-        this.notifications.forEach(notif => notif.read = true);
-        this.messageService.add({
-            severity: 'success',
-            summary: 'All Notifications Read',
-            detail: 'All notifications have been marked as read.'
-        });
+        // const userId = localStorage.getItem('adminId');
+        // if (!userId) return;
+
+        const unreadNotifications = this.notifications.filter(notif => !notif.is_read);
+
+        if (unreadNotifications.length === 0) {
+            this.messageService.add({
+                severity: 'info',
+                summary: 'No Unread Notifications',
+                detail: 'All notifications are already marked as read.'
+            });
+            return;
+        }
+
+        const markReadObservables = unreadNotifications.map(notif =>
+            this.notificationService.markNotificationAsRead(notif.id)
+        );
+
+        // Jalankan semua API call secara paralel
+        Promise.all(markReadObservables.map(obs => obs.toPromise()))
+            .then(() => {
+                // Setelah semua sukses, tandai semua sebagai read
+                this.notifications.forEach(notif => notif.is_read = true);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'All Notifications Read',
+                    detail: 'All notifications have been marked as read.'
+                });
+            })
+            .catch(err => {
+                console.error('Gagal menandai beberapa notifikasi:', err);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Some notifications could not be marked as read.'
+                });
+            });
     }
 
     clearAllNotifications(): void {    
-        this.notifications = [];
+        this.notificationService.deactivateAllActiveNotifications().subscribe({
+            next: () => {
+                console.log('Semua notifikasi aktif berhasil dinonaktifkan.');
+            },
+            error: (err) => {
+                console.error('Gagal menonaktifkan notifikasi:', err);
+            },
+        });
         this.messageService.add({
             severity: 'success',
             summary: 'Notifications Cleared',
             detail: 'All notifications have been cleared.'
         });
-        
     }
 
-    public confirmClearAllNotifications(event: Event) {
+    confirmClearAllNotifications(event: Event) {
         this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Are you sure you want to delete all notifications?',
-        header: 'Confirm Delete',
-        icon: 'pi pi-question-circle',
-        acceptLabel: 'Delete',
-        rejectLabel: 'Cancel',
-        acceptButtonProps: {
-            severity: 'danger'
-        },
-        rejectButtonProps: {
-            severity: 'secondary',
-            outlined: true
-        },
-        accept: () => {
-            this.clearAllNotifications();
-        },
-        reject: () => {
-            this.messageService.add({severity:'info', summary:'Cancelled', detail:'Prompt was not saved.'});
-        }
+            target: event.target as EventTarget,
+            message: 'Are you sure you want to delete all notifications?',
+            header: 'Confirm Delete',
+            icon: 'pi pi-question-circle',
+            acceptLabel: 'Delete',
+            rejectLabel: 'Cancel',
+            acceptButtonProps: {
+                severity: 'danger'
+            },
+            rejectButtonProps: {
+                severity: 'secondary',
+                outlined: true
+            },
+            accept: () => {
+                this.clearAllNotifications();
+            },
+            reject: () => {
+                this.messageService.add({
+                    severity:'info',
+                    summary:'Cancelled',
+                    detail:'Cancle clear notifications.'
+                });
+            }
         });
     }
 
     getNotificationIcon(type: string): string {
         switch (type) {
+            case 'chat': return 'pi pi-comments';
             case 'info': return 'pi pi-info-circle';
             case 'warning': return 'pi pi-exclamation-triangle';
             case 'error': return 'pi pi-times-circle';
@@ -171,7 +198,20 @@ export class NotificationComponent implements OnInit {
         }
     }
 
-    trackById(index: number, notification: Notification): number {
+    getTitleFromType(type: string): string {
+        switch (type) {
+            case 'chat': return 'New Message';
+            case 'info': return 'Information';
+            case 'warning': return 'Warning Alert';
+            case 'error': return 'Error';
+            case 'success': return 'Success';
+            case 'new_feature': return 'New Feature!';
+            case 'promotion': return 'Special Promotion';
+            default: return 'Notification';
+        }
+    }
+
+    trackById(index: number, notification: Notification): string {
         return notification.id;
     }
 
@@ -186,7 +226,7 @@ export class NotificationComponent implements OnInit {
         if (hours < 24) return `${hours} hours ago`;
         const days = Math.floor(hours / 24);
         if (days < 7) return `${days} days ago`;
-        
+
         return this.datePipe.transform(timestamp, 'mediumDate') || timestamp.toLocaleDateString();
     }
 }

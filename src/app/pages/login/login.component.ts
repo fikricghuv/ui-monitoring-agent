@@ -81,6 +81,7 @@ export class LoginComponent {
 
         this._booleanLoading = false;
         this.router.navigate(['/dashboard']);
+        
       },
       error: (err: Error) => {
         this._booleanLoading = false;
