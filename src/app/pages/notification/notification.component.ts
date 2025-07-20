@@ -11,6 +11,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
 import { NotificationService } from '../../pages/services/notification.service';
 import { environment } from '../../../environments/environment';
+import { Router } from '@angular/router';
 
 interface Notification {
     id: string;
@@ -43,12 +44,12 @@ export class NotificationComponent implements OnInit {
 
     notifications: Notification[] = [];
     userId!: string;
-
     constructor(
         private datePipe: DatePipe,
         private messageService: MessageService,
         private confirmationService: ConfirmationService,
-        private notificationService: NotificationService
+        private notificationService: NotificationService,
+        private router: Router
     ) {}
 
     ngOnInit(): void {
@@ -86,20 +87,37 @@ export class NotificationComponent implements OnInit {
     }
 
     toggleReadStatus(notification: Notification): void {
-        if (!notification.is_read) {
-            // const userId = localStorage.getItem('adminId');
-            // if (!userId) return;
+        const isValidUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(notification.id);
 
-            this.notificationService.markNotificationAsRead(notification.id).subscribe({
-                next: () => {
-                    notification.is_read = true;
-                },
-                error: (err) => {
-                    console.error('Gagal update status read:', err);
-                }
-            });
+        const afterMarkRead = () => {
+            notification.is_read = true;
+
+            // Jika tipe notifikasi adalah 'chat', arahkan ke halaman admin chat
+            if (notification.type === 'chat') {
+                this.router.navigate(['/pages/admin-chat']);
+            }
+        };
+
+        if (!notification.is_read) {
+            if (isValidUUID) {
+                this.notificationService.markNotificationAsRead(notification.id).subscribe({
+                    next: () => afterMarkRead(),
+                    error: (err) => {
+                        console.error('Gagal update status read:', err);
+                        // Tetap tandai sebagai read meski gagal
+                        afterMarkRead();
+                    }
+                });
+            } else {
+                // Jika ID tidak valid UUID, tandai lokal dan navigasi jika perlu
+                afterMarkRead();
+            }
+        } else if (notification.type === 'chat') {
+            // Jika sudah read tapi tipenya chat, tetap navigasi
+            this.router.navigate(['/pages/admin-chat']);
         }
     }
+
 
     markAllAsRead(): void {
         // const userId = localStorage.getItem('adminId');

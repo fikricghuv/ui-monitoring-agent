@@ -124,7 +124,7 @@ export class LatencyAgentWidget implements OnInit, OnDestroy {
       },
       error: (err) => {
         console.error('Error fetching latency data:', err);
-        this._stringErrorMessage = 'Failed to load latency data. ' + (err.message || 'Please try again later.');
+        this._stringErrorMessage = 'Failed to load latency data. Please try again later.';
         this._boolIsLoading = false;
         this._anyChartData = null;
       }

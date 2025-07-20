@@ -190,7 +190,7 @@ export class AgentPerformanceWidget implements OnInit, OnDestroy {
             },
             error: (err) => {
                 console.error("Error fetching agent performance data:", err);
-                this._stringErrorMessage = "Failed to load performance data. " + (err.message || "Please try again later.");
+                this._stringErrorMessage = "Failed to load performance data. Please try again later.";
                 this._boolIsLoading = false;
                 this._anyChartData = { labels: [], datasets: [] };
             }

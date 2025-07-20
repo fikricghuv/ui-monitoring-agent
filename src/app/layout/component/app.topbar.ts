@@ -184,21 +184,31 @@ export class AppTopbar {
 
     toggleReadStatus(notification: NotificationModel): void {
         const isValidUUID = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-5][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$/.test(notification.id);
-        
-        if (!notification.is_read && isValidUUID) {
-            this.notificationService.markNotificationAsRead(notification.id).subscribe({
-                next: () => {
-                    notification.is_read = true;
-                    this.updateUnreadCount();
-                },
+
+        const markAsRead$ = isValidUUID
+            ? this.notificationService.markNotificationAsRead(notification.id)
+            : undefined;
+
+        const afterMarkRead = () => {
+            notification.is_read = true;
+            this.updateUnreadCount();
+
+            if (notification.type === 'chat') {
+                console.log('[ROUTER] Navigating to /pages/admin-chat');
+                this.router.navigate(['/pages/admin-chat']);
+            }
+        };
+
+        if (markAsRead$) {
+            markAsRead$.subscribe({
+                next: () => afterMarkRead(),
                 error: (err) => {
                     console.error('Gagal update status read:', err);
+                    afterMarkRead(); // tetap navigasi meski gagal mark read
                 }
             });
         } else {
-            // Kalau bukan UUID valid, tandai sebagai read secara lokal saja
-            notification.is_read = true;
-            this.updateUnreadCount();
+            afterMarkRead();
         }
     }
 
