@@ -46,9 +46,9 @@
         <ng-template pTemplate="body" let-data>
           <tr [pSelectableRow]="data">
             <td>{{ data.full_name || '-' }}</td>
-            <td>{{ data.email || '-' }}</td>
-            <td>{{ data.phone_number || '-' }}</td>
-            <td>{{ data.customer_type || '-' }}</td>
+            <td class="text-muted-color">{{ data.email || '-' }}</td>
+            <td class="text-muted-color">{{ data.phone_number || '-' }}</td>
+            <td class="text-muted-color">{{ data.customer_type || '-' }}</td>
             <td>
               <p-tag [value]="data.is_active ? 'Active' : 'Inactive'" [severity]="data.is_active ? 'success' : 'danger'"></p-tag>
             </td>

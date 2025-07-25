@@ -46,9 +46,9 @@
         <ng-template pTemplate="body" let-data>
           <tr [pSelectableRow]="data">
             <td>{{ data.customer_id || '-' }}</td>
-            <td>{{ data.channel }}</td>
-            <td>{{ data.start_time | date:'short' }}</td>
-            <td>{{ data.end_time ? (data.end_time | date:'short') : '-' }}</td>
+            <td class="text-muted-color">{{ data.channel }}</td>
+            <td class="text-muted-color">{{ data.start_time | date:'short' }}</td>
+            <td class="text-muted-color">{{ data.end_time ? (data.end_time | date:'short') : '-' }}</td>
             <td>
               <p-tag [value]="data.customer_feedback_score ?? '-'" [severity]="data.customer_feedback_score >= 4 ? 'success' : 'warning'"></p-tag>
             </td>

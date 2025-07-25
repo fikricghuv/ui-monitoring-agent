@@ -89,12 +89,12 @@
                     <h4 class="font-semibold text-lg mb-3">Log Activity</h4>
 
                     <div *ngIf="recentActivities.length > 0; else noActivities">
-                        <div
+                        <!-- <div
                             *ngFor="let activity of recentActivities"
                             class="flex align-items-center justify-between gap-3 py-3 px-4 mb-2 border-1 border-round-md hover:surface-hover transition-duration-150"
-                        >
-                            <!-- Icon berdasarkan metode HTTP -->
-                            <i
+                        > -->
+                            
+                            <!-- <i
                                 [ngClass]="{
                                     'pi': true,
                                     'pi-send': activity.method === 'POST',
@@ -107,20 +107,66 @@
                                 style="min-width: 2rem"
                             ></i>
 
-                            <!-- Detail activity -->
                             <div class="flex flex-column flex-1">
                                 <span class="font-medium">{{ activity.endpoint }}</span>
                                 <span class="text-sm text-muted">{{ activity.timestamp | date:'short' }}</span>
                             </div>
 
-                            <!-- Status code badge -->
                             <p-tag
                                 [value]="activity.status_code.toString()"
                                 [severity]="getStatusSeverity(activity.status_code)"
                                 class="ml-auto"
-                            ></p-tag>
+                            ></p-tag> -->
+                            <div
+                                *ngFor="let activity of recentActivities"
+                                class="flex flex-column gap-2 py-3 px-4 mb-2 border-1 border-round-md hover:surface-hover transition-duration-150"
+                            >
+                                <div class="flex align-items-center justify-between gap-3">
+                                    <!-- Icon berdasarkan metode HTTP -->
+                                    <i
+                                        [ngClass]="{
+                                            'pi': true,
+                                            'pi-send': activity.method === 'POST',
+                                            'pi-pencil': activity.method === 'PUT' || activity.method === 'PATCH',
+                                            'pi-trash': activity.method === 'DELETE',
+                                            'pi-eye': activity.method === 'GET',
+                                            'pi-cog': activity.method === 'OPTIONS'
+                                        }"
+                                        class="text-xl text-primary"
+                                        style="min-width: 2rem"
+                                    ></i>
+
+                                    <!-- Detail activity -->
+                                    <div class="flex flex-column flex-1">
+                                        <span class="font-medium">{{ activity.endpoint }}</span>
+                                        <span class="text-sm text-muted">{{ activity.timestamp | date:'short' }}</span>
+                                    </div>
+
+                                    <!-- Status code badge -->
+                                    <p-tag
+                                        [value]="activity.status_code.toString()"
+                                        [severity]="getStatusSeverity(activity.status_code)"
+                                        class="ml-auto"
+                                    ></p-tag>
+                                </div>
+
+                                <!-- Kondisi spesifik: upload-file POST -->
+                                <div
+                                    *ngIf="activity.endpoint === '/files/upload-file' && activity.method === 'POST' && activity.response_data?.[0]?.filename"
+                                    class="text-sm text-primary font-semibold pl-6"
+                                >
+                                    📄 Uploaded File: {{ activity.response_data[0].filename }}
+                                </div>
+
+                                <div
+                                    *ngIf="activity.endpoint?.startsWith('/users/') && (activity.method === 'PUT' || activity.method === 'PATCH')"
+                                    class="text-sm text-warning font-semibold pl-6"
+                                >
+                                    ✏️ Update data profile
+                                </div>
+                            </div>
+
                         </div>
-                    </div>
 
                     <ng-template #noActivities>
                         <div class="text-center p-5 text-color-secondary surface-section border-round">
