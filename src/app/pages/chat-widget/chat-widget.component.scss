@@ -72,23 +72,24 @@
 /* Gaya untuk Modal Chat (yang berisi iframe) */
 .chatModal {
   position: fixed;
-  bottom: 90px;    /* Di atas floating button */
+  bottom: 90px;  
   right: 20px;
-  width: 375px;    /* Ukuran iPhone SE */
-  height: 667px;   /* Ukuran iPhone SE */
+  width: 450px;  
+  height: 80vh; 
   background: #f2f2f2;
   border-radius: 8px;
   box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-  overflow: hidden; /* Penting untuk menahan konten iframe */
-  z-index: 999;    /* Di bawah floating button */
+  overflow: hidden;
+  z-index: 999;  
 
   /* Animasi buka/tutup */
-  transition: transform 0.3s ease-out, opacity 0.3s ease-out;
+  transition: transform 0.5s ease-out, opacity 0.5s ease-out;
+  transform-origin: bottom right;
   transform: translateY(0);
   opacity: 1;
 
   &.chatModal--hidden {
-    transform: translateY(100%) scale(0.8); /* Geser ke bawah dan perkecil */
+    transform: scale(0) translate(100%, 100%); /* Geser ke bawah dan perkecil */
     opacity: 0;
     pointer-events: none; /* Nonaktifkan interaksi saat tersembunyi */
   }
