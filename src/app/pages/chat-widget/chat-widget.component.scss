@@ -43,6 +43,10 @@
   }
 }
 
+.fixed .chatModal {
+  bottom: 30px;
+}
+
 /* Gaya untuk Badge Notifikasi */
 .notification-bubble {
   position: absolute;
@@ -142,7 +146,7 @@
   iframe {
     border: none;
     width: 100%;
-    height: calc(100% - 50px); /* Memenuhi sisa ruang setelah header */
+    height: 100%; /* Memenuhi sisa ruang setelah header */
     display: block; /* Hilangkan spasi bawah default iframe */
   }
 }
@@ -164,7 +168,7 @@
   .chatModal {
     width: 450px; // Ukuran modal untuk tablet
     height: 80vh;
-    bottom: 90px;
+    bottom: 30px;
     right: 20px;
   }
 }
@@ -174,7 +178,7 @@
   .chatModal {
     width: 400px; // Ukuran modal standar untuk desktop
     height: 600px;
-    bottom: 90px;
+    bottom: 30px;
     right: 20px;
   }
 }
@@ -182,8 +186,8 @@
 // Pada ukuran mobile penuh (misal browser di ponsel)
 @media (max-width: 768px) {
   .chatModal {
-    width: 100%;
-    height: 100vh;
+    width: 50%;
+    height: 70%;
     border-radius: 0;
     box-shadow: none;
     bottom: 0;
