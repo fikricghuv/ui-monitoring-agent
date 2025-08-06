@@ -72,11 +72,6 @@ export class AppTopbar {
             },
             routerLink: '/profile'
         },
-        // {
-        //     label: 'Pengaturan',
-        //     icon: 'pi pi-cog',
-        //     routerLink: '/settings'
-        // },
         { separator: true },
         {
             label: 'Logout',
@@ -193,6 +188,10 @@ export class AppTopbar {
             notification.is_read = true;
             this.updateUnreadCount();
 
+            if (this.notificationPanel) {
+                this.notificationPanel.hide();
+            }
+
             if (notification.type === 'chat') {
                 console.log('[ROUTER] Navigating to /pages/admin-chat');
                 this.router.navigate(['/pages/admin-chat']);
@@ -245,7 +244,6 @@ export class AppTopbar {
                     }
                 });
 
-                // Tandai notifikasi non-UUID sebagai read secara lokal
                 localOnlyNotifs.forEach(notif => notif.is_read = true);
 
                 this.updateUnreadCount();
@@ -265,11 +263,6 @@ export class AppTopbar {
                 });
             });
     }
-
-
-    // trackByNotificationId(index: number, notif: NotificationModel): string {
-    //     return notif.id;
-    // }
 
     toggleDarkMode() {
         this.layoutService.layoutConfig.update((state) => ({ ...state, darkTheme: !state.darkTheme }));

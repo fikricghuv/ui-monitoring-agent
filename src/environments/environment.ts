@@ -2,9 +2,13 @@
 export const environment = {
     production: false,
     apiKey: 'TEST API KEY',
-    backendApiUrl: 'http://localhost:8001', // URL untuk generate IDs
-    websocketUrl: 'ws://localhost:8001/ws/chat', // URL untuk koneksi WebSocket
-    backendWsUrl: 'ws://localhost:8001/ws', // URL untuk koneksi WebSocket umum
+    backendApiUrl: 'http://brins.localhost:8001', 
+    websocketUrl: 'ws://brins.localhost:8001/ws/chat', 
+    backendWsUrl: 'ws://brins.localhost:8001/ws', 
+
+    // backendApiUrl: 'http://192.168.8.155:8001', // URL untuk generate IDs
+    // websocketUrl: 'ws://192.168.8.155:8001/ws/chat', // URL untuk koneksi WebSocket
+    // backendWsUrl: 'ws://192.168.8.155:8001/ws', // URL untuk koneksi WebSocket umum
 
     firebaseConfig: {
       apiKey: "AIzaSyBtCD7AiBx18mDe4P3Pnb_pJrP9YdmE2N4",
