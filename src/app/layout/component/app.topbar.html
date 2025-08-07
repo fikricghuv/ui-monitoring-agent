@@ -6,8 +6,11 @@
             <i class="pi pi-bars"></i>
         </button>
         <a class="layout-topbar-logo" routerLink="/dashboard">
-            <img src="/assets/images/just-logo.png" alt="Logo" height="auto" max-width="10%" />
-            <span> TalkVera</span>
+            <img
+                [src]="layoutService.isDarkTheme() ? '/assets/logo/logo-talkvera-white.svg' : '/assets/logo/logo-talkvera-black.svg'"
+                alt="Logo Talkvera"
+                style="max-width: 120px; height: auto; padding-left: 5px"
+            />
         </a>
     </div>
 
