@@ -8,6 +8,7 @@ import { KnowledgeBaseConfigModel, KnowledgeBaseConfigGetResponseModel } from '.
 import { EmbedResponseModel } from '../models/embedding_file_response.model'; 
 import { DeleteResponseModel } from '../models/delete_file_response.model'; 
 import { environment } from '../../../environments/environment';
+import { WebsiteKBCreateResponse, WebsiteKBInfo } from '../models/web_source.model';
 
 @Injectable({
   providedIn: 'root',
@@ -80,7 +81,6 @@ export class KnowledgeBaseService
     );
   }
 
-
   /**
    * Mendapatkan daftar file yang telah diunggah dari server.
    * Membutuhkan API Key di header 'X-API-Key'.
@@ -139,6 +139,48 @@ export class KnowledgeBaseService
       );
   }
 
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'X-API-Key': this.apiKey
+    });
+  }
+
+  // GET /website-source
+  public getAllLinks(): Observable<WebsiteKBInfo[]> {
+    return this.http.get<WebsiteKBInfo[]>(`${this.apiUrl}/website-source`, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // POST /website-source
+  public addLinks(urls: string[]): Observable<WebsiteKBCreateResponse> {
+    return this.http.post<WebsiteKBCreateResponse>(`${this.apiUrl}/website-source`, urls, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // DELETE /website-source/{url_id}
+  public deleteLink(urlId: string): Observable<DeleteResponseModel> {
+    return this.http.delete<DeleteResponseModel>(`${this.apiUrl}/website-source/${urlId}`, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  // POST /website-source/process-embedding
+  public processEmbedding(): Observable<EmbedResponseModel> {
+    return this.http.post<EmbedResponseModel>(`${this.apiUrl}/website-source/process-embedding`, {}, {
+      headers: this.getHeaders()
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
    /**
    * Metode penanganan error untuk permintaan HTTP.
    * @param error Objek HttpErrorResponse.
@@ -146,7 +188,6 @@ export class KnowledgeBaseService
    */
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'An unknown error occurred!';
-
 
     if (error.error instanceof ErrorEvent) {
      

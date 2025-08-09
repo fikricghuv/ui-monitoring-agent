@@ -465,5 +465,26 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  escapeHtml(text: string): string {
+    if (!text) return '';
+    return text.replace(/[&<>"'`=\/]/g, function (s) {
+      return ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;',
+        '`': '&#x60;',
+        '=': '&#x3D;',
+        '/': '&#x2F;',
+      } as Record<string, string>)[s] || s;
+    });
+  }
+
+  formatMessageAsHtml(msg: string): string {
+    if (!msg) return '';
+    const escaped = this.escapeHtml(msg);
+    return escaped.replace(/\n/g, '<br>');
+  }
 
 }

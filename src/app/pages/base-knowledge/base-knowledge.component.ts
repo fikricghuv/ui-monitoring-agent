@@ -23,6 +23,10 @@ import { TagModule } from 'primeng/tag';
 import { Observable, forkJoin } from 'rxjs';
 import { UploadResponseModel } from '../models/upload_file_response.model';
 import { FileSelectEvent } from 'primeng/fileupload';
+import { WebsiteKBCreateResponse, WebsiteKBInfo } from '../models/web_source.model';
+import { InputTextModule } from 'primeng/inputtext'; 
+import { WebsiteKnowledgeBaseService } from '../services/web_source.service';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-base-knowledge',
@@ -41,7 +45,9 @@ import { FileSelectEvent } from 'primeng/fileupload';
     TooltipModule,     
     BreadcrumbModule,
     ConfirmDialogModule,
-    TagModule
+    TagModule,
+    InputTextModule,
+    DialogModule
   ],
   templateUrl: './base-knowledge.component.html',
   styleUrl: './base-knowledge.component.scss',
@@ -57,12 +63,17 @@ export class BaseKnowledgeComponent implements OnInit {
   public _defaultHomeMenu: MenuItem | undefined;
   public _appConfigurator: AppConfigurator;
 
+  public _arrayWebsiteSources: WebsiteKBInfo[] = [];
+  public _newWebsiteUrl: string = '';
+  public _showAddUrlDialog: boolean = false;
+
   @ViewChild('fileUploader') fileUploader: any;
 
   constructor(
     private knowledgeBaseService: KnowledgeBaseService,
     private messageService: MessageService,
-    private confirmationService: ConfirmationService 
+    private confirmationService: ConfirmationService,
+    private websiteKBService: WebsiteKnowledgeBaseService, 
   ) {
     this._fileSelectedFile = null;
     this._arrayUploadedFiles = [];
@@ -74,6 +85,7 @@ export class BaseKnowledgeComponent implements OnInit {
 
   ngOnInit() {
     this.fetchUploadedFiles();
+    this.fetchWebsiteSources();
     this._listMenuItems = [
             { label: 'Base Knowledge' }
         ];
@@ -361,6 +373,175 @@ export class BaseKnowledgeComponent implements OnInit {
 
   public get isProcessDisabled(): boolean {
     return !this._arrayUploadedFiles.some(file => file.status === 'pending');
+  }
+
+  public fetchWebsiteSources() {
+    this._appConfigurator.showLoading();
+    this.websiteKBService.getWebsiteSources().subscribe({
+      next: (response) => {
+        this._arrayWebsiteSources = response;
+        this._appConfigurator.hideLoading();
+      },
+      error: (error) => {
+        console.error('Error fetching website sources:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Gagal memuat sumber website. Silakan coba lagi.'
+        });
+        this._appConfigurator.hideLoading();
+      }
+    });
+  }
+  
+  /**
+   * Menambahkan URL website baru.
+   */
+  public addWebsiteUrl() {
+    if (!this._newWebsiteUrl || this._newWebsiteUrl.trim() === '') {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Peringatan',
+        detail: 'URL tidak boleh kosong.'
+      });
+      return;
+    }
+    
+    this._appConfigurator.showLoading();
+    this.websiteKBService.addWebsiteSource(this._newWebsiteUrl.trim()).subscribe({
+      next: (response) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sukses',
+          detail: `URL "${this._newWebsiteUrl}" berhasil ditambahkan.`
+        });
+        this._newWebsiteUrl = '';
+        this._showAddUrlDialog = false;
+        this.fetchWebsiteSources();
+        this._appConfigurator.hideLoading();
+      },
+      error: (error) => {
+        console.error('Error adding website URL:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Gagal menambahkan URL. Silakan coba lagi.'
+        });
+        this._appConfigurator.hideLoading();
+      }
+    });
+  }
+
+  /**
+   * Menghapus URL website berdasarkan ID.
+   * @param source Objek WebsiteKBInfo yang akan dihapus.
+   */
+  public removeWebsiteSource(source: WebsiteKBInfo) {
+    this._appConfigurator.showLoading();
+    this.websiteKBService.deleteWebsiteSource(source.id).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sukses',
+          detail: `Sumber website "${source.url}" berhasil dihapus.`
+        });
+        this.fetchWebsiteSources();
+        this._appConfigurator.hideLoading();
+      },
+      error: (error) => {
+        console.error('Error deleting website source:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Gagal menghapus sumber website. Silakan coba lagi.'
+        });
+        this._appConfigurator.hideLoading();
+      }
+    });
+  }
+
+  /**
+   * Memulai proses embedding untuk semua sumber website.
+   */
+  public processWebsiteEmbedding() {
+    if (this._arrayWebsiteSources.length === 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Peringatan',
+        detail: 'Tidak ada sumber website untuk diproses.'
+      });
+      return;
+    }
+
+    this._appConfigurator.showLoading();
+    this.websiteKBService.processWebsiteEmbedding().subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Sukses',
+          detail: 'Proses embedding website berhasil dimulai.'
+        });
+        this._appConfigurator.hideLoading();
+      },
+      error: (error) => {
+        console.error('Error processing website embedding:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Gagal memulai proses embedding. Silakan coba lagi.'
+        });
+        this._appConfigurator.hideLoading();
+      }
+    });
+  }
+
+  // --- Metode Konfirmasi (Diperbarui untuk website) ---
+  
+  public confirmAddWebsiteUrl(): void {
+    this._showAddUrlDialog = true;
+  }
+
+  public confirmRemoveWebsiteSource(event: Event, source: WebsiteKBInfo): void {
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: `Apakah Anda yakin ingin menghapus sumber website "${source.url}"?`,
+      header: 'Konfirmasi Penghapusan',
+      icon: 'pi pi-trash',
+      acceptLabel: 'Hapus',
+      rejectLabel: 'Batal',
+      acceptButtonStyleClass: 'p-button-danger',
+      rejectButtonProps: { severity: 'secondary', outlined: true },
+      accept: () => this.removeWebsiteSource(source),
+      reject: () => {
+        this.messageService.add({ severity: 'info', summary: 'Dibatalkan', detail: 'Penghapusan sumber website dibatalkan.' });
+      }
+    });
+  }
+
+  public confirmProcessWebsiteEmbedding(event: Event): void {
+    if (this._arrayWebsiteSources.length === 0) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Peringatan',
+        detail: 'Tidak ada sumber website untuk diproses embedding.'
+      });
+      return;
+    }
+
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Proses ini akan memulai embedding untuk semua sumber website. Lanjutkan?',
+      header: 'Konfirmasi Embedding Website',
+      icon: 'pi pi-sync ',
+      acceptLabel: 'Proses',
+      rejectLabel: 'Batal',
+      acceptButtonStyleClass: 'p-button-primary',
+      rejectButtonProps: { severity: 'secondary', outlined: true },
+      accept: () => this.processWebsiteEmbedding(),
+      reject: () => {
+        this.messageService.add({ severity: 'info', summary: 'Dibatalkan', detail: 'Proses embedding website dibatalkan.' });
+      }
+    });
   }
 
 

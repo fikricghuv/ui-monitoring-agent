@@ -63,7 +63,7 @@
     </div>
 
     <div *ngIf="_modelSelectedRoom" #chatScroll class="flex-1 overflow-y-auto flex flex-col gap-8 py-8 px-6">
-      <div *ngFor="let message of filteredMessages" class="flex items-start min-w-64 w-fit max-w-[60%]"
+      <div *ngFor="let message of filteredMessages" class="flex items-start min-w-64 w-fit max-w-[80%]"
         [ngClass]="{ 'ml-auto mr-0 flex-row-reverse': message.sender === _enumSender.Chatbot || message.sender === _enumSender.Admin }">
         <div class="flex items-center gap-2 sticky top-0 transition-all" [ngClass]="{
                             'flex-row-reverse': message.sender === _enumSender.Chatbot || message.sender === _enumSender.Admin
@@ -84,16 +84,32 @@
           </div>
         </div>
         <div
-          [ngClass]="message.sender === _enumSender.User ? 'flex-1 bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded-lg' : 'flex-1 bg-primary px-2 py-1 rounded-lg'">
-          <p
-            [ngClass]="message.sender === _enumSender.User ? 'text-color leading-6 mb-0' : 'text-primary-contrast leading-6 mb-0'">
-            {{ message.message }}
-          </p>
-          <div class="text-xs mt-1"
-            [ngClass]="message.sender === _enumSender.User ? 'text-muted-color text-right' : 'text-primary-contrast/70 text-right'">
-            {{ message.time | date:'shortTime' }}
-          </div>
+        [ngClass]="
+          message.sender === _enumSender.User
+            ? 'flex-1 bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded-lg'
+            : 'flex-1 bg-primary px-2 py-1 rounded-lg'
+        ">
+        
+        <p
+          [innerHTML]="formatMessageAsHtml(message.message!)"
+          [ngClass]="
+            message.sender === _enumSender.User
+              ? 'text-color leading-6 mb-0'
+              : 'text-primary-contrast leading-6 mb-0'
+          ">
+        </p>
+        
+        <div
+          class="text-xs mt-1"
+          [ngClass]="
+            message.sender === _enumSender.User
+              ? 'text-muted-color text-right'
+              : 'text-primary-contrast/70 text-right'
+          ">
+          {{ message.time | date:'shortTime' }}
         </div>
+      </div>
+
       </div>
     </div>
 

@@ -56,5 +56,66 @@
 				</p-button>
 			</div>
 		</p-fieldset>
+
+		<p-fieldset legend="🌐 Website Knowledge Base" [toggleable]="true" styleClass="p-mb-4">
+			
+			<p-listbox class="pListboxKnowledge" [options]="_arrayWebsiteSources" optionLabel="url"
+				[style]="{'width':'100%', 'min-height':'150px'}" [emptyMessage]="'Tidak ada sumber website yang ditambahkan.'">
+				<ng-template let-source pTemplate="item">
+					<div class="uploaded-file-item">
+						<div class="file-info">
+							<span class="filename">{{ source.url }}</span>
+							<span class="upload-date">{{ source.created_at | date:'dd MMM yyyy, HH:mm' }}</span>
+							<span class="status">
+								<p-tag *ngIf="source.status === 'pending'" icon="pi pi-exclamation-triangle"
+									severity="warn" value="Pending Process"></p-tag>
+								<p-tag *ngIf="source.status !== 'pending'" icon="pi pi-check" severity="success"
+									value="Processed"></p-tag>
+							</span>
+						</div>
+						<div class="file-actions">
+							<p-button icon="pi pi-trash"
+								styleClass="p-button-danger p-button-rounded p-button-sm p-button-text ml-2"
+								(onClick)="confirmRemoveWebsiteSource($event, source)" pTooltip="Hapus Sumber Website"
+								tooltipPosition="right" [raised]="true">
+							</p-button>
+							
+						</div>
+					</div>
+				</ng-template>
+			</p-listbox>
+			
+			<div class="p-d-flex p-jc-center p-mt-4">
+				<p-button 
+					label="Process Website Embedding" 
+					icon="pi pi-sync" 
+					styleClass="p-button-primary p-button-md mr-2"
+					[style]="{'margin-top': '15px'}" 
+					(onClick)="confirmProcessWebsiteEmbedding($event)" 
+					[raised]="true">
+				</p-button>
+				<p-button 
+					label="Add Website URL" 
+					icon="pi pi-plus" 
+					styleClass="p-button-primary p-button-md" 
+					(onClick)="_showAddUrlDialog = true"/>			
+			</div>
+		</p-fieldset>
+
+		<p-dialog 
+			[(visible)]="_showAddUrlDialog" 
+			header="Tambah URL Website" 
+			[modal]="true" 
+			[style]="{width: '50vw'}"
+			class="">
+			<div class="p-fluid">
+				<label for="newUrl">URL Website</label>
+				<input id="newUrl" type="text" class="ml-2" pInputText [(ngModel)]="_newWebsiteUrl">
+			</div>
+			<ng-template pTemplate="footer">
+				<p-button label="Cancel" icon="pi pi-times" styleClass="p-button-secondary" (onClick)="_showAddUrlDialog = false"></p-button>
+				<p-button label="Add" icon="pi pi-plus" (onClick)="addWebsiteUrl()"></p-button>
+			</ng-template>
+		</p-dialog>
 	</p-card>
 </div>

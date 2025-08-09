@@ -72,7 +72,6 @@ export class AdminManagementComponent {
         role: 'ADMIN'
     };
 
-
     private _originalAdminProfile?: UserModel;
 
     constructor(
@@ -131,7 +130,6 @@ export class AdminManagementComponent {
         this._originalAdminProfile = { ...data };
         this._booleanShowDataDialog = true;
     }
-
 
     updateProfileAdmin() {
         if (!this.selectedAdminProfile || !this.selectedAdminProfile.id) {
@@ -298,7 +296,6 @@ export class AdminManagementComponent {
             }
         });
     }
-
 
     closeDialog() {
         this._booleanShowDataDialog = false;

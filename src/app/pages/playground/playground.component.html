@@ -9,7 +9,7 @@
     
     <div class="flex items-center p-4 gap-7 border-b border-surface sticky top-0 z-10 border-0">
       <div class="flex items-center">
-          <p-avatar image="/assets/images/just-logo.png" styleClass="mr-2 av" size="normal" shape="circle" />
+          <p-avatar image="/assets/logo/just-logo-color.svg" styleClass="mr-2 av" size="normal" shape="circle" />
           <div class="flex-1">
               <div class="text-color">
                   TalkVera
@@ -18,7 +18,7 @@
       </div>
   </div>
     <div #chatScroll class="flex-1 overflow-y-auto flex flex-col gap-8 py-8 px-6">
-      <div *ngFor="let message of _arrayModelFilteredMessage" class="flex items-start min-w-64 w-fit max-w-[60%]"
+      <div *ngFor="let message of _arrayModelFilteredMessage" class="flex items-start min-w-64 w-fit max-w-[80%]"
         [ngClass]="{ 'ml-auto mr-0 flex-row-reverse': message.sender === _enumSender.User }">
         <div class="flex items-center gap-2 sticky top-0 transition-all" [ngClass]="{
                             'flex-row-reverse': message.sender === _enumSender.User
@@ -39,19 +39,35 @@
           </div>
         </div>
         <div
-          [ngClass]="message.sender === _enumSender.Chatbot || message.sender === _enumSender.Admin ? 'flex-1 bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded-lg' : 'flex-1 bg-primary px-2 py-1 rounded-lg'">
-          <p
-            [ngClass]="message.sender === _enumSender.Chatbot || message.sender === _enumSender.Admin ? 'text-color leading-6 mb-0' : 'text-primary-contrast leading-6 mb-0'">
-            {{ message.message }}
-          </p>
-          <div class="text-xs mt-1"
-            [ngClass]="message.sender === _enumSender.Chatbot || message.sender === _enumSender.Admin ? 'text-muted-color text-right' : 'text-primary-contrast/70 text-right'">
-            {{ message.time | date:'shortTime' }}
-          </div>
+        [ngClass]="
+          (message.sender === _enumSender.Chatbot || message.sender === _enumSender.Admin)
+            ? 'flex-1 bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded-lg'
+            : 'flex-1 bg-primary px-2 py-1 rounded-lg'
+        ">
+        
+        <p
+          [innerHTML]="formatMessageAsHtml(message.message!)"
+          [ngClass]="
+            (message.sender === _enumSender.Chatbot || message.sender === _enumSender.Admin)
+              ? 'text-color leading-6 mb-0'
+              : 'text-primary-contrast leading-6 mb-0'
+          ">
+        </p>
+
+        <div
+          class="text-xs mt-1"
+          [ngClass]="
+            (message.sender === _enumSender.Chatbot || message.sender === _enumSender.Admin)
+              ? 'text-muted-color text-right'
+              : 'text-primary-contrast/70 text-right'
+          ">
+          {{ message.time | date:'shortTime' }}
         </div>
       </div>
 
-      <div *ngIf="(chatCoreService.isLoadingSending$ | async)" class="flex items-start min-w-64 w-fit max-w-[60%]">
+      </div>
+
+      <div *ngIf="(chatCoreService.isLoadingSending$ | async)" class="flex items-start min-w-64 w-fit max-w-[80%]">
         <div class="flex items-center gap-2">
             <img src="/assets/images/agent.png" alt="Agent Avatar" class="w-10 h-10 text-sm font-medium rounded-full" />
             <div>
