@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-import { UserModel, UserUpdateModel } from '../models/user.model';
+import { UserListResponse, UserModel, UserUpdateModel, UserCreateModel } from '../models/user.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({
@@ -19,20 +19,6 @@ export class UserService {
       'X-API-Key': this.apiKey,
       'Content-Type': 'application/json'
     });
-  }
-
-  private handleError(error: HttpErrorResponse) {
-    let errorMessage = 'Terjadi kesalahan tidak diketahui!';
-    if (error.error instanceof ErrorEvent) {
-      errorMessage = `Error: ${error.error.message}`;
-    } else {
-      errorMessage = `Kode: ${error.status}\nPesan: ${error.message}`;
-      if (error.error?.detail) {
-        errorMessage += `\nDetail: ${error.error.detail}`;
-      }
-    }
-    console.error('UserService Error:', errorMessage);
-    return throwError(() => new Error(errorMessage));
   }
 
   /**
@@ -57,5 +43,56 @@ export class UserService {
     }).pipe(
       catchError(this.handleError)
     );
+  }
+
+  /**
+   * Membuat pengguna baru.
+   */
+  public createUser(userData: UserCreateModel): Observable<UserModel> {
+    const url = `${this.apiUrl}/create-user`;
+    return this.http.post<UserModel>(url, userData, {
+      headers: this.getHeaders(),
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+
+  /**
+   * Mengambil profil semua pengguna.
+   */
+  public getAllUserProfile(): Observable<UserListResponse> {
+    const url = `${this.apiUrl}/users/all`;
+    return this.http.get<UserListResponse>(url, {
+      headers: this.getHeaders(),
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
+   * Menghapus pengguna berdasarkan ID.
+   */
+  public deleteUser(userId: string): Observable<void> {
+    const url = `${this.apiUrl}/users/${userId}`;
+    return this.http.delete<void>(url, {
+        headers: this.getHeaders(),
+    }).pipe(
+        catchError(this.handleError)
+    );
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'Terjadi kesalahan tidak diketahui!';
+    if (error.error instanceof ErrorEvent) {
+      errorMessage = `Error: ${error.error.message}`;
+    } else {
+      errorMessage = `Kode: ${error.status}\nPesan: ${error.message}`;
+      if (error.error?.detail) {
+        errorMessage += `\nDetail: ${error.error.detail}`;
+      }
+    }
+    console.error('UserService Error:', errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 }

@@ -3,7 +3,7 @@
     [home]="_defaultHomeMenu" />
 </div>
 <div class="analytics-container">
-
+  <p-toast></p-toast>
   <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
 
     <div class="flex items-start gap-2 justify-between">
@@ -67,7 +67,7 @@
       </p-table>
     </div>
     <p-dialog
-      header="📝 Detail Feedback"
+      header="Detail Feedback"
       [(visible)]="_booleanShowFeedbackDialog"
       [modal]="true"
       [style]="{ width: '50vw' }"
@@ -78,20 +78,20 @@
         <div class="p-fluid">
           <!-- Feedback -->
           <div class="field">
-            <label class="font-semibold text-color">Feedback</label>
+            <label class="font-semibold block font-medium text-color mb-2">Feedback :</label>
             <p>{{ _selectedFeedback.feedback_from_customer}}</p>
             <p-divider></p-divider>
           </div>
 
           <!-- Sentiment -->
           <div class="field">
-            <label class="font-semibold text-color">Sentiment</label>
+            <label class="font-semibold block font-medium text-color mb-2">Sentiment :</label>
             <p>
               <span
                 class="p-tag"
                 [ngClass]="{
                   'p-tag-success': _selectedFeedback.sentiment === 'positive',
-                  'p-tag-warning': _selectedFeedback.sentiment === 'neutral',
+                  'p-tag-info': _selectedFeedback.sentiment === 'neutral',
                   'p-tag-danger': _selectedFeedback.sentiment === 'negative'
                 }"
               >
@@ -103,35 +103,35 @@
 
           <!-- Potential Actions -->
           <div class="field">
-            <label class="font-semibold text-color">Potential Actions</label>
+            <label class="font-semibold block font-medium text-color mb-2">Potential Actions :</label>
             <p>{{ _selectedFeedback.potential_actions}}</p>
             <p-divider></p-divider>
           </div>
 
           <!-- Keyword Issue -->
           <div class="field">
-            <label class="font-semibold text-color">Keyword Issue</label>
+            <label class="font-semibold block font-medium text-color mb-2">Keyword Issue :</label>
             <p>{{ _selectedFeedback.keyword_issue || '-' }}</p>
             <p-divider></p-divider>
           </div>
 
           <!-- Category -->
           <div class="field">
-            <label class="font-semibold text-color">Category</label>
+            <label class="font-semibold block font-medium text-color mb-2">Category :</label>
             <p>{{ _selectedFeedback.category || '-' }}</p>
             <p-divider></p-divider>
           </div>
 
           <!-- Product Name -->
           <div class="field">
-            <label class="font-semibold text-color">Product Name</label>
+            <label class="font-semibold block font-medium text-color mb-2">Product Name :</label>
             <p>{{ _selectedFeedback.product_name || '-' }}</p>
             <p-divider></p-divider>
           </div>
 
           <!-- Created At -->
           <div class="field">
-            <label class="font-semibold text-color">Created At</label>
+            <label class="font-semibold block font-medium text-color mb-2">Timestamp :</label>
             <p>{{ _selectedFeedback.created_at | date: 'yyyy-MM-dd HH:mm' }}</p>
           </div>
         </div>

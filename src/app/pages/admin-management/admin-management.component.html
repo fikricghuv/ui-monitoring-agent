@@ -1,0 +1,281 @@
+<div class="card flex" style="padding: 0;">
+    <p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems"
+        [home]="_defaultHomeMenu" />
+</div>
+
+<div class="admin-management-container">
+    <p-toast></p-toast>
+
+    <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">    
+        <p-confirmDialog></p-confirmDialog>
+        <div class="flex items-start gap-2 justify-between">
+            <div>
+                <div class="text-2xl leading-8 text-color font-medium">Admin Management</div>
+            </div>
+        </div>
+
+        <!-- Search & Actions -->
+        <div class="mt-6 mb-4 flex items-center justify-between">
+            <p-iconfield iconPosition="left">
+                <p-inputicon class="pi pi-search"></p-inputicon>
+                <input pInputText type="text" [(ngModel)]="search" placeholder="Search" />
+            </p-iconfield>
+            <div class="flex items-center gap-3">
+                <p-button 
+                    icon="pi pi-plus"
+                    label="Create Admin" 
+                    styleClass="p-button-md"
+                    (onClick)="showCreateAdminDialog()"/>
+                <p-button 
+                    icon="pi pi-refresh" 
+                    outlined 
+                    severity="secondary" 
+                    (click)="refreshData()"/>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="flex-1 last:[&>td]:border-0 rounded-lg border border-surface w-full overflow-auto">
+            <p-table [value]="tableData" stripedRows [(selection)]="selectedRows" dataKey="id" [rows]="10"
+                [paginator]="true" [rowsPerPageOptions]="[5, 10, 20, 30]" selectionMode="single"
+                [style]="{'border-radius': '6px'}">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Email Address</th>
+                        <th>Status</th>
+                        <th>Created at</th>
+                        <th>Last Updated</th>
+                        <th>Actions</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-user>
+                    <tr>
+                        <td>{{ user.full_name || '-' }}</td>
+                        <td class="text-muted-color">{{ user.role || '-' }}</td>
+                        <td class="truncate text-muted-color">{{ user.email || '-' }}</td>
+                        <td>
+                            <p-tag [severity]="user.is_active ? 'success' : 'danger'"
+                                [value]="user.is_active ? 'Active' : 'Inactive'" styleClass="font-medium" />
+                        </td>
+                        <td class="text-muted-color">{{ user.created_at | date: 'short' }}</td>
+                        <td class="text-muted-color">{{ user.updated_at | date: 'short' }}</td>
+                        <td>
+                            <div class="flex w-full">
+                                <p-button (onClick)="displayPopover($event, op, user)" icon="pi pi-search" rounded
+                                    outlined severity="secondary" />
+                            </div>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+
+            <p-popover #op>
+                <ng-template pTemplate="content">
+                    <div class="flex gap-2">
+                        <p-button label="Details" size="small" outlined
+                            (onClick)="showAdminProfileDetail(selectedRowData); op.hide()"></p-button>
+                        <p-button label="Delete" severity="danger" size="small" outlined
+                            (onClick)="confirmDeleteProfile($event, selectedRowData); op.hide()"></p-button>
+                    </div>
+                </ng-template>
+            </p-popover>
+        </div>
+
+        <!-- Dialog -->
+        <p-dialog header="Admin Profile" [(visible)]="_booleanShowDataDialog" [modal]="true" [style]="{ width: '50vw' }"
+            [closable]="true" [dismissableMask]="true">
+            <ng-container *ngIf="selectedAdminProfile">
+                <div class="p-fluid p-3">
+
+                    <!-- Name -->
+                    <div class="field mb-4">
+                        <label for="name" class="font-semibold block font-medium text-color mb-2">Name</label>
+                        <ng-container *ngIf="editMode; else readonlyName">
+                            <input id="name" type="text" pInputText [(ngModel)]="selectedAdminProfile.full_name" />
+                        </ng-container>
+                        <ng-template #readonlyName>
+                            <p class="m-0">{{ selectedAdminProfile.full_name || '-' }}</p>
+                            <p-divider></p-divider>
+                        </ng-template>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="field mb-4">
+                        <label for="role" class="font-semibold block font-medium text-color mb-2">Role</label>
+                        <ng-container *ngIf="editMode; else readonlyRole">
+                            <!-- <input id="role" type="text" pInputText [(ngModel)]="selectedAdminProfile.role" /> -->
+                            <p-dropdown
+                                [options]="[{key: 'Admin', role: 'ADMIN'}, {key: 'Super Admin', role: 'SUPER_ADMIN'}]"
+                                [(ngModel)]="selectedAdminProfile.role" optionLabel="key" optionValue="role">
+                            </p-dropdown>
+                        </ng-container>
+                        <ng-template #readonlyRole>
+                            <p class="m-0">{{ selectedAdminProfile.role || '-' }}</p>
+                            <p-divider></p-divider>
+                        </ng-template>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="field mb-4">
+                        <label for="email" class="font-semibold block font-medium text-color mb-2">Email</label>
+                        <ng-container *ngIf="editMode; else readonlyEmail">
+                            <input id="email" type="email" pInputText [(ngModel)]="selectedAdminProfile.email" />
+                        </ng-container>
+                        <ng-template #readonlyEmail>
+                            <p class="m-0">{{ selectedAdminProfile.email || '-' }}</p>
+                            <p-divider></p-divider>
+                        </ng-template>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="field mb-4">
+                        <label for="status" class="font-semibold block font-medium text-color mb-2">Status</label>
+                        <ng-container *ngIf="editMode; else readonlyStatus">
+                            <p-dropdown [options]="[{label: 'Active', value: true}, {label: 'Inactive', value: false}]"
+                                [(ngModel)]="selectedAdminProfile.is_active" optionLabel="label" optionValue="value">
+                            </p-dropdown>
+                        </ng-container>
+                        <ng-template #readonlyStatus>
+                            <p class="m-0">{{ selectedAdminProfile.is_active ? 'Active' : 'Inactive' }}</p>
+                            <p-divider></p-divider>
+                        </ng-template>
+                    </div>
+
+                    <!-- Created At (readonly) -->
+                    <div class="field mb-4">
+                        <label class="font-semibold block font-medium text-color mb-2">Created At</label>
+                        <p class="m-0">{{ selectedAdminProfile.created_at | date: 'short' }}</p>
+                        <p-divider></p-divider>
+                    </div>
+
+                    <!-- Updated At (readonly) -->
+                    <div class="field mb-4">
+                        <label class="font-semibold block font-medium text-color mb-2">Updated At</label>
+                        <p class="m-0">{{ selectedAdminProfile.updated_at | date: 'short' }}</p>
+                        <p-divider></p-divider>
+                    </div>
+                </div>
+            </ng-container>
+
+            <!-- Footer -->
+            <ng-template pTemplate="footer">
+                <div class="flex justify-end gap-2">
+                    <p-button 
+                        *ngIf="!editMode" 
+                        label="Edit" 
+                        icon="pi pi-pencil" 
+                        (onClick)="editMode = true" 
+                        [style]="{'margin-right': '10px;'}" 
+                        styleClass="p-button-md mr-4"/>
+
+                    <p-button 
+                        *ngIf="editMode" 
+                        label="Save" 
+                        icon="pi pi-check" 
+                        (onClick)="confirmSaveProfile($event)"
+                        [style]="{'margin-right': '10px;'}" 
+                        styleClass="p-button-md mr-4"/>
+
+                    <p-button 
+                        *ngIf="!editMode" 
+                        label="Cancel" 
+                        icon="pi pi-times" 
+                        (onClick)="closeDialog()" 
+                        styleClass="p-button-md mr-4" />
+
+                    <p-button 
+                        *ngIf="editMode" 
+                        label="Cancel" 
+                        icon="pi pi-times" 
+                        (onClick)="confirmCancelUpdateProfile($event)" 
+                        styleClass="p-button-md mr-4" />
+                </div>
+            </ng-template>
+        </p-dialog>
+        <p-dialog
+            header="Create New Admin"
+            [(visible)]="_booleanShowCreateDialog"
+            [modal]="true"
+            [style]="{ width: '50vw' }"
+            [closable]="true"
+            [dismissableMask]="true"
+            >
+            <ng-container>
+                <div class="p-fluid p-3">
+                <div class="field mb-4">
+                    <label for="new_name" class="font-semibold block font-medium text-color mb-2"
+                    >Name</label
+                    >
+                    <input
+                    id="new_name"
+                    type="text"
+                    pInputText
+                    [(ngModel)]="newUserData.full_name"
+                    required
+                    />
+                </div>
+
+                <div class="field mb-4">
+                    <label for="new_role" class="font-semibold block font-medium text-color mb-2"
+                    >Role</label
+                    >
+                    <p-dropdown
+                    [options]="[{key: 'Admin', role: 'ADMIN'}, {key: 'Super Admin', role: 'SUPER_ADMIN'}]"
+                    [(ngModel)]="newUserData.role"
+                    optionLabel="key"
+                    optionValue="role"
+                    required
+                    >
+                    </p-dropdown>
+                </div>
+
+                <div class="field mb-4">
+                    <label for="new_email" class="font-semibold block font-medium text-color mb-2"
+                    >Email</label
+                    >
+                    <input
+                    id="new_email"
+                    type="email"
+                    pInputText
+                    [(ngModel)]="newUserData.email"
+                    required
+                    />
+                </div>
+
+                <div class="field mb-4">
+                    <label for="new_password" class="font-semibold block font-medium text-color mb-2"
+                    >Password</label
+                    >
+                    <input
+                    id="new_password"
+                    type="password"
+                    pInputText
+                    [(ngModel)]="newUserData.password"
+                    required
+                    />
+                </div>
+                </div>
+            </ng-container>
+
+            <ng-template pTemplate="footer">
+                <div class="flex justify-end gap-2">
+                <p-button
+                    label="Cancel"
+                    icon="pi pi-times"
+                    (onClick)="closeCreateDialog()"
+                    styleClass="p-button-md p-button-secondary"
+                />
+                <p-button
+                    label="Create"
+                    icon="pi pi-check"
+                    (onClick)="confirmCreateUser($event)"
+                    styleClass="p-button-md p-button-success"
+                />
+                </div>
+            </ng-template>
+        </p-dialog>
+    </p-card>
+    <!-- </div> -->
+</div>

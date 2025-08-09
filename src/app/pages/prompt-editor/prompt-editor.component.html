@@ -8,7 +8,11 @@
   <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
     <p-confirmDialog></p-confirmDialog>
 
-    <h2 class="text-2xl font-bold text-900 mb-4 mt-0">Prompt Editor</h2>
+    <div class="flex items-start gap-2 justify-between">
+        <div>
+            <div class="text-2xl leading-8 text-color font-medium mb-6">Prompt Editor</div>
+        </div>
+    </div>
 
     <div class="editor-content" *ngIf="_objtSelectedPrompt">
       <!-- Prompt Name -->

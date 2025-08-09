@@ -16,15 +16,19 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DividerModule } from 'primeng/divider';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
+
 
 @Component({
   selector: 'app-feedback-analytics',
   standalone: true,
   imports: [CommonModule, PaginatorModule, 
-    IconFieldModule, InputIconModule, TableModule, BreadcrumbModule, 
+    IconFieldModule, InputIconModule, TableModule, BreadcrumbModule, ToastModule,
     DialogModule, ButtonModule, FormsModule, CardModule, InputTextModule, DividerModule],
   templateUrl: './feedback-analytics.component.html',
-  styleUrl: './feedback-analytics.component.scss'
+  styleUrl: './feedback-analytics.component.scss',
+  providers: [MessageService]
 })
 export class AnalyticsComponent implements OnInit {
   public _arrayFeedbackModel: Array<FeedbackModel>; 
@@ -49,7 +53,8 @@ export class AnalyticsComponent implements OnInit {
 
 
   constructor(
-    private analyticsService: AnalyticsService
+    private analyticsService: AnalyticsService,
+    private messageService: MessageService
   ) {
     this._arrayFeedbackModel = [];
     this._booleanIsLoading = true;
@@ -138,6 +143,12 @@ export class AnalyticsComponent implements OnInit {
     
     this.onLazyLoad(this._currentPageState); 
     this.getTotalRecords(); 
+
+    this.messageService.add({
+        severity: 'success',
+        summary: 'Refreshed',
+        detail: 'Data has been refreshed.'
+    });
   }
 
   public onSelectFeedback(event: any) {

@@ -41,8 +41,9 @@ export class AppMenu {
             {
                 label: 'Configuration',
                 items: [
-                    { label: 'Prompt Editor', icon: 'pi pi-fw pi-list', routerLink: ['/pages/editor'] },
-                    { label: 'Base Knowledge', icon: 'pi pi-fw pi-file-plus', routerLink: ['/pages/base-knowledge'] },
+                    { label: 'Prompt Editor', icon: 'pi pi-fw pi-pen-to-square', routerLink: ['/pages/editor'] },
+                    { label: 'Base Knowledge', icon: 'pi pi-fw pi-file-import', routerLink: ['/pages/base-knowledge'] },
+                    { label: 'Admin Management', icon: 'pi pi-fw pi-user-edit', routerLink: ['/pages/admin-management'] },
                 ]
             },
             {

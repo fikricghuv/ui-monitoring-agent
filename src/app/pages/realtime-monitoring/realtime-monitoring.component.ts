@@ -17,6 +17,8 @@ import { CardModule } from 'primeng/card';
 import { DividerModule } from 'primeng/divider';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-realtime-monitoring',
@@ -24,9 +26,10 @@ import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
   imports: [CommonModule, CardModule, PaginatorModule, 
     TableModule, IconFieldModule, InputIconModule, 
     BreadcrumbModule, DialogModule, FormsModule, ButtonModule, 
-    InputTextModule, DividerModule],
+    InputTextModule, DividerModule, ToastModule],
   templateUrl: './realtime-monitoring.component.html',
   styleUrl: './realtime-monitoring.component.scss',
+  providers: [MessageService]
 })
 export class RealtimeMonitoringComponent implements OnInit {
   public _stringActiveTab: String;
@@ -49,11 +52,10 @@ export class RealtimeMonitoringComponent implements OnInit {
   public _searchSubject = new Subject<string>();
   public _searchSubscription!: Subscription;
 
-
-
   constructor(
     private monitoringService: MonitoringService,
-    private dashboardService: DashboardService
+    private dashboardService: DashboardService,
+    private messageService: MessageService
   ) {
     this._arrayChatHistoryModel = [];
     this._booleanIsLoading = true;
@@ -182,6 +184,12 @@ export class RealtimeMonitoringComponent implements OnInit {
     this.onLazyLoad(this._currentPageState); 
 
     this.getTotalRecords();
+
+    this.messageService.add({
+        severity: 'success',
+        summary: 'Refreshed',
+        detail: 'Data has been refreshed.'
+    });
   }
 
   ngOnDestroy(): void {

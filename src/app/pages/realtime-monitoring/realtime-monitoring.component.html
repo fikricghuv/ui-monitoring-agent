@@ -3,6 +3,7 @@
 		[home]="_defaultHomeMenu" />
 </div>
 <div class="report-container">
+	<p-toast></p-toast>
 	<p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
 
 		<div class="flex items-start gap-2 justify-between">
@@ -43,9 +44,6 @@
 						<th>Message</th>
 						<th>Agent Response Category</th>
 						<th>Timestamp</th>
-						<!-- <th>Agent Response Latency</th>
-        <th>Agent Total Tokens</th>
-        <th>Agent Used Tools</th> -->
 					</tr>
 				</ng-template>
 				<ng-template pTemplate="body" let-chat let-rowIndex="rowIndex">
@@ -56,18 +54,8 @@
 						<td class="text-muted-color">{{ chat.message?.length > 30 ? (chat.message | slice:0:30) + '...'
 							:
 							chat.message || '-' }}</td>
-						<!-- <td>{{ chat.message || '-' }}</td> -->
 						<td class="text-muted-color">{{ chat.agent_response_category || '-' }}</td>
 						<td class="text-muted-color">{{ chat.created_at | date:'yyyy-MM-dd HH:mm' }}</td>
-						<!-- <td>{{ formatLatency(chat.agent_response_latency) || '-' }}</td>
-        <td>{{ chat.agent_total_tokens || '-' }}</td>
-        <td>
-          {{
-            (chat.agent_tools_call?.join(', ')?.length > 20)
-              ? (chat.agent_tools_call?.join(', ') | slice:0:20) + '...'
-              : chat.agent_tools_call?.join(', ') || '-'
-          }}
-        </td> -->
 					</tr>
 				</ng-template>
 				<ng-template pTemplate="emptymessage">
@@ -83,7 +71,7 @@
 			</p-table>
 
 			<p-dialog
-			header="💬 Detail Percakapan"
+			header="Detail Chat"
 			[(visible)]="_booleanShowDialog"
 			[modal]="true"
 			[style]="{ width: '50vw' }"
@@ -94,30 +82,36 @@
 				<div class="p-fluid">
 				<!-- Sender ID -->
 				<div class="field">
-					<label class="font-semibold text-color">Sender ID</label>
+					<label class="font-semibold block font-medium text-color mb-2">Sender ID :</label>
 					<p>{{ _selectedChat.sender_id }}</p>
 					<p-divider></p-divider>
 				</div>
 
 				<!-- Room ID -->
 				<div class="field">
-					<label class="font-semibold text-color">Room ID</label>
+					<label class="font-semibold block font-medium text-color mb-2">Room ID :</label>
 					<p>{{ _selectedChat.room_conversation_id }}</p>
 					<p-divider></p-divider>
 				</div>
 
 				<!-- Role -->
 				<div class="field">
-					<label class="font-semibold text-color">Role</label>
+					<label class="font-semibold block font-medium text-color mb-2">Role :</label>
 					<p>
-					<span class="p-tag p-tag-info text-capitalize">{{ _selectedChat.role }}</span>
+					<span class="p-tag text-capitalize"
+					[ngClass]="{
+						'p-tag-success': _selectedChat.role === 'chatbot',
+						'p-tag-info': _selectedChat.role === 'user',
+						'p-tag-warning': _selectedChat.role === 'admin'
+					}"
+					>{{ _selectedChat.role }}</span>
 					</p>
 					<p-divider></p-divider>
 				</div>
 
 				<!-- Message -->
 				<div class="field">
-					<label class="font-semibold text-color">Message</label>
+					<label class="font-semibold block font-medium text-color mb-2">Message :</label>
 					<p>
 					<span class="p-tag p-tag-info text-capitalize">"{{ _selectedChat.message }}"</span>
 					</p>
@@ -126,35 +120,35 @@
 
 				<!-- Timestamp -->
 				<div class="field">
-					<label class="font-semibold text-color">Timestamp</label>
+					<label class="font-semibold block font-medium text-color mb-2">Timestamp :</label>
 					<p>{{ _selectedChat.created_at | date: 'yyyy-MM-dd HH:mm' }}</p>
 					<p-divider></p-divider>
 				</div>
 
 				<!-- Agent Response Category -->
 				<div class="field">
-					<label class="font-semibold text-color">Agent Response Category</label>
+					<label class="font-semibold block font-medium text-color mb-2">Agent Response Category :</label>
 					<p>{{ _selectedChat.agent_response_category || '-' }}</p>
 					<p-divider></p-divider>
 				</div>
 
 				<!-- Agent Response Latency -->
 				<div class="field">
-					<label class="font-semibold text-color">Agent Response Latency</label>
+					<label class="font-semibold block font-medium text-color mb-2">Agent Response Latency :</label>
 					<p>{{ formatLatency(_selectedChat.agent_response_latency) }}</p>
 					<p-divider></p-divider>
 				</div>
 
 				<!-- Agent Total Tokens -->
 				<div class="field">
-					<label class="font-semibold text-color">Agent Total Tokens</label>
-					<p>{{ _selectedChat.agent_total_tokens }}</p>
+					<label class="font-semibold block font-medium text-color mb-2">Agent Total Tokens :</label>
+					<p>{{ _selectedChat.agent_total_tokens || '-' }}</p>
 					<p-divider></p-divider>
 				</div>
 
 				<!-- Agent Tools Used -->
 				<div class="field">
-					<label class="font-semibold text-color">Agent Tools Used</label>
+					<label class="font-semibold block font-medium text-color mb-2">Agent Tools Used :</label>
 					<p>
 					<ng-container *ngIf="(_selectedChat.agent_tools_call ?? []).length > 0; else noTools">
 						<span

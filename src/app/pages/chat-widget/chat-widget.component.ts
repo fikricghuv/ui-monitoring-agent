@@ -79,6 +79,10 @@ export class ChatWidgetComponent implements OnInit, OnDestroy, AfterViewInit {
 
   toggleChat(): void {
     this._booleanIsOpen = !this._booleanIsOpen;
+
+    setTimeout(() => {
+      this.cdr.detectChanges();
+    }, 5);
     
     console.log(`Chat modal is now: ${this._booleanIsOpen ? 'Open' : 'Closed'}`);
 

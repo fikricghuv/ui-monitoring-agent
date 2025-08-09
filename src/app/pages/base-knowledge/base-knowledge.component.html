@@ -1,4 +1,3 @@
-
 <div class="card flex" style="padding: 0; ">
 	<p-breadcrumb class="max-w-full" [style]="{'border-radius': '6px'}" [model]="_listMenuItems"
 		[home]="_defaultHomeMenu" />
@@ -7,29 +6,20 @@
 	<p-toast></p-toast>
 	<p-confirmDialog></p-confirmDialog>
 	<p-card [style]="{'border-radius': '6px'}" styleClass="p-card-shadow">
-		<h2 class="text-2xl font-bold text-900">Base Knowledge</h2>
+		<div class="flex items-start gap-2 justify-between">
+			<div>
+				<div class="text-2xl leading-8 text-color font-medium mb-4">Base Knowledge</div>
+			</div>
+		</div>
 
 		<p-fieldset legend="Upload Documents" [toggleable]="true" styleClass="p-mb-4">
-			<p-fileUpload
-			#fileUploader
-			name="files[]"
-			mode="advanced"
-			[auto]="false"
-			[multiple]="true"
-			accept=".pdf"
-			maxFileSize="10000000"
-			chooseLabel="Choose Files"
-			uploadLabel="Upload"
-			cancelLabel="Cancel"
-			[customUpload]="true"
-			(uploadHandler)="onUpload($event)"
-			(onSelect)="onFileSelected($event)"
-			(onClear)="onFileClear()"
-			(onRemove)="onRemoveFile($event)"
-			>
-			<ng-template #empty>
-				<div>Drag and drop PDF files here to upload.</div>
-			</ng-template>
+			<p-fileUpload #fileUploader name="files[]" mode="advanced" [auto]="false" [multiple]="true" accept=".pdf"
+				maxFileSize="10000000" chooseLabel="Choose Files" uploadLabel="Upload" cancelLabel="Cancel"
+				[customUpload]="true" (uploadHandler)="onUpload($event)" (onSelect)="onFileSelected($event)"
+				(onClear)="onFileClear()" (onRemove)="onRemoveFile($event)">
+				<ng-template #empty>
+					<div>Drag and drop PDF files here to upload.</div>
+				</ng-template>
 			</p-fileUpload>
 		</p-fieldset>
 
@@ -37,46 +27,32 @@
 			<p-listbox class="pListboxKnowledge" [options]="_arrayUploadedFiles" optionLabel="filename"
 				[style]="{'width':'100%', 'min-height':'150px'}" [emptyMessage]="'Tidak ada file yang diunggah.'">
 				<ng-template let-file pTemplate="item">
-
-					<div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-						<div style="display: flex;">
-							<div class="p-d-flex p-jc-between p-ai-center p-py-2">
-								<span>{{ file.filename }}&nbsp;&nbsp;</span>
-							</div>
-							<div class="text-muted-color text-sm">
-								<span>{{ file.uploaded_at | date:'dd MMM yyyy, HH:mm' }}&nbsp;&nbsp;</span>
-							</div>
-							<div>
-							<p-tag
-								*ngIf="file.status === 'pending'"
-								icon="pi pi-exclamation-triangle"
-								severity="warn"
-								value="Pending Process"
-							></p-tag>
-							<p-tag
-								*ngIf="file.status !== 'pending'"
-								icon="pi pi-check"
-								severity="success"
-								value="Processed"
-							></p-tag>
-							</div>
+					<div class="uploaded-file-item">
+						<div class="file-info">
+							<span class="filename">{{ file.filename }}</span>
+							<span class="upload-date">{{ file.uploaded_at | date:'dd MMM yyyy, HH:mm' }}</span>
+							<span class="status">
+								<p-tag *ngIf="file.status === 'pending'" icon="pi pi-exclamation-triangle"
+									severity="warn" value="Pending Process"></p-tag>
+								<p-tag *ngIf="file.status !== 'pending'" icon="pi pi-check" severity="success"
+									value="Processed"></p-tag>
+							</span>
 						</div>
-						<div class="p-d-flex p-jc-between p-ai-center p-py-2">
+						<div class="file-actions">
 							<p-button icon="pi pi-trash"
 								styleClass="p-button-danger p-button-rounded p-button-sm p-button-text ml-2"
 								(onClick)="confirmRemoveFile($event, file)" pTooltip="Hapus File"
-								tooltipPosition="right"
-								[raised]="true">
+								tooltipPosition="right" [raised]="true">
 							</p-button>
 						</div>
 					</div>
-					
 				</ng-template>
+
 			</p-listbox>
 			<div class="p-d-flex p-jc-center p-mt-4">
 				<p-button label="Process File" icon="pi pi-sync" styleClass="p-button-primary p-button-md"
-					[style]="{'margin-top': '15px'}" (onClick)="confirmEmbeddingFile($event)"
-					[raised]="true" [disabled]="isProcessDisabled">
+					[style]="{'margin-top': '15px'}" (onClick)="confirmEmbeddingFile($event)" [raised]="true"
+					[disabled]="isProcessDisabled">
 				</p-button>
 			</div>
 		</p-fieldset>

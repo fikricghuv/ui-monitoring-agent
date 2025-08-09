@@ -13,6 +13,7 @@ import { ReportComponent } from './report/report.component';
 import { CustomerProfilesComponent } from './customer/customer.component';
 import { NotificationComponent } from './notification/notification.component';
 import { CustomerInteractionsComponent } from './customer-interactions/customer-interactions.component';
+import { AdminManagementComponent } from './admin-management/admin-management.component'
 
 export default [
     { path: 'dashboard', component: Dashboard },
@@ -25,6 +26,7 @@ export default [
     { path: 'report', component: ReportComponent },
     { path: 'customer', component: CustomerProfilesComponent },
     { path: 'customer-interactions', component: CustomerInteractionsComponent },
+    { path: 'admin-management', component: AdminManagementComponent },
     // { path: 'settings', component: SettingsComponent},
     { path: 'profile', component: ProfileComponent},
     { path: 'notification', component:NotificationComponent},

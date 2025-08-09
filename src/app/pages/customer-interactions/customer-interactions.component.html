@@ -4,6 +4,7 @@
 </div>
 
 <div class="customer-interactions-container">
+  <p-toast></p-toast>
   <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
     <div class="flex items-start gap-2 justify-between">
       <div class="text-2xl leading-8 text-color font-medium">Customer Interactions</div>
@@ -71,32 +72,162 @@
   </p-card>
 
   <p-dialog header="Customer Detail" [(visible)]="_booleanShowDataDialog" [modal]="true"
-    [style]="{ width: '40vw' }" [closable]="true" [dismissableMask]="true">
+    [style]="{ width: '50vw' }" [closable]="true" [dismissableMask]="true">
     <ng-container *ngIf="selectedInteraction">
-      <div class="p-fluid">
-        <div class="field">
-          <label>Conversation ID:</label>
-          <p>{{ selectedInteraction.conversation_id }}</p>
+      <div class="p-fluid p-3">
+        <div class="field mb-4">
+          <label class="font-semibold block font-medium text-color mb-2">ID</label>
+          <p>{{ selectedInteraction.id || '-' }}</p>
           <p-divider></p-divider>
         </div>
+
         <div class="field">
-          <label>Channel:</label>
-          <p>{{ selectedInteraction.channel }}</p>
+          <label class="font-semibold block font-medium text-color mb-2">Conversation ID</label>
+          <p>{{ selectedInteraction.conversation_id || '-' }}</p>
           <p-divider></p-divider>
         </div>
+
         <div class="field">
-          <label>Detected Intent:</label>
+          <label class="font-semibold block font-medium text-color mb-2">Customer ID</label>
+          <p>{{ selectedInteraction.customer_id || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Start Time</label>
+          <p>{{ selectedInteraction.start_time || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">End Time</label>
+          <p>{{ selectedInteraction.end_time || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Duration (seconds)</label>
+          <p>{{ selectedInteraction.duration_seconds || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Channel</label>
+          <p>{{ selectedInteraction.channel || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Initial Query</label>
+          <p>{{ selectedInteraction.initial_query || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Total Messages</label>
+          <p>{{ selectedInteraction.total_messages || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Handoff to Agent</label>
+          <p>{{ selectedInteraction.is_handoff_to_agent ? 'Yes' : 'No' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Agent ID</label>
+          <p>{{ selectedInteraction.agent_id || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Agent Name</label>
+          <p>{{ selectedInteraction.agent_name || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Conversation Status</label>
+          <p>{{ selectedInteraction.conversation_status || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Detected Intent</label>
           <p>{{ selectedInteraction.detected_intent || '-' }}</p>
           <p-divider></p-divider>
         </div>
+
         <div class="field">
-          <label>Main Topic:</label>
+          <label class="font-semibold block font-medium text-color mb-2">Main Topic</label>
           <p>{{ selectedInteraction.main_topic || '-' }}</p>
           <p-divider></p-divider>
         </div>
+
         <div class="field">
-          <label>Feedback Comment:</label>
+          <label class="font-semibold block font-medium text-color mb-2">Keywords Extracted</label>
+          <p>
+            {{
+              selectedInteraction.keywords_extracted && selectedInteraction.keywords_extracted.length > 0
+                ? selectedInteraction.keywords_extracted.join(', ')
+                : '-'
+            }}
+          </p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Sentiment Score</label>
+          <p>{{ selectedInteraction.sentiment_score !== null && selectedInteraction.sentiment_score !== undefined ? selectedInteraction.sentiment_score : '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Product Involved</label>
+          <p>{{ selectedInteraction.product_involved || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Customer Feedback ID</label>
+          <p>{{ selectedInteraction.customer_feedback_id || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Customer Feedback Score</label>
+          <p>{{ selectedInteraction.customer_feedback_score || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Customer Feedback Comment</label>
           <p>{{ selectedInteraction.customer_feedback_comment || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Feedback Submitted</label>
+          <p>{{ selectedInteraction.feedback_submitted ? 'Yes' : 'No' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Others Information</label>
+          <p>{{ selectedInteraction.others_information ? (selectedInteraction.others_information | json) : '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Created At</label>
+          <p>{{ selectedInteraction.created_at || '-' }}</p>
+          <p-divider></p-divider>
+        </div>
+
+        <div class="field">
+          <label class="font-semibold block font-medium text-color mb-2">Updated At</label>
+          <p>{{ selectedInteraction.updated_at || '-' }}</p>
           <p-divider></p-divider>
         </div>
       </div>

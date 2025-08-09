@@ -17,7 +17,8 @@ import { DividerModule } from 'primeng/divider';
 import { PaginatorModule, PaginatorState } from 'primeng/paginator';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
-
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-customer-profiles',
@@ -35,9 +36,11 @@ import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
     FormsModule,
     InputTextModule,
     DividerModule,
+    ToastModule,
     PaginatorModule
   ],
   templateUrl: './customer.component.html',
+  providers: [MessageService]
 })
 export class CustomerProfilesComponent implements OnInit {
   _listMenuItems: MenuItem[] = [];
@@ -55,7 +58,9 @@ export class CustomerProfilesComponent implements OnInit {
   _searchSubject = new Subject<string>();
 
 
-  constructor(private customerService: CustomerService) {}
+  constructor(
+    private customerService: CustomerService,
+    private messageService: MessageService) {}
 
   ngOnInit(): void {
     this._listMenuItems = [{ label: 'Customer Profiles' }];
@@ -95,6 +100,11 @@ export class CustomerProfilesComponent implements OnInit {
 
   public onRefreshData(): void {
     this.onLazyLoad(this._currentPageState);
+    this.messageService.add({
+        severity: 'success',
+        summary: 'Refreshed',
+        detail: 'Data has been refreshed.'
+    });
   }
 
   onSelectRow(event: any): void {

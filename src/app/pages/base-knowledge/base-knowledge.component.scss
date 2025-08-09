@@ -6,3 +6,43 @@
     position: relative;
 }
 
+.uploaded-file-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 0.5rem 0;
+
+  .file-info {
+    display: flex;
+    gap: 2rem;
+    align-items: center;
+    flex-wrap: wrap;
+    flex: 1;
+
+    .filename {
+      flex-basis: 30%;
+      min-width: 150px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .upload-date {
+      flex-basis: 30%;
+      min-width: 120px;
+      color: #888;
+      font-size: 0.875rem;
+    }
+
+    .status {
+      flex-basis: 30%;
+      min-width: 100px;
+    }
+  }
+
+  .file-actions {
+    flex-shrink: 0;
+  }
+}

@@ -4,6 +4,7 @@
 </div>
 
 <div class="customer-container">
+  <p-toast></p-toast>
   <p-card styleClass="p-card-shadow" [style]="{'border-radius': '6px'}">
     <div class="flex items-start gap-2 justify-between">
       <div class="text-2xl leading-8 text-color font-medium">Customer Profiles</div>
@@ -71,36 +72,36 @@
   </p-card>
 
   <p-dialog header="Customer Detail" [(visible)]="_booleanShowDataDialog" [modal]="true"
-    [style]="{ width: '40vw' }" [closable]="true" [dismissableMask]="true">
+    [style]="{ width: '50vw' }" [closable]="true" [dismissableMask]="true">
     <ng-container *ngIf="selectedCustomer">
       <div class="p-fluid">
         <div class="field">
-          <label class="font-semibold text-color">Name:</label>
+          <label class="font-semibold block font-medium text-color mb-2">Name</label>
           <p>{{ selectedCustomer.full_name }}</p>
           <p-divider></p-divider>
         </div>
         <div class="field">
-          <label class="font-semibold text-color">Email:</label>
+          <label class="font-semibold block font-medium text-color mb-2">Email</label>
           <p>{{ selectedCustomer.email }}</p>
           <p-divider></p-divider>
         </div>
         <div class="field">
-          <label class="font-semibold text-color">Phone:</label>
+          <label class="font-semibold block font-medium text-color mb-2">Phone</label>
           <p>{{ selectedCustomer.phone_number || '-' }}</p>
           <p-divider></p-divider>
         </div>
         <div class="field">
-          <label class="font-semibold text-color">Customer Type:</label>
+          <label class="font-semibold block font-medium text-color mb-2">Customer Type</label>
           <p>{{ selectedCustomer.customer_type || '-' }}</p>
           <p-divider></p-divider>
         </div>
         <div class="field">
-          <label class="font-semibold text-color">City:</label>
+          <label class="font-semibold block font-medium text-color mb-2">City</label>
           <p>{{ selectedCustomer.city || '-' }}</p>
           <p-divider></p-divider>
         </div>
         <div class="field">
-          <label class="font-semibold text-color">Country:</label>
+          <label class="font-semibold block font-medium text-color mb-2">Country</label>
           <p>{{ selectedCustomer.country || '-' }}</p>
           <p-divider></p-divider>
         </div>

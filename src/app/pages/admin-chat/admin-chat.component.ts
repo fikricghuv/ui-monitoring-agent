@@ -455,5 +455,15 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectRoom(this._modelSelectedRoom);
   }
 
+  public onRefreshData(): void {
+    
+    this.loadRooms();
+    this.messageService.add({
+        severity: 'success',
+        summary: 'Refreshed',
+        detail: 'Data has been refreshed.'
+    });
+  }
+
 
 }
