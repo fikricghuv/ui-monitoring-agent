@@ -61,14 +61,28 @@ export class UserService {
   /**
    * Mengambil profil semua pengguna.
    */
-  public getAllUserProfile(): Observable<UserListResponse> {
-    const url = `${this.apiUrl}/users/all`;
-    return this.http.get<UserListResponse>(url, {
+  public getAllUserProfile(
+    offset: number = 0,
+    limit: number = 10,
+    searchQuery?: string
+  ): Observable<UserListResponse> {
+    let params: any = {
+      offset: offset,
+      limit: limit
+    };
+
+    if (searchQuery && searchQuery.trim() !== '') {
+      params.search = searchQuery.trim();
+    }
+
+    return this.http.get<UserListResponse>(`${this.apiUrl}/users/all`, {
       headers: this.getHeaders(),
+      params: params
     }).pipe(
       catchError(this.handleError)
     );
   }
+
 
   /**
    * Menghapus pengguna berdasarkan ID.

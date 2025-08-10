@@ -18,7 +18,13 @@
         <div class="mt-6 mb-4 flex items-center justify-between">
             <p-iconfield iconPosition="left">
                 <p-inputicon class="pi pi-search"></p-inputicon>
-                <input pInputText type="text" [(ngModel)]="search" placeholder="Search" />
+                <input 
+                    pInputText 
+                    type="text" 
+                    [(ngModel)]="_searchQuery" 
+                    (ngModelChange)="_searchSubject.next($event)"
+                    placeholder="Search" 
+                />
             </p-iconfield>
             <div class="flex items-center gap-3">
                 <p-button 

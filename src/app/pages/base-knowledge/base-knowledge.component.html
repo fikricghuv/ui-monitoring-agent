@@ -92,7 +92,8 @@
 					styleClass="p-button-primary p-button-md mr-2"
 					[style]="{'margin-top': '15px'}" 
 					(onClick)="confirmProcessWebsiteEmbedding($event)" 
-					[raised]="true">
+					[raised]="true"
+					[disabled]="isProcessDisabledWeb">
 				</p-button>
 				<p-button 
 					label="Add Website URL" 

@@ -7,12 +7,13 @@ import { Subject } from 'rxjs';
 import { takeUntil, filter } from 'rxjs/operators';
 import { ENUM_SENDER } from '../constants/enum.constant'
 import { ChatCoreService } from '../services/user-chat-core.service';
+import { ButtonModule } from 'primeng/button';
 
 
 @Component({
   selector: 'app-chat-widget',
   standalone: true,
-  imports: [CommonModule, HttpClientModule], 
+  imports: [CommonModule, HttpClientModule, ButtonModule], 
   templateUrl: './chat-widget.component.html',
   styleUrls: ['./chat-widget.component.scss'],
 })

@@ -156,28 +156,27 @@ export class BaseKnowledgeComponent implements OnInit {
 
   public onFileSelected(event: FileSelectEvent) {
     const selectedFiles = Array.from(event.files);
+
+    const allFiles = [...this._fileSelectedFiles, ...selectedFiles];
+
+    const uniqueFiles = allFiles.filter(
+      (file, index, self) =>
+        index === self.findIndex(f => f.name.toLowerCase() === file.name.toLowerCase())
+    );
+
     const existingFilenames = this._arrayUploadedFiles.map(file => (file.filename ?? '').toLowerCase());
+    const duplicateOnServer = uniqueFiles.filter(file => existingFilenames.includes(file.name.toLowerCase()));
 
-    const duplicateFiles = selectedFiles
-      .filter(file => existingFilenames.includes(file.name.toLowerCase()))
-      .map(file => file.name);
-
-    if (duplicateFiles.length > 0) {
+    if (duplicateOnServer.length > 0) {
       this.messageService.add({
         severity: 'warn',
         summary: 'File Duplikat',
-        detail: `File berikut sudah pernah diunggah: ${duplicateFiles.join(', ')}`
+        detail: `File berikut sudah pernah diunggah: ${duplicateOnServer.map(f => f.name).join(', ')}`
       });
-
-      if (this.fileUploader) {
-        this.fileUploader.clear();
-      }
-      this._fileSelectedFiles = [];
-    } else {
-      this._fileSelectedFiles = selectedFiles;
+      return;
     }
+    this._fileSelectedFiles = uniqueFiles;
   }
-
 
   public fetchUploadedFiles() {
     this.knowledgeBaseService.getUploadedFiles().subscribe({
@@ -375,6 +374,10 @@ export class BaseKnowledgeComponent implements OnInit {
     return !this._arrayUploadedFiles.some(file => file.status === 'pending');
   }
 
+  get isProcessDisabledWeb(): boolean {
+  return !this._arrayWebsiteSources?.some(s => s.status === 'pending');
+}
+
   public fetchWebsiteSources() {
     this._appConfigurator.showLoading();
     this.websiteKBService.getWebsiteSources().subscribe({
@@ -481,6 +484,7 @@ export class BaseKnowledgeComponent implements OnInit {
           summary: 'Sukses',
           detail: 'Proses embedding website berhasil dimulai.'
         });
+        this.fetchWebsiteSources();
         this._appConfigurator.hideLoading();
       },
       error: (error) => {
@@ -495,8 +499,6 @@ export class BaseKnowledgeComponent implements OnInit {
     });
   }
 
-  // --- Metode Konfirmasi (Diperbarui untuk website) ---
-  
   public confirmAddWebsiteUrl(): void {
     this._showAddUrlDialog = true;
   }
@@ -543,7 +545,5 @@ export class BaseKnowledgeComponent implements OnInit {
       }
     });
   }
-
-
 }
 

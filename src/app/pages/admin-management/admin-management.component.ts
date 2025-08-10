@@ -22,6 +22,8 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmationService } from 'primeng/api';
 import { MessageService } from 'primeng/api';
 import { CardModule } from 'primeng/card';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 
 @Component({
     selector: 'customers-app',
@@ -54,13 +56,13 @@ export class AdminManagementComponent {
     _listMenuItems: MenuItem[] = [];
     _defaultHomeMenu?: MenuItem;
 
-    search = '';
+    _searchQuery = '';
     tableData: UserModel[] = [];
     selectedRows: UserModel[] = [];
 
     selectedAdminProfile?: UserModel;
     _booleanShowDataDialog = false;
-    _booleanShowCreateDialog = false; 
+    _booleanShowCreateDialog = false;
 
     selectedRowData: UserModel | null = null;
     editMode = false;
@@ -72,6 +74,8 @@ export class AdminManagementComponent {
         role: 'ADMIN'
     };
 
+    _searchSubject = new Subject<string>();
+
     private _originalAdminProfile?: UserModel;
 
     constructor(
@@ -79,37 +83,47 @@ export class AdminManagementComponent {
         private cdr: ChangeDetectorRef,
         private confirmationService: ConfirmationService,
         private messageService: MessageService,
-    ) {}
+    ) { }
 
     ngOnInit() {
         this._listMenuItems = [{ label: 'Customer Interactions' }];
         this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
         this.loadUserProfiles(false);
+
+        this._searchSubject.pipe(
+            debounceTime(300),
+            distinctUntilChanged(),
+            filter(query => query.length === 0 || query.length >= 3)
+        ).subscribe(() => {
+            this.loadUserProfiles(false);
+        });
     }
 
-    private loadUserProfiles(showToast: boolean = true) {
-        this.userService.getAllUserProfile().subscribe({
+    private loadUserProfiles(showToast: boolean = true, offset: number = 0, limit: number = 10) {
+        const query = this._searchQuery.trim();
+
+        this.userService.getAllUserProfile(offset, limit, query).subscribe({
             next: (users: UserListResponse) => {
-                this.tableData = users.data;
-                this.cdr.markForCheck();
+            this.tableData = users.data;
+            this.cdr.markForCheck();
 
-                console.log('[ADMIN][GET_USERS] Loaded users:', users);
+            console.log('[ADMIN][GET_USERS] Loaded users:', users);
 
-                if (showToast) {
-                    this.messageService.add({
-                        severity: 'success',
-                        summary: 'Refreshed',
-                        detail: 'User data has been refreshed.'
-                    });
-                }
+            if (showToast) {
+                this.messageService.add({
+                severity: 'success',
+                summary: 'Refreshed',
+                detail: 'User data has been refreshed.'
+                });
+            }
             },
             error: (err) => {
-                console.error('[ADMIN][GET_USERS] Error fetching users:', err);
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to load admin profile.'
-                });
+            console.error('[ADMIN][GET_USERS] Error fetching users:', err);
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to load admin profile.'
+            });
             }
         });
     }
@@ -193,7 +207,7 @@ export class AdminManagementComponent {
                 this.tableData = [...this.tableData, createdUser];
                 this.cdr.markForCheck();
                 this.closeCreateDialog();
-                this._booleanShowCreateDialog = false; 
+                this._booleanShowCreateDialog = false;
 
                 this.messageService.add({
                     severity: 'success',
@@ -213,6 +227,16 @@ export class AdminManagementComponent {
     }
 
     confirmCreateUser(event: Event) {
+        const validationError = this.validateNewUserForm();
+        if (validationError) {
+            this.messageService.add({
+                severity: 'error',
+                summary: 'Field Mandatory',
+                detail: validationError
+            });
+            return;
+        }
+
         this.confirmationService.confirm({
             target: event.target as EventTarget,
             message: 'Yakin ingin membuat admin baru?',
@@ -223,14 +247,14 @@ export class AdminManagementComponent {
             acceptButtonProps: { severity: 'success' },
             rejectButtonProps: { severity: 'secondary', outlined: true },
             accept: () => {
-            this.createUser();
+                this.createUser();
             },
             reject: () => {
-            this.messageService.add({
-                severity: 'info',
-                summary: 'Dibatalkan',
-                detail: 'Pembuatan admin dibatalkan.'
-            });
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Dibatalkan',
+                    detail: 'Pembuatan admin dibatalkan.'
+                });
             }
         });
     }
@@ -268,7 +292,7 @@ export class AdminManagementComponent {
         });
     }
 
-    public confirmDeleteProfile(event: Event, data : UserModel | null) {
+    public confirmDeleteProfile(event: Event, data: UserModel | null) {
         if (!data || !data.id) {
             console.error('[ADMIN][DELETE_USER] No selected admin profile or missing ID.');
             return;
@@ -304,24 +328,24 @@ export class AdminManagementComponent {
 
     public confirmSaveProfile(event: Event) {
         this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Yakin ingin menyimpan perubahan profil admin?',
-        header: 'Konfirmasi Simpan',
-        icon: 'pi pi-question-circle',
-        acceptLabel: 'Simpan',
-        rejectLabel: 'Batal',
-        acceptButtonProps: { severity: 'success' },
-        rejectButtonProps: { severity: 'secondary', outlined: true },
-        accept: () => {
-            this.updateProfileAdmin();
-        },
-        reject: () => {
-            this.messageService.add({
-            severity: 'info',
-            summary: 'Dibatalkan',
-            detail: 'Perubahan tidak disimpan.'
-            });
-        }
+            target: event.target as EventTarget,
+            message: 'Yakin ingin menyimpan perubahan profil admin?',
+            header: 'Konfirmasi Simpan',
+            icon: 'pi pi-question-circle',
+            acceptLabel: 'Simpan',
+            rejectLabel: 'Batal',
+            acceptButtonProps: { severity: 'success' },
+            rejectButtonProps: { severity: 'secondary', outlined: true },
+            accept: () => {
+                this.updateProfileAdmin();
+            },
+            reject: () => {
+                this.messageService.add({
+                    severity: 'info',
+                    summary: 'Dibatalkan',
+                    detail: 'Perubahan tidak disimpan.'
+                });
+            }
         });
     }
 
@@ -339,34 +363,56 @@ export class AdminManagementComponent {
 
     public confirmCancelUpdateProfile(event: Event) {
         this.confirmationService.confirm({
-        target: event.target as EventTarget,
-        message: 'Yakin ingin membatalkan perubahan profil?',
-        header: 'Konfirmasi Reset',
-        icon: 'pi pi-question-circle',
-        acceptLabel: 'Reset',
-        rejectLabel: 'Batal',
-        acceptButtonProps: { severity: 'success' },
-        rejectButtonProps: { severity: 'secondary', outlined: true },
-        accept: () => this.resetProfile(),
-        reject: () => {}
+            target: event.target as EventTarget,
+            message: 'Yakin ingin membatalkan perubahan profil?',
+            header: 'Konfirmasi Reset',
+            icon: 'pi pi-question-circle',
+            acceptLabel: 'Reset',
+            rejectLabel: 'Batal',
+            acceptButtonProps: { severity: 'success' },
+            rejectButtonProps: { severity: 'secondary', outlined: true },
+            accept: () => this.resetProfile(),
+            reject: () => { }
         });
     }
 
     public isProfileChanged(): boolean {
         return JSON.stringify(this.selectedAdminProfile) !== JSON.stringify(this._originalAdminProfile);
-    }   
+    }
 
     showCreateAdminDialog() {
-    this.newUserData = {
-        email: '',
-        password: '',
-        full_name: '',
-        role: 'ADMIN'
-    };
-    this._booleanShowCreateDialog = true;
+        this.newUserData = {
+            email: '',
+            password: '',
+            full_name: '',
+            role: 'ADMIN'
+        };
+        this._booleanShowCreateDialog = true;
     }
 
     closeCreateDialog() {
-    this._booleanShowCreateDialog = false;
+        this._booleanShowCreateDialog = false;
     }
+
+    private validateNewUserForm(): string | null {
+        if (!this.newUserData.full_name || this.newUserData.full_name.trim() === '') {
+            return 'Nama harus diisi.';
+        }
+
+        if (!this.newUserData.email || this.newUserData.email.trim() === '') {
+            return 'Email harus diisi.';
+        }
+
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+        if (!emailRegex.test(this.newUserData.email)) {
+            return 'Format email tidak valid.';
+        }
+
+        if (!this.newUserData.password || this.newUserData.password.length < 8) {
+            return 'Password minimal 8 karakter.';
+        }
+
+        return null;
+    }
+
 }

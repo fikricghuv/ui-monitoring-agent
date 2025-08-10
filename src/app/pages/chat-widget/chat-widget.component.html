@@ -11,9 +11,12 @@
 <div class="fixed chatModal" [ngClass]="{'chatModal--hidden': !_booleanIsOpen}">
 
   <div class="absolute" [ngStyle]="{ top: '1.5rem', right: '1rem', maxWidth: '30px' }">
-      <button class="close-button" (click)="toggleChat()">
-        <img src="/assets/images/close-icon.png" alt="Close" class="close-icon" />
-      </button>
+      <p-button 
+          icon="pi pi-times"
+          styleClass="p-button-primary p-button-rounded p-button-sm p-button-text"
+          (onClick)="toggleChat()">
+      </p-button>
+
   </div>
 
   <iframe 
