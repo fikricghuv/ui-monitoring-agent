@@ -369,7 +369,7 @@ export class AdminManagementComponent {
             icon: 'pi pi-question-circle',
             acceptLabel: 'Reset',
             rejectLabel: 'Batal',
-            acceptButtonProps: { severity: 'success' },
+            acceptButtonProps: { severity: 'primary' },
             rejectButtonProps: { severity: 'secondary', outlined: true },
             accept: () => this.resetProfile(),
             reject: () => { }

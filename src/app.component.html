@@ -15,6 +15,30 @@
         <p-progressSpinner styleClass="w-4rem h-4rem" strokeWidth="8" animationDuration=".8s"></p-progressSpinner>
         <p>Processing, please wait...</p>
     </div>
+    <p-dialog 
+        [header]="modalMessage"
+        [modal]="true" 
+        [(visible)]="displayModal" 
+        [draggable]="false" 
+        [resizable]="false" 
+        [style]="{ width: '90%', maxWidth: '400px' }"
+        position="top"
+    >
+        <div class="p-d-flex flex p-ai-center">
+            <i
+                class="pi pi-exclamation-triangle p-mr-3"
+                style="font-size: 2rem; color: var(--red-500);"
+                aria-hidden="true"
+            ></i>
+            <p class="ml-5">{{ modalDetail }}</p>
+        </div>
+
+        <ng-template pTemplate="footer">
+            <div class="p-d-flex p-jc-end">
+                <p-button label="OK" (click)="onOkClick()"></p-button>
+            </div>
+        </ng-template>
+    </p-dialog>
 </div>
 
 <!-- <router-outlet></router-outlet> -->
