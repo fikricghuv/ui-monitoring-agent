@@ -4,7 +4,6 @@ import { RouterModule, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { ChatWidgetComponent } from './app/pages/chat-widget/chat-widget.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { AppLayout } from "./app/layout/component/app.layout";
 import { LayoutService } from './app/layout/service/layout.service';
 import { DialogModule } from 'primeng/dialog';
 import { ButtonModule } from 'primeng/button';
@@ -17,7 +16,6 @@ import { ErrorHandlingService } from './app/pages/services/error-handling.servic
         RouterModule,
         ChatWidgetComponent,
         ProgressSpinnerModule,
-        AppLayout,
         DialogModule,
         ButtonModule
     ],

@@ -409,6 +409,21 @@ export class BaseKnowledgeComponent implements OnInit {
       });
       return;
     }
+
+    const newUrlLower = this._newWebsiteUrl.trim().toLowerCase();
+
+    const exists = this._arrayWebsiteSources.some(
+      w => w.url.toLowerCase() === newUrlLower
+    );
+
+    if (exists) {
+      this.messageService.add({
+        severity: 'warn',
+        summary: 'Peringatan',
+        detail: `URL "${this._newWebsiteUrl}" sudah ada sebelumnya.`
+      });
+      return;
+    }
     
     this._appConfigurator.showLoading();
     this.websiteKBService.addWebsiteSource(this._newWebsiteUrl.trim()).subscribe({
@@ -446,7 +461,7 @@ export class BaseKnowledgeComponent implements OnInit {
         this.messageService.add({
           severity: 'success',
           summary: 'Sukses',
-          detail: `Sumber website "${source.url}" berhasil dihapus.`
+          detail: `URL:  "${source.url}" berhasil dihapus.`
         });
         this.fetchWebsiteSources();
         this._appConfigurator.hideLoading();
