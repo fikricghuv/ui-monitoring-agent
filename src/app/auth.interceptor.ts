@@ -15,7 +15,6 @@ export const AuthInterceptor: HttpInterceptorFn = (request: HttpRequest<any>, ne
   const accessToken = localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
   const refreshToken = localStorage.getItem('refresh_token') || sessionStorage.getItem('refresh_token');
 
-  // Tambahkan Authorization dan X-API-Key jika tersedia
   let headers = request.headers.set('X-API-Key', apiKey);
   if (accessToken) {
     headers = headers.set('Authorization', `Bearer ${accessToken}`);
@@ -25,44 +24,59 @@ export const AuthInterceptor: HttpInterceptorFn = (request: HttpRequest<any>, ne
 
   return next(modifiedRequest).pipe(
     catchError((error: HttpErrorResponse) => {
-      if (error.status === 401 && refreshToken) {
-        if (!isRefreshing) {
-          isRefreshing = true;
-          refreshTokenSubject.next(null);
+      if (error.status === 401) {
+        
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('access_token_expires_at');
 
-          return loginService.refreshAccessToken(refreshToken).pipe(
-            switchMap((newToken: string) => {
-              isRefreshing = false;
-              localStorage.setItem('access_token', newToken);
-              refreshTokenSubject.next(newToken);
-
-              const retryHeaders = request.headers
-                .set('X-API-Key', apiKey)
-                .set('Authorization', `Bearer ${newToken}`);
-
-              return next(request.clone({ headers: retryHeaders }));
-            }),
-            catchError(err => {
-              isRefreshing = false;
-              return throwError(() => err);
-            })
-          );
-        } else {
-          return refreshTokenSubject.pipe(
-            filter(token => token !== null),
-            take(1),
-            switchMap(token => {
-              const retryHeaders = request.headers
-                .set('X-API-Key', apiKey)
-                .set('Authorization', `Bearer ${token!}`);
-
-              return next(request.clone({ headers: retryHeaders }));
-            })
-          );
-        }
+        window.location.href = '/login';
       }
-
       return throwError(() => error);
     })
   );
+
+
+  // return next(modifiedRequest).pipe(
+  //   catchError((error: HttpErrorResponse) => {
+  //     if (error.status === 401 && refreshToken) {
+  //       if (!isRefreshing) {
+  //         isRefreshing = true;
+  //         refreshTokenSubject.next(null);
+
+  //         return loginService.refreshAccessToken(refreshToken).pipe(
+  //           switchMap((newToken: string) => {
+  //             isRefreshing = false;
+  //             localStorage.setItem('access_token', newToken);
+  //             refreshTokenSubject.next(newToken);
+
+  //             const retryHeaders = request.headers
+  //               .set('X-API-Key', apiKey)
+  //               .set('Authorization', `Bearer ${newToken}`);
+
+  //             return next(request.clone({ headers: retryHeaders }));
+  //           }),
+  //           catchError(err => {
+  //             isRefreshing = false;
+  //             return throwError(() => err);
+  //           })
+  //         );
+  //       } else {
+  //         return refreshTokenSubject.pipe(
+  //           filter(token => token !== null),
+  //           take(1),
+  //           switchMap(token => {
+  //             const retryHeaders = request.headers
+  //               .set('X-API-Key', apiKey)
+  //               .set('Authorization', `Bearer ${token!}`);
+
+  //             return next(request.clone({ headers: retryHeaders }));
+  //           })
+  //         );
+  //       }
+  //     }
+
+  //     return throwError(() => error);
+  //   })
+  // );
 };

@@ -46,7 +46,7 @@
             <td>{{ feedback.category || '-' }}</td>
             <td class="leading-6 text-muted-color">{{ feedback.feedback_from_customer?.length > 30 ?
               (feedback.feedback_from_customer | slice:0:30) + '...' : feedback.feedback_from_customer || '-' }}</td>
-            <td class="leading-6 text-muted-color">{{ feedback.sentiment || '-' }}</td>
+            <td class="leading-6 text-muted-color">{{ feedback.sentiment ? (feedback.sentiment | uppercase) : '-' }}</td>
             <td class="leading-6 text-muted-color">{{ feedback.potential_actions?.length > 20 ?
               (feedback.potential_actions | slice:0:30) + '...' : feedback.potential_actions || '-' }}</td>
             <td class="leading-6 text-muted-color">{{ feedback.keyword_issue || '-' }}</td>
@@ -95,7 +95,7 @@
                   'p-tag-danger': _selectedFeedback.sentiment === 'negative'
                 }"
               >
-                {{ _selectedFeedback.sentiment }}
+                {{ _selectedFeedback.sentiment | uppercase }}
               </span>
             </p>
             <p-divider></p-divider>
