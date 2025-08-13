@@ -14,6 +14,8 @@ export class WebSocketService
   private _numberMaxReconnectAttempts: number;
   private _reconnectTimeout: any; 
 
+  private _accessToken = localStorage.getItem('access_token');
+
   readonly status$ = this._statusSubject.asObservable();
 
   constructor() 
@@ -42,8 +44,8 @@ export class WebSocketService
           return;
         }
 
-      const wsUrl = `${environment.websocketUrl}?user_id=${encodeURIComponent(id)}&role=${role}&api_key=${environment.apiKey}`;
-      
+      // const wsUrl = `${environment.websocketUrl}?user_id=${encodeURIComponent(id)}&role=${role}&api_key=${environment.apiKey}&access_token=${this._accessToken}`;
+      const wsUrl = `${environment.websocketUrl}?user_id=${encodeURIComponent(id)}&role=${role}&access_token=${this._accessToken}`;
       console.log(`Attempting to connect to ${wsUrl}`);
 
       this._statusSubject.next('connecting');

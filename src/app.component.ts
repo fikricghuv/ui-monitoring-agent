@@ -23,7 +23,7 @@ import { ErrorHandlingService } from './app/pages/services/error-handling.servic
 })
 export class AppComponent implements OnInit, OnDestroy {
     displayModal = false;
-    modalMessage = '';
+    modalCode = '';
     modalDetail = '';
     
     private errorSubscription!: Subscription;
@@ -31,14 +31,14 @@ export class AppComponent implements OnInit, OnDestroy {
     constructor(
         private layoutService: LayoutService,
         private router: Router,
-        private errorHandlingService: ErrorHandlingService // Inject ErrorHandlingService
+        private errorHandlingService: ErrorHandlingService 
     ) {}
 
     ngOnInit(): void {
         this.layoutService.initializeThemeFromSystem();
         
         this.errorSubscription = this.errorHandlingService.errorMessage$.subscribe(error => {
-            this.modalMessage = error.message;
+            this.modalCode = error.code;
             this.modalDetail = error.detail;
             this.displayModal = true;
         });
@@ -47,7 +47,7 @@ export class AppComponent implements OnInit, OnDestroy {
     onOkClick(): void {
         this.displayModal = false; 
         
-        if (this.modalMessage === 'Sesi Berakhir') {
+        if (this.modalCode === 'Sesi Berakhir') {
             this.router.navigate(['/login']);
         }
     }

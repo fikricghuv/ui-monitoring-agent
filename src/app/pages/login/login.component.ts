@@ -88,7 +88,7 @@ export class LoginComponent {
         this.messageService.add({
           severity: 'error',
           summary: 'Login Failed',
-          detail: err.message
+          detail: 'Error while login'
         });
       }
     });

@@ -3,7 +3,7 @@ import { DocumentationComponent } from './documentation/documentation.component'
 import { RealtimeMonitoringComponent } from './realtime-monitoring/realtime-monitoring.component';
 import { PromptEditorComponent } from './prompt-editor/prompt-editor.component';
 import { BaseKnowledgeComponent } from './base-knowledge/base-knowledge.component';
-import { PlaygroundComponent } from './playground/playground.component';
+// import { PlaygroundComponent } from './playground/playground.component';
 import { AnalyticsComponent } from './feedback-analytics/feedback-analytics.component';
 import { Dashboard } from './dashboard/dashboard';
 import { AdminChatComponent } from './admin-chat/admin-chat.component';
@@ -20,7 +20,7 @@ export default [
     { path: 'monitoring', component: RealtimeMonitoringComponent },
     { path: 'editor', component: PromptEditorComponent },
     { path: 'base-knowledge', component: BaseKnowledgeComponent},
-    { path: 'playground', component: PlaygroundComponent},
+    // { path: 'playground', component: PlaygroundComponent},
     { path: 'admin-chat', component: AdminChatComponent},
     { path: 'feedback', component: AnalyticsComponent},
     { path: 'report', component: ReportComponent },

@@ -390,7 +390,7 @@ export class BaseKnowledgeComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Gagal memuat sumber website. Silakan coba lagi.'
+          detail: 'Gagal memuat url. Silakan coba lagi.'
         });
         this._appConfigurator.hideLoading();
       }

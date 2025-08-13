@@ -12,16 +12,31 @@
 			</div>
 		</div>
 
-		<p-fieldset legend="Upload Documents" [toggleable]="true" styleClass="p-mb-4">
-			<p-fileUpload #fileUploader name="files[]" mode="advanced" [auto]="false" [multiple]="true" accept=".pdf"
-				maxFileSize="10000000" chooseLabel="Choose Files" uploadLabel="Upload" cancelLabel="Cancel"
-				[customUpload]="true" (uploadHandler)="onUpload($event)" (onSelect)="onFileSelected($event)"
-				(onClear)="onFileClear()" (onRemove)="onRemoveFile($event)">
+		<p-fieldset legend="Upload Documents" [toggleable]="true" styleClass="p-mb-4 upload-documents-fieldset">
+			<p-fileUpload
+				#fileUploader
+				name="files[]"
+				mode="advanced"
+				[auto]="false"
+				[multiple]="true"
+				accept=".pdf"
+				maxFileSize="10000000"
+				chooseLabel="Choose Files"
+				uploadLabel="Upload"
+				cancelLabel="Cancel"
+				[customUpload]="true"
+				(uploadHandler)="onUpload($event)"
+				(onSelect)="onFileSelected($event)"
+				(onClear)="onFileClear()"
+				(onRemove)="onRemoveFile($event)"
+				styleClass="responsive-file-upload"
+			>
 				<ng-template #empty>
-					<div>Drag and drop PDF files here to upload.</div>
+				<div class="empty-upload-text">Drag and drop PDF files here to upload.</div>
 				</ng-template>
 			</p-fileUpload>
 		</p-fieldset>
+
 
 		<p-fieldset legend="📂 Uploaded File" [toggleable]="true" styleClass="p-mb-4">
 			<p-listbox class="pListboxKnowledge" [options]="_arrayUploadedFiles" optionLabel="filename"

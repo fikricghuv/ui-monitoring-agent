@@ -28,7 +28,7 @@ export class AppMenu {
             {
                 label: 'Conversation',
                 items: [
-                    { label: 'Playground', icon: 'pi pi-fw pi-comment', routerLink: ['/pages/playground'] },
+                    // { label: 'Playground', icon: 'pi pi-fw pi-comment', routerLink: ['/pages/playground'] },
                     { label: 'Admin Chat', icon: 'pi pi-fw pi-comments', routerLink: ['/pages/admin-chat'] },
                 ]
             },
