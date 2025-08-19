@@ -44,7 +44,6 @@ export class WebSocketService
           return;
         }
 
-      // const wsUrl = `${environment.websocketUrl}?user_id=${encodeURIComponent(id)}&role=${role}&api_key=${environment.apiKey}&access_token=${this._accessToken}`;
       const wsUrl = `${environment.websocketUrl}?user_id=${encodeURIComponent(id)}&role=${role}&access_token=${this._accessToken}`;
       console.log(`Attempting to connect to ${wsUrl}`);
 
@@ -54,7 +53,7 @@ export class WebSocketService
 
       this._socket.onopen = () => {
         
-        console.log('✅ WebSocket terhubung');
+        console.log('✅ WebSocket Admin terhubung');
         
         this._numberReconnectAttempts = 0;
         
@@ -72,13 +71,13 @@ export class WebSocketService
 
       this._socket.onmessage = (event) => 
       {
-        console.log('>>> DEBUG: WebSocket onmessage event fired.', event.data); 
+        console.log('>>> DEBUG: WebSocket Admin onmessage event fired.', event.data); 
         
         try 
         {
           const data = JSON.parse(event.data);
          
-          console.log('>>> DEBUG: Parsed data, calling next():', data);
+          console.log('>>> DEBUG Admin: Parsed data, calling next():', data);
           
           this._messageSubject.next(data);
         } 
@@ -91,7 +90,7 @@ export class WebSocketService
 
       this._socket.onclose = (event) => 
       {
-        console.warn(`⚠️ WebSocket ditutup: Code=${event.code}, Reason=${event.reason}, Clean=${event.wasClean}`, event);
+        console.warn(`⚠️ WebSocket Admin ditutup: Code=${event.code}, Reason=${event.reason}, Clean=${event.wasClean}`, event);
         
         this._statusSubject.next('disconnected'); 
         
@@ -102,7 +101,7 @@ export class WebSocketService
         } 
         else 
         {
-           console.log("✅ WebSocket ditutup dengan bersih.");
+           console.log("✅ WebSocket Admin ditutup dengan bersih.");
            
            this._numberReconnectAttempts = 0; 
         }
