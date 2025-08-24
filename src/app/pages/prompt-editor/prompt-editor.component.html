@@ -36,7 +36,22 @@
       <!-- Style Communication -->
       <div class="field mb-3">
         <label for="styleCommunication" class="font-semibold">Style Communication</label>
-        <textarea id="styleCommunication" pInputTextarea rows="7" [(ngModel)]="_objtSelectedPrompt.style_communication" placeholder="Enter style communication..." style="width: 100%; margin-top: 10px;"></textarea>
+        <textarea id="styleCommunication" pInputTextarea rows="4" [(ngModel)]="_objtSelectedPrompt.style_communication" placeholder="Enter style communication..." style="width: 100%; margin-top: 10px;"></textarea>
+      </div>
+
+      <div class="field mb-3">
+        <label for="goalAgent" class="font-semibold">Goals Agent</label>
+        <textarea id="goalAgent" pInputTextarea rows="4" [(ngModel)]="_objtSelectedPrompt.goal" placeholder="Enter system prompt..." style="width: 100%; margin-top: 10px;"></textarea>
+      </div>
+
+      <div class="field mb-3">
+        <label for="expectedOutput" class="font-semibold">Expected Output</label>
+        <textarea id="expectedOutput" pInputTextarea rows="4" [(ngModel)]="_objtSelectedPrompt.expected_output" placeholder="Enter system prompt..." style="width: 100%; margin-top: 10px;"></textarea>
+      </div>
+
+      <div class="field mb-3">
+        <label for="systemPrompt" class="font-semibold">Instructions</label>
+        <textarea id="systemPrompt" pInputTextarea rows="8" [(ngModel)]="_objtSelectedPrompt.prompt_system" placeholder="Enter system prompt..." style="width: 100%; margin-top: 10px;"></textarea>
       </div>
 
       <!-- Tombol Aksi -->

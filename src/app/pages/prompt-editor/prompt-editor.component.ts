@@ -41,14 +41,22 @@ export class PromptEditorComponent implements OnInit {
     name: '',
     name_agent: '',
     description_agent: '',
-    style_communication: ''
+    style_communication: '',
+    prompt_system: '',
+    goal: '',
+    expected_output: ''
   };
+
   public _objtOriginalPrompt: Prompt = {
     name: '',
     name_agent: '',
     description_agent: '',
-    style_communication: ''
+    style_communication: '',
+    prompt_system: '',
+    goal: '',
+    expected_output: ''
   };
+
   public _listMenuItems: MenuItem[] | undefined;
   public _defaultHomeMenu: MenuItem | undefined;
 
@@ -69,6 +77,7 @@ export class PromptEditorComponent implements OnInit {
       next: (data) => {
         this._arrayPrompts = data;
         if (this._arrayPrompts.length > 0) {
+          console.log('Loaded _arrayPrompts:', this._arrayPrompts);
           this._objtSelectedPrompt = { ...this._arrayPrompts[0] };
           this._objtOriginalPrompt = { ...this._arrayPrompts[0] };
         }
@@ -91,7 +100,8 @@ export class PromptEditorComponent implements OnInit {
         name: this._objtSelectedPrompt.name,
         name_agent: this._objtSelectedPrompt.name_agent,
         description_agent: this._objtSelectedPrompt.description_agent,
-        style_communication: this._objtSelectedPrompt.style_communication
+        style_communication: this._objtSelectedPrompt.style_communication,
+        prompt_system: this._objtSelectedPrompt.prompt_system
       })
       .subscribe({
         next: (response) => {
