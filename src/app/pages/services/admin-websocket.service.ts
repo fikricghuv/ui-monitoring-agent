@@ -16,6 +16,12 @@ export class WebSocketService
 
   private _accessToken = localStorage.getItem('access_token');
 
+  private _messageQueue: any[] = [];
+
+  private _lastId?: string;
+  private _lastRole?: string;
+
+
   readonly status$ = this._statusSubject.asObservable();
 
   constructor() 
@@ -31,6 +37,8 @@ export class WebSocketService
    */
   public connect(id: string, role: string): Promise<void> 
   {
+    this._lastId = id;
+    this._lastRole = role;
     return new Promise((resolve, reject) => 
     {
       if (this._socket && (this._socket.readyState === WebSocket.OPEN || this._socket.readyState === WebSocket.CONNECTING))
@@ -39,9 +47,9 @@ export class WebSocketService
           
           this._statusSubject.next(this._socket.readyState === WebSocket.OPEN ? 'connected' : 'connecting');
           
-          resolve(); 
+          this.flushQueue();
 
-          return;
+          resolve(); 
         }
 
       const wsUrl = `${environment.websocketUrl}?user_id=${encodeURIComponent(id)}&role=${role}&access_token=${this._accessToken}`;
@@ -65,6 +73,7 @@ export class WebSocketService
           
           this._reconnectTimeout = null;
         }
+        this.flushQueue();
 
         resolve();
       };
@@ -110,10 +119,18 @@ export class WebSocketService
       this._socket.onerror = (error) => 
       {
         console.error('❌ WebSocket error:', error);
-        
+
         this._statusSubject.next('disconnected'); 
-        
-        reject(error);
+
+        // pastikan socket direset
+        this._socket = undefined;
+
+        // langsung coba reconnect
+        this.tryReconnect(id, role);
+
+        if (this._numberReconnectAttempts === 0) {
+          reject(error);
+        }
       };
     });
   }
@@ -176,13 +193,37 @@ export class WebSocketService
           this._socket.send(JSON.stringify(payload));
       } catch (e) {
           console.error('❌ Gagal mengirim pesan (stringify error atau lainnya):', payload, e);
-          
+          this._messageQueue.push(payload);
       }
     }
     else
     {
       console.error('❌ WebSocket belum terhubung! Pesan gagal dikirim:', payload);
-    
+
+      if (this._lastId && this._lastRole) {
+        this.tryReconnect(this._lastId, this._lastRole);
+      }
+
+      this._messageQueue.push(payload);
+    }
+  }
+
+  /**
+   * Kirim ulang semua pesan yang ada di queue
+   */
+  private flushQueue(): void {
+    if (this._socket?.readyState === WebSocket.OPEN && this._messageQueue.length > 0) {
+      console.log(`📤 Mengirim ${this._messageQueue.length} pesan yang tertunda...`);
+      while (this._messageQueue.length > 0) {
+        const msg = this._messageQueue.shift();
+        try {
+          this._socket.send(JSON.stringify(msg));
+        } catch (e) {
+          console.error('❌ Gagal mengirim pesan dari queue:', msg, e);
+          this._messageQueue.unshift(msg); // masukkan lagi ke depan queue
+          break;
+        }
+      }
     }
   }
 

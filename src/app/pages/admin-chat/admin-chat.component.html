@@ -84,12 +84,14 @@
           </div>
         </div>
         <div
-        [ngClass]="
-          message.sender === _enumSender.User
-            ? 'flex-1 bg-surface-100 dark:bg-surface-800 px-2 py-1 rounded-lg'
-            : 'flex-1 bg-primary px-2 py-1 rounded-lg'
-        ">
-        
+          [ngClass]="
+            message.sender === _enumSender.User
+              ? 'inline-block bg-surface-100 dark:bg-surface-800 px-3 py-2 rounded-lg'
+              : 'inline-block bg-primary px-3 py-2 rounded-lg'
+          "
+          class="max-w-[80%] min-w-[60px] break-words"
+        >
+
         <p
           [innerHTML]="formatMessageAsHtml(message.message!)"
           [ngClass]="

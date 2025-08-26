@@ -507,7 +507,8 @@ export class BaseKnowledgeComponent implements OnInit {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'Gagal memulai proses embedding. Silakan coba lagi.'
+          // detail: 'Gagal memulai proses embedding. Silakan coba lagi.'
+          detail: error?.error?.detail || 'Gagal memulai proses embedding. Silakan coba lagi.'
         });
         this._appConfigurator.hideLoading();
       }

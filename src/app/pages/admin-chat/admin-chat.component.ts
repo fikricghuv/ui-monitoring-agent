@@ -119,46 +119,55 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.newMessageSubscription = this.webSocketService.getMessages().subscribe((message) => {
-      console.log("📨 Pesan baru dari WebSocket:", message);
+      console.log("📨 Pesan baru dari WebSocket ke admin:", message);
 
-      if (!message || !message.user_id) return;
+      if (!message || !message.room_id) return;
 
-      const roomIdentifier = message.user_id;
-
+      const roomIdentifier = message.room_id;
       this._modelChatMessages[roomIdentifier] = this._modelChatMessages[roomIdentifier] || [];
 
       const currentTime = new Date().toISOString(); 
 
-      if (message.question) {
-        this._modelChatMessages[roomIdentifier].push({ message: message.question, time: currentTime, sender: this._enumSender.User });
+      let senderType = this._enumSender.User; // default
+      if (message.role === 'user') {
+        senderType = this._enumSender.User;
+      } else if (message.role === 'admin' || message.role === 'chatbot') {
+        // chatbot dan admin disamakan → bubble kanan
+        senderType = this._enumSender.Admin;
       }
 
-      if (message.output) {
-        this._modelChatMessages[roomIdentifier].push({ message: message.output, time: currentTime, sender: this._enumSender.Chatbot });
-      }
-
+      // handle error khusus
+      let textMessage = message.message || '';
       if (message.error) {
-        this._modelChatMessages[roomIdentifier].push({ message: `❌ Error: ${message.error}`, time: currentTime, sender: this._enumSender.Chatbot });
+        textMessage = `❌ Error: ${message.error}`;
+        senderType = this._enumSender.Admin; // error tetap tampil di kanan
       }
 
+      this._modelChatMessages[roomIdentifier].push({
+        message: textMessage,
+        time: currentTime,
+        sender: senderType,
+      });
+
+      // update preview di daftar room
       const roomIndex = this._arrayRoomModel.findIndex((r) => r.id === roomIdentifier);
       if (roomIndex !== -1) {
-
         let lastMsgText = '';
-        
+
         if (message.output) {
           lastMsgText = message.output;
-        } else if (message.question) { 
+        } else if (message.question) {
           lastMsgText = message.question;
-        } else if (message.error) { 
+        } else if (message.error) {
           lastMsgText = `❌ Error: ${message.error}`;
+        } else if (message.message) {
+          lastMsgText = message.message;
         }
 
         this._arrayRoomModel[roomIndex].lastMessage = lastMsgText;
-        
         this._arrayRoomModel[roomIndex].lastTimeMessage = currentTime;
-        
-        this._arrayRoomModel = [...this._arrayRoomModel]; 
+
+        this._arrayRoomModel = [...this._arrayRoomModel];
 
         this._arrayRoomModel.sort((a, b) =>
           new Date(b.lastTimeMessage || 0).getTime() - new Date(a.lastTimeMessage || 0).getTime()
@@ -173,6 +182,7 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       { label: 'Admin Chat' }
     ];
     this._defaultHomeMenu = { icon: 'pi pi-home', routerLink: '/dashboard' };
+
   }
 
   ngAfterViewInit(): void {
