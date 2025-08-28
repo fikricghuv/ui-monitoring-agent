@@ -48,14 +48,6 @@ interface PasswordFormData {
     confirmNewPassword: string;
 }
 
-interface RecentActivity {
-    id: number;
-    type: string;
-    description: string;
-    time: string;
-    details?: string;
-}
-
 @Component({
     selector: 'app-profile',
     standalone: true,
@@ -247,7 +239,6 @@ export class ProfileComponent implements OnInit {
         });
     }
 
-    // --- Fungsi untuk Perubahan Kata Sandi ---
     changePassword(): void {
         if (!this.userId) {
             this.messageService.add({ severity: 'warn', summary: 'Peringatan', detail: 'ID pengguna tidak tersedia untuk perubahan kata sandi.' });
@@ -264,37 +255,37 @@ export class ProfileComponent implements OnInit {
             return;
         }
 
-        // Tambahkan validasi kekuatan kata sandi di sini jika diperlukan
-        // if (this.passwordForm.newPassword.length < 8) {
-        //     this.messageService.add({ severity: 'warn', summary: 'Peringatan', detail: 'Kata sandi baru minimal 8 karakter.' });
-        //     return;
-        // }
+        if (this.passwordForm.currentPassword === this.passwordForm.newPassword) {
+            this.messageService.add({ severity: 'error', summary: 'Gagal', detail: 'Kata sandi baru tidak boleh sama dengan kata sandi lama.' });
+            return;
+        }
 
         const changePasswordPayload: UserChangePasswordModel = {
             current_password: this.passwordForm.currentPassword,
             new_password: this.passwordForm.newPassword
         };
 
-        // this.userService.changePassword(this.userId, changePasswordPayload).subscribe({
-        //     next: (response) => {
-        //         // Asumsi backend mengembalikan pesan sukses
-        //         this.messageService.add({
-        //             severity: 'success',
-        //             summary: 'Berhasil',
-        //             detail: response.message || 'Kata sandi berhasil diubah.'
-        //         });
-        //         this.resetPasswordForm(); // Reset form setelah sukses
-        //     },
-        //     error: (err) => {
-        //         console.error('Gagal mengubah kata sandi:', err);
-        //         this.messageService.add({
-        //             severity: 'error',
-        //             summary: 'Gagal',
-        //             detail: 'Gagal mengubah kata sandi: ' + (err.error?.detail || err.message)
-        //         });
-        //     }
-        // });
+        this.userService.changePassword(this.userId, changePasswordPayload.current_password, changePasswordPayload.new_password)
+            .subscribe({
+                next: () => {
+                    this.messageService.add({
+                        severity: 'success',
+                        summary: 'Berhasil',
+                        detail: 'Kata sandi berhasil diubah.'
+                    });
+                    this.resetPasswordForm();
+                },
+                error: (err) => {
+                    console.error('Gagal mengubah kata sandi:', err);
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Gagal',
+                        detail: 'Gagal mengubah kata sandi: ' + (err.error?.detail || err.message)
+                    });
+                }
+            });
     }
+
 
     // --- Konfirmasi Dialog ---
     public confirmUpdateProfileInfo(event: Event) {
@@ -403,6 +394,4 @@ export class ProfileComponent implements OnInit {
         if (statusCode >= 500) return 'danger';
         return 'info';
     }
-
-
 }

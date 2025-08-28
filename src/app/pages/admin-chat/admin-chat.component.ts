@@ -59,6 +59,11 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
   public _listMenuItems: MenuItem[] | undefined;
   public _defaultHomeMenu: MenuItem | undefined;
   public _searchRoomQuery: string = '';
+  private _lastCursor?: string;
+
+  private _chatCursors: Record<string, string | null> = {};
+  private _isLoadingChatMore = false;
+
 
   get filteredMessages() 
   {
@@ -187,11 +192,21 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.scrollToBottom();
+
+    if (this.chatScroll?.nativeElement) {
+      this.chatScroll.nativeElement.addEventListener('scroll', this.onRoomListScroll.bind(this));
+    }
   }
 
   ngOnDestroy(): void {
     this.newMessageSubscription?.unsubscribe();
+
+    if (this.chatScroll?.nativeElement) {
+      this.chatScroll.nativeElement.removeEventListener('scroll', this.onRoomListScroll.bind(this));
+    }
   }
+
+  private _isLoadingMore = false;
 
   get filteredRooms(): RoomConversationModel[] {
     if (!this._searchRoomQuery.trim()) {
@@ -211,8 +226,12 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     this._modelSelectedRoom = room;
 
     if (room.id) {
-      this.chatHistoryService.loadChatHistoryByRoomId(room.id).subscribe({
+      this._chatCursors[room.id] = null; 
+      this._modelChatMessages[room.id] = [];
+      this.loadMoreChats(room.id);
 
+      this.chatHistoryService.loadChatHistoryByRoomId(room.id).subscribe({
+      
         next: (response) => {
           const groupedChats: MessageModel[] = [];
           
@@ -309,31 +328,72 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  public loadRooms(): void {
-    this.roomService.getActiveRooms().pipe(
+  public loadMoreChats(roomId: string): void {
+    if (this._isLoadingChatMore) return;
+    this._isLoadingChatMore = true;
+
+    const cursor = this._chatCursors[roomId] || undefined;
+
+    this.chatHistoryService.loadChatHistoryByRoomId(roomId, cursor).subscribe({
+      next: (response) => {
+        if (response.success && response.history && response.history.length > 0) {
+          const mappedChats = response.history.map(chatItem => {
+            const formattedTime = chatItem.created_at || new Date().toISOString();
+
+            let senderType: ENUM_SENDER;
+            switch (chatItem.role) {
+              case 'user': senderType = this._enumSender.User; break;
+              case 'admin': senderType = this._enumSender.Admin; break;
+              default: senderType = this._enumSender.Chatbot;
+            }
+
+            return { message: chatItem.message, time: formattedTime, sender: senderType };
+          });
+
+          // prepend (karena kita load history lama di atas)
+          this._modelChatMessages[roomId] = [
+            ...mappedChats,
+            ...(this._modelChatMessages[roomId] || [])
+          ];
+
+          // update cursor ke pesan paling lama
+          const oldest = mappedChats[0];
+          if (oldest) {
+            this._chatCursors[roomId] = oldest.time; 
+          }
+        }
+        this._isLoadingChatMore = false;
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error(`❌ Gagal load chat history:`, err);
+        this._isLoadingChatMore = false;
+      },
+    });
+  }
+
+
+  public loadRooms(cursor?: string): void {
+    this.roomService.getActiveRooms(cursor).pipe(
       map((rooms: RoomConversationModel[]) => rooms.map(room => {
-        
         const serverLastMessage = room.lastMessage || '';
-        const serverLastTimeMessage = room.lastTimeMessage; 
+        const serverLastTimeMessage = room.lastTimeMessage;
 
         let finalLastMessage = serverLastMessage;
         let finalLastTimeMessage: string;
 
         if (serverLastTimeMessage) {
           finalLastTimeMessage = serverLastTimeMessage;
-
         } else if (room.updated_at) {
           finalLastTimeMessage = new Date(room.updated_at).toISOString();
-
         } else if (room.created_at) {
           finalLastTimeMessage = new Date(room.created_at).toISOString();
-
         } else {
           finalLastTimeMessage = new Date().toISOString();
         }
 
         if (!finalLastMessage && finalLastTimeMessage) {
-            finalLastMessage = ''; 
+          finalLastMessage = '';
         }
 
         return {
@@ -343,37 +403,48 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
         };
       })),
       tap(rooms => {
-        
         rooms.sort((a, b) =>
           new Date(b.lastTimeMessage || '').getTime() - new Date(a.lastTimeMessage || '').getTime()
         );
       })
     ).subscribe({
       next: (rooms) => {
-        this._arrayRoomModel = rooms;
-        
-        if (this._modelSelectedRoom && this._modelSelectedRoom.id) {
-          const currentSelected = rooms.find(r => r.id === this._modelSelectedRoom!.id);
-          if (currentSelected) {
-            this._modelSelectedRoom = currentSelected;
-          } else {
-            this._modelSelectedRoom = null;
-          }
+        // kalau load awal, replace
+        if (!cursor) {
+          this._arrayRoomModel = rooms;
+        } else {
+          // kalau load berikutnya (load more), append
+          this._arrayRoomModel = [...this._arrayRoomModel, ...rooms];
         }
 
-        this.cdr.detectChanges(); 
+        // update selected
+        if (this._modelSelectedRoom?.id) {
+          const currentSelected = this._arrayRoomModel.find(r => r.id === this._modelSelectedRoom!.id);
+          this._modelSelectedRoom = currentSelected ?? null;
+        }
+
+        // simpan cursor untuk request berikutnya
+        if (rooms.length > 0) {
+          this._lastCursor = rooms[rooms.length - 1].lastTimeMessage; // ambil cursor dari item terakhir
+        }
+
+        this.cdr.detectChanges();
       },
       error: (err) => {
         console.error('Gagal memuat daftar room:', err);
-
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
           detail: 'Gagal memuat daftar chat. Silakan coba lagi nanti.'
         });
-
       },
     });
+  }
+
+  public loadMoreRooms(): void {
+    if (this._lastCursor) {
+      this.loadRooms(this._lastCursor);
+    }
   }
 
   public scrollToBottom(): void {
@@ -388,6 +459,29 @@ export class AdminChatComponent implements OnInit, AfterViewInit, OnDestroy {
       console.error("❌ Gagal scroll:", err);
     }
   }
+
+  onRoomListScroll(event: any): void {
+    const target = event.target;
+    const threshold = 200; 
+    const position = target.scrollTop + target.clientHeight;
+    const height = target.scrollHeight;
+
+    if (height - position <= threshold && !this._isLoadingMore) {
+      this._isLoadingMore = true;
+      this.loadMoreRooms();
+      setTimeout(() => this._isLoadingMore = false, 1000);
+    }
+  }
+
+  onChatScroll(event: any): void {
+    const target = event.target;
+    const threshold = 200; 
+
+    if (target.scrollTop <= threshold && !this._isLoadingChatMore && this._modelSelectedRoom?.id) {
+      this.loadMoreChats(this._modelSelectedRoom.id);
+    }
+  }
+
 
   public async sendMessageFromAdmin(): Promise<void> {
     if (!this._stringNewMessage.trim() || !this._modelSelectedRoom || !this._modelSelectedRoom.id) {

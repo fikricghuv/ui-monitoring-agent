@@ -21,7 +21,12 @@
       </div>
     </div>
 
-    <div class="flex-1 flex flex-col overflow-y-auto">
+    <div class="flex-1 flex flex-col overflow-y-auto"
+          (scroll)="onRoomListScroll($event)">
+        <!-- <div *ngFor="let user of filteredRooms"
+          class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
+          [ngClass]="{'bg-emphasis': user.id === _modelSelectedRoom?.id}"
+          (click)="selectRoom(user)"> -->
         <div *ngFor="let user of filteredRooms"
           class="flex items-center gap-2 p-4 cursor-pointer hover:bg-emphasis transition-all"
           [ngClass]="{'bg-emphasis': user.id === _modelSelectedRoom?.id}"
@@ -62,7 +67,8 @@
       <p class="text-muted-color">Pilih user untuk memulai chat</p>
     </div>
 
-    <div *ngIf="_modelSelectedRoom" #chatScroll class="flex-1 overflow-y-auto flex flex-col gap-8 py-8 px-6">
+    <div *ngIf="_modelSelectedRoom" #chatScroll class="flex-1 overflow-y-auto flex flex-col gap-8 py-8 px-6"
+      (scroll)="onChatScroll($event)">
       <div *ngFor="let message of filteredMessages" class="flex items-start min-w-64 w-fit max-w-[80%]"
         [ngClass]="{ 'ml-auto mr-0 flex-row-reverse': message.sender === _enumSender.Chatbot || message.sender === _enumSender.Admin }">
         <div class="flex items-center gap-2 sticky top-0 transition-all" [ngClass]="{

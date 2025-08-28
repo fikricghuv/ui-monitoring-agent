@@ -24,13 +24,16 @@ export class ChatHistoryService {
 
   public loadChatHistory(
     userId: string,
-    offset: number = 0,
-    limit: number = 100
+    cursor?: string,
+    limit: number = 20
   ): Observable<UserHistoryResponseModel> {
     const headers = this.getAuthHeaders();
-    const params = new HttpParams()
-      .set('offset', offset.toString())
-      .set('limit', limit.toString());
+    let params = new HttpParams().set('limit', limit.toString());
+
+    if (cursor) {
+      params = params.set('cursor', cursor);
+    }
+
     const url = `${this.apiUrl}/history/${userId}`;
 
     return this.http.get<UserHistoryResponseModel>(url, { headers, params }).pipe(
@@ -38,21 +41,42 @@ export class ChatHistoryService {
     );
   }
 
+
+  // public loadChatHistoryByRoomId(
+  //   roomId: string,
+  //   offset: number = 0,
+  //   limit: number = 100
+  // ): Observable<UserHistoryResponseModel> {
+  //   const headers = this.getAuthHeaders();
+  //   const params = new HttpParams()
+  //     .set('offset', offset.toString())
+  //     .set('limit', limit.toString());
+  //   const url = `${this.apiUrl}/history/room/${roomId}`;
+
+  //   return this.http.get<UserHistoryResponseModel>(url, { headers, params }).pipe(
+  //     catchError(this.handleError)
+  //   );
+  // }
+
   public loadChatHistoryByRoomId(
     roomId: string,
-    offset: number = 0,
-    limit: number = 100
+    cursor?: string,
+    limit: number = 20
   ): Observable<UserHistoryResponseModel> {
     const headers = this.getAuthHeaders();
-    const params = new HttpParams()
-      .set('offset', offset.toString())
-      .set('limit', limit.toString());
+    let params = new HttpParams().set('limit', limit.toString());
+
+    if (cursor) {
+      params = params.set('cursor', cursor);
+    }
+
     const url = `${this.apiUrl}/history/room/${roomId}`;
 
     return this.http.get<UserHistoryResponseModel>(url, { headers, params }).pipe(
       catchError(this.handleError)
     );
   }
+
 
   public getTotalTokens(): Observable<number> {
     const headers = this.getAuthHeaders();

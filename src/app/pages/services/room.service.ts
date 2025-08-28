@@ -80,22 +80,35 @@ export class RoomService
    * @param limit Jumlah item per halaman (untuk pagination). Default 100.
    * @returns Observable dari array RoomConversationModel.
    */
-  public getActiveRooms(offset: number = 0, limit: number = 30): Observable<RoomConversationModel[]> {
+  // public getActiveRooms(offset: number = 0, limit: number = 30): Observable<RoomConversationModel[]> {
     
-    let headers = new HttpHeaders({
-      'X-API-Key': this.apiKey
-    });
+  //   let headers = new HttpHeaders({
+  //     'X-API-Key': this.apiKey
+  //   });
 
-    const params = new HttpParams()
-      .set('offset', offset.toString())
-      .set('limit', limit.toString());
+  //   const params = new HttpParams()
+  //     .set('offset', offset.toString())
+  //     .set('limit', limit.toString());
 
-    const url = `${this.apiUrl}/rooms/active-rooms`; 
+  //   const url = `${this.apiUrl}/rooms/active-rooms`; 
 
-    return this.http.get<RoomConversationModel[]>(url, { headers: headers, params: params })
-      .pipe(
-        catchError(this.handleError) 
-      );
+  //   return this.http.get<RoomConversationModel[]>(url, { headers: headers, params: params })
+  //     .pipe(
+  //       catchError(this.handleError) 
+  //     );
+  // }
+
+  public getActiveRooms(cursor?: string, limit: number = 15): Observable<RoomConversationModel[]> {
+    const headers = new HttpHeaders({ 'X-API-Key': this.apiKey });
+
+    let params = new HttpParams().set('limit', limit.toString());
+    if (cursor) params = params.set('cursor', cursor);
+
+    const url = `${this.apiUrl}/rooms/active-rooms`;
+
+    return this.http.get<RoomConversationModel[]>(url, { headers, params })
+      .pipe(catchError(this.handleError));
   }
+
 
 }

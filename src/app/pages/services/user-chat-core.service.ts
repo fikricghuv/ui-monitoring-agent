@@ -25,6 +25,10 @@ export class ChatCoreService implements OnDestroy {
 
   public readonly wsConnectionStatus$: Observable<string>;
 
+  private _lastCursor: string | null = null;
+  private _historyMessages: MessageModel[] = [];
+
+
   constructor(
     private wsService: WebSocketService,
     private historyService: ChatHistoryService,
@@ -187,67 +191,73 @@ export class ChatCoreService implements OnDestroy {
     }
   }
 
-  loadHistory(): Observable<MessageModel[]> {
+  loadHistory(loadMore: boolean = false): Observable<MessageModel[]> {
     if (!this._userId) {
       console.error('ChatCoreService: Cannot load history, User ID is not set.');
-      
       return throwError(() => new Error("User ID not set for history load"));
     }
 
     console.log(`ChatCoreService: Loading chat history for user ID: ${this._userId}`);
 
-    return this.historyService.loadChatHistory(this._userId).pipe(
-     
+    const cursorToSend = loadMore ? this._lastCursor || undefined : undefined;
+
+    return this.historyService.loadChatHistory(this._userId, cursorToSend).pipe(
       map((response: UserHistoryResponseModel) => {
         console.log('ChatCoreService: Mapping history data:', response);
 
         if (!response || !response.history || response.history.length === 0) {
-            console.log('ChatCoreService: No history data received.');
-            return [];
+          console.log('ChatCoreService: No history data received.');
+          return this._historyMessages;
         }
 
-        const chats = response.history; 
+        const chats = response.history;
 
         chats.sort((a, b) => {
-            const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
-            const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
-            return timeA - timeB;
+          const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+          const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+          return timeA - timeB;
         });
 
-        const historyMessages: MessageModel[] = chats
-            .map(chat => { 
+        const newMessages: MessageModel[] = chats
+          .map(chat => {
+            const formattedTime = chat.created_at?.slice(0, 16).replace('T', ' ') ?? '';
 
-              const formattedTime = chat.created_at?.slice(0, 16).replace('T', ' ') ?? '';
-              
-              let senderType: ENUM_SENDER;
+            let senderType: ENUM_SENDER;
+            if (chat.role === ServerRole.User) {
+              senderType = ENUM_SENDER.User;
+            } else if (chat.role === ServerRole.Admin || chat.role === ServerRole.Chatbot) {
+              senderType = ENUM_SENDER.Chatbot;
+            } else {
+              console.warn(`ChatCoreService: Unhandled role in history: ${chat.role}. Defaulting to Chatbot.`);
+              senderType = ENUM_SENDER.Chatbot;
+            }
 
-              if (chat.role === ServerRole.User) {
-                  senderType = ENUM_SENDER.User;
-              } else if (chat.role === ServerRole.Admin || chat.role === ServerRole.Chatbot) {
-                  
-                  senderType = ENUM_SENDER.Chatbot; 
-              } else {
-                 console.warn(`ChatCoreService: Unhandled role in history: ${chat.role}. Defaulting to Chatbot.`);
-                 senderType = ENUM_SENDER.Chatbot;
-              }
+            return {
+              sender: senderType,
+              message: chat.message || '',
+              time: formattedTime,
+            };
+          })
+          .filter(msg => msg.message);
 
-              const message: MessageModel = {
-                  sender: senderType,
-                  message: chat.message || '', 
-                  time: formattedTime,
-              };
+        // Simpan cursor terbaru (created_at dari message tertua di batch ini)
+        const oldestChat = chats[0];
+        if (oldestChat?.created_at) {
+          this._lastCursor = oldestChat.created_at;
+        }
 
-              return message;
-            })
-            .filter(msg => msg.message); 
+        // Gabungkan data
+        if (loadMore) {
+          this._historyMessages = [...newMessages, ...this._historyMessages];
+        } else {
+          this._historyMessages = newMessages;
+        }
 
-        console.log('ChatCoreService: Mapped history messages:', historyMessages);
-        return historyMessages; 
+        console.log('ChatCoreService: Updated history messages:', this._historyMessages);
+        return this._historyMessages;
       }),
       catchError(err => {
-         
         console.error('ChatCoreService: Failed to load or map history:', err);
-         
         return throwError(() => new Error('Failed to load chat history'));
       })
     );
