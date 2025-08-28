@@ -90,7 +90,7 @@ export class ProfileComponent implements OnInit {
     userId: string = '';
 
     hasProfileChanges: boolean = false;
-    hasPasswordChanges: boolean = false; // Flag terpisah untuk perubahan kata sandi
+    hasPasswordChanges: boolean = false; 
 
     recentActivities: UserActivityLogModel[] = [];
 

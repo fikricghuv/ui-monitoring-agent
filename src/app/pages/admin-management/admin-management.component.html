@@ -150,14 +150,14 @@
                     </div>
 
                     <!-- Created At (readonly) -->
-                    <div class="field mb-4">
+                    <div class="field mb-4" *ngIf="!editMode">
                         <label class="font-semibold block font-medium text-color mb-2">Created At</label>
                         <p class="m-0">{{ selectedAdminProfile.created_at | date: 'short' }}</p>
                         <p-divider></p-divider>
                     </div>
 
                     <!-- Updated At (readonly) -->
-                    <div class="field mb-4">
+                    <div class="field mb-4" *ngIf="!editMode">
                         <label class="font-semibold block font-medium text-color mb-2">Updated At</label>
                         <p class="m-0">{{ selectedAdminProfile.updated_at | date: 'short' }}</p>
                         <p-divider></p-divider>

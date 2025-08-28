@@ -77,6 +77,7 @@ export class AdminManagementComponent {
     _searchSubject = new Subject<string>();
 
     private _originalAdminProfile?: UserModel;
+    isEditMode: boolean = false;
 
     constructor(
         private userService: UserService,
