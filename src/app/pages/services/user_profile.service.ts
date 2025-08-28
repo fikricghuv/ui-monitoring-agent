@@ -96,6 +96,27 @@ export class UserService {
     );
   }
 
+  /**
+   * Mengganti password user.
+   */
+  public changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string
+  ): Observable<void> {
+    const url = `${this.apiUrl}/users/${userId}/change-password`;
+    const body = {
+      old_password: oldPassword,
+      new_password: newPassword,
+    };
+
+    return this.http.post<void>(url, body, {
+      headers: this.getHeaders(),
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   private handleError(error: HttpErrorResponse) {
     let errorMessage = 'Terjadi kesalahan tidak diketahui!';
     if (error.error instanceof ErrorEvent) {
